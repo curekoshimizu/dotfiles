@@ -1,14 +1,6 @@
-import abc
-from pathlib import Path
 from typing import List
 
-RESOURCES_PATH = Path(__file__).parent / "resources"
-
-
-class Logic(abc.ABC):
-    @abc.abstractmethod
-    def run(self) -> None:
-        ...
+from .logics import Logic
 
 
 class Runner:
@@ -21,8 +13,3 @@ class Runner:
     def run(self) -> None:
         for logic in self._logics:
             logic.run()
-
-
-class TMux(Logic):
-    def run(self) -> None:
-        assert (RESOURCES_PATH / ".tmux.conf").exists()
