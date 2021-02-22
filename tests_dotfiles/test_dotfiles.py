@@ -11,3 +11,4 @@ def test_tmux() -> None:
         r = Runner()
         r.add_logic(TMux(option))
         r.run()
+        assert (option.dest_dir / ".tmux.conf").exists()

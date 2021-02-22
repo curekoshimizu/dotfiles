@@ -1,5 +1,6 @@
 import abc
 import pathlib
+import shutil
 from dataclasses import dataclass
 
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
@@ -21,4 +22,7 @@ class Logic(abc.ABC):
 
 class TMux(Logic):
     def run(self) -> None:
-        assert (RESOURCES_PATH / ".tmux.conf").exists()
+        src = RESOURCES_PATH / ".tmux.conf"
+        dst = self._options.dest_dir
+        assert src.exists()
+        shutil.copy(src, dst)
