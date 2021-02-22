@@ -2,7 +2,7 @@ import abc
 from pathlib import Path
 from typing import List
 
-RESOURCES_PATH = Path(__file__).parent.parent / "resources"
+RESOURCES_PATH = Path(__file__).parent / "resources"
 
 
 class Logic(abc.ABC):
