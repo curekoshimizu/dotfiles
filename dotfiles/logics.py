@@ -1,5 +1,6 @@
 import abc
 import enum
+import shutil
 import pathlib
 from dataclasses import dataclass
 
@@ -31,7 +32,7 @@ class Logic(abc.ABC):
         ...
 
 
-class CopyFile:
+class SymLink:
     def __init__(self, options: Option, filename: str) -> None:
         self._options = options
         self._filename = filename
@@ -50,6 +51,29 @@ class CopyFile:
         dst.symlink_to(src)
         return ExitCode.SUCCESS
 
+class CopyFile:
+    def __init__(self, options: Option, filename: str) -> None:
+        self._options = options
+        self._filename = filename
+
+    def run(self) -> ExitCode:
+        src = RESOURCES_PATH / self._filename
+        dst = self._options.dest_dir / self._filename
+        assert src.exists(), f"{src} not found"
+        if dst.exists():
+            if self._options.overwrite:
+                if dst.is_symlink():
+                    dst.unlink()
+                elif dst.is_file():
+                    pass # try overwrite
+                else:
+                    return ExitCode.SKIP
+            else:
+                return ExitCode.SKIP
+
+        shutil.copy(src, dst)
+        return ExitCode.SUCCESS
+
 
 class TMux(Logic):
     @property
@@ -57,7 +81,7 @@ class TMux(Logic):
         return "tmux"
 
     def run(self) -> ExitCode:
-        return CopyFile(self._options, ".tmux.conf").run()
+        return SymLink(self._options, ".tmux.conf").run()
 
 
 class Gdb(Logic):
@@ -66,7 +90,7 @@ class Gdb(Logic):
         return "gdb"
 
     def run(self) -> ExitCode:
-        return CopyFile(self._options, ".gdbinit").run()
+        return SymLink(self._options, ".gdbinit").run()
 
 
 class Git(Logic):
