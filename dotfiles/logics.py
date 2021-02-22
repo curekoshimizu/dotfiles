@@ -2,6 +2,7 @@ import abc
 import enum
 import pathlib
 import shutil
+import stat
 import tempfile
 from dataclasses import dataclass
 
@@ -277,5 +278,7 @@ class CommandLineHelper(Logic):
             assert response.status_code == 200
             with open(buildx, "wb") as f_plug:
                 f_plug.write(response.content)
+            mode = buildx.stat().st_mode
+            buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
         return ExitCode.SUCCESS
