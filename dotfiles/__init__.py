@@ -1,6 +1,6 @@
 from typing import List
 
-from .logics import Logic
+from .logics import ExitCode, Logic
 
 
 class Runner:
@@ -12,4 +12,6 @@ class Runner:
 
     def run(self) -> None:
         for logic in self._logics:
-            logic.run()
+            exit_code = logic.run()
+            if exit_code == ExitCode.SKIP:
+                print(f"{logic.name} skipped")
