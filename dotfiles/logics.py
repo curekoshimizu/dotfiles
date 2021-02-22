@@ -1,6 +1,5 @@
 import abc
 import pathlib
-import shutil
 from dataclasses import dataclass
 
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
@@ -27,15 +26,23 @@ class CopyFile:
 
     def run(self) -> None:
         src = RESOURCES_PATH / self._filename
-        dst = self._options.dest_dir
+        dst = self._options.dest_dir / self._filename
         assert src.exists()
-        shutil.copy(src, dst)
+        assert not dst.exists()
+        dst.symlink_to(src)
 
 
 class TMux(Logic):
     def run(self) -> None:
         CopyFile(self._options, ".tmux.conf").run()
 
+
 class Gdb(Logic):
     def run(self) -> None:
         CopyFile(self._options, ".gdbinit").run()
+
+
+class Git(Logic):
+    # TODO: git-lfs check
+    def run(self) -> None:
+        CopyFile(self._options, ".gitconfig").run()
