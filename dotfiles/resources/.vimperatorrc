@@ -1,0 +1,54 @@
+noremap j 5<C-e>
+noremap k 5<C-y>
+nnoremap h <A-Left>
+nnoremap l <A-Right>
+
+map <C-h> <BS>
+
+map ,t gt
+map ,T gT
+
+" ,,t : 新規tabで開く
+nnoremap ,,t :tabopen<space>google<CR>
+
+" s   : google 検索
+nnoremap s    :open<space>google<CR>
+
+set novisualbell
+set gui+=bookmarks
+
+map Y :js util.copyToClipboard(buffer.URL)<CR>
+
+command! -nargs=0 Restart restart
+
+command! CopyURL :js util.copyToClipboard(buffer.URL)<CR>
+command! CopyTitle :js util.copyToClipboard(buffer.title)<CR>
+
+command! CopyMarkdown :js util.copyToClipboard("[" + buffer.title + "](" + buffer.URL + ")")
+command! CopyEvernote :js util.copyToClipboard("参考文献: " + buffer.title + " --- " + buffer.URL)
+
+" <C-t> : tab 複製
+nnoremap <C-t> :tabduplicate<CR>
+
+
+" <C-a> で全選択
+noremap <C-a> i<C-a>
+inoremap <C-a> <insert><C-a><insert>
+
+" commandモードでIMEオフ
+style! -name=commandline-ime chrome://* #liberator-commandline-command input {ime-mode: inactive;}
+
+" Hint 設定
+
+" 入力欄に自動フォーカス禁止 <<=== TODO: 便利なのか調べる
+"set focuscontent
+
+" 自動補完候補 <== TODO:
+" set complete=sl
+highlight Hint font-family: monospace; font-size: 16px; font-weight: bold; text-transform: uppercase; color: white; background-color: red; border-color: ButtonShadow; border-width: 0px; border-style: solid; padding: 0px 1px 0px 1px; 
+
+" ヒントをアルファベットにする
+set hintchars=ifjklasdhguonmerwc
+"set hintchars=IFJKLASDHGUONMERWC
+
+
