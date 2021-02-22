@@ -1,7 +1,7 @@
 import pathlib
 import tempfile
 
-from dotfiles.logics import ExitCode, Fvwm2, Gdb, Git, Option, TMux
+from dotfiles.logics import ExitCode, Fvwm2, Gdb, Git, Option, TMux, Zsh
 
 
 def test_tmux() -> None:
@@ -38,3 +38,13 @@ def test_git() -> None:
         assert r.run() == ExitCode.SUCCESS
         assert (option.dest_dir / ".gitconfig").exists()
         assert r.run() == ExitCode.SKIP
+
+
+def test_zsh() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Zsh(option)
+        assert r.run() == ExitCode.SUCCESS
+        assert (option.dest_dir / ".zshrc").exists()
+        assert (option.dest_dir / ".zshenv").exists()
+        assert r.run() == ExitCode.SUCCESS
