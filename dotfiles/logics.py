@@ -18,6 +18,16 @@ GIT_CONFIG_TEMPLATE = """
     required = true
 """
 
+ZSHRC_TEMPLATE = """
+ZSHRC_FILE={}
+. $ZSHRC_FILE
+"""
+
+ZSHENV_TEMPLATE = """
+ZSHENV_FILE={}
+. $ZSHENV_FILE
+"""
+
 
 @dataclass
 class Option:
@@ -155,21 +165,32 @@ class Zsh(Logic):
         return "zsh"
 
     def run(self) -> ExitCode:
-        ret = CopyFile(
-            self._options,
-            src_path=RESOURCES_PATH / ".zshrc",
-            dst_path=self._options.dest_dir / ".zshrc",
-        ).run()
-        if ret != ExitCode.SUCCESS:
-            return ret
 
-        ret = CopyFile(
-            self._options,
-            src_path=RESOURCES_PATH / ".zshenv",
-            dst_path=self._options.dest_dir / ".zshenv",
-        ).run()
-        if ret != ExitCode.SUCCESS:
-            return ret
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            conf_path = RESOURCES_PATH / ".zshrc"
+            assert conf_path.exists()
+            f.write(ZSHRC_TEMPLATE.format(conf_path).strip())
+            f.flush()
+            ret = CopyFile(
+                self._options,
+                src_path=pathlib.Path(f.name),
+                dst_path=self._options.dest_dir / ".zshrc",
+            ).run()
+            if ret != ExitCode.SUCCESS:
+                return ret
+
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            conf_path = RESOURCES_PATH / ".zshenv"
+            assert conf_path.exists()
+            f.write(ZSHENV_TEMPLATE.format(conf_path).strip())
+            f.flush()
+            ret = CopyFile(
+                self._options,
+                src_path=pathlib.Path(f.name),
+                dst_path=self._options.dest_dir / ".zshenv",
+            ).run()
+            if ret != ExitCode.SUCCESS:
+                return ret
 
         return ret
 
@@ -185,7 +206,8 @@ class Vim(Logic):
             target = ".vimrc"
             conf_path = RESOURCES_PATH / target
             assert conf_path.exists()
-            f.writelines("execute 'source {}'".format(conf_path))
+            f.write("execute 'source {}'".format(conf_path))
+            f.flush()
             return CopyFile(
                 self._options,
                 src_path=pathlib.Path(f.name),
