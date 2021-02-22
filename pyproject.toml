@@ -8,6 +8,7 @@ authors = ["curekoshimizu <shugo@manabe.mail-box.ne.jp>"]
 python = ">=3.8"
 emoji = "^1.2.0"
 GitPython = "^3.1.13"
+requests = "^2.25.1"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
