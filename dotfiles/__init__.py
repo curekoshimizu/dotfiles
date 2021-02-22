@@ -1,4 +1,5 @@
 from typing import List
+
 import emoji
 
 from .logics import ExitCode, Logic
