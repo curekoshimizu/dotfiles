@@ -5,6 +5,9 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 
+import requests
+from git import Repo  # type: ignore
+
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
 
 
@@ -165,6 +168,9 @@ class Zsh(Logic):
         return "zsh"
 
     def run(self) -> ExitCode:
+        zsh_completions = self._options.dest_dir / ".zsh-completions"
+        if not zsh_completions.exists():
+            Repo.clone_from("https://github.com/zsh-users/zsh-completions.git", zsh_completions)
 
         with tempfile.NamedTemporaryFile(mode="w") as f:
             conf_path = RESOURCES_PATH / ".zshrc"
@@ -201,10 +207,19 @@ class Vim(Logic):
         return "vim"
 
     def run(self) -> ExitCode:
-        dot_vim = self._options.dest_dir / ".vim"
+        dot_vim = self._options.dest_dir / ".vim" / "autoload"
         if not dot_vim.exists():
-            dot_vim.mkdir()
+            dot_vim.mkdir(parents=True)
 
+        # install plug.vim
+        plug_vim = dot_vim / "plug.vim"
+        if (not plug_vim.exists()) or self._options.overwrite:
+            response = requests.get("https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
+            assert response.status_code == 200
+            with open(plug_vim, "w") as f_plug:
+                f_plug.write(response.text)
+
+        # install .vimrc
         with tempfile.NamedTemporaryFile(mode="w") as f:
             target = ".vimrc"
             conf_path = RESOURCES_PATH / target
