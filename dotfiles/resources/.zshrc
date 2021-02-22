@@ -201,9 +201,7 @@ alias cdp='echo "please use ctrl-g."'
 
 ## z
 Z_FILE=$(cd $(dirname $0); pwd)/z/z.sh
-if [ -f $Z_FILE ]; then
-    source $Z_FILE
-fi
+source $Z_FILE
 
 ## direnv
 export EDITOR=vim

@@ -247,3 +247,15 @@ class Vim(Logic):
                 src_path=pathlib.Path(f.name),
                 dst_path=self._options.dest_dir / target,
             ).run()
+
+
+class CommandLineHelper(Logic):
+    @property
+    def name(self) -> str:
+        return "command-line helper"
+
+    def run(self) -> ExitCode:
+        program_exist(self.name, "peco")
+        program_exist(self.name, "fzf")
+        program_exist(self.name, "direnv")
+        return ExitCode.SUCCESS

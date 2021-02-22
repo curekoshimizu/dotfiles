@@ -24,9 +24,12 @@ If these commands are not found, dot_installer.bash will ask you to install them
 
 ## TODO
 
-* z
-* direnv
-* peco
+* docker, buildkit, docker-compose
+* GL
+* cuda
+* npm
+* golang
+* rust
 
 ## LICENSE
 
