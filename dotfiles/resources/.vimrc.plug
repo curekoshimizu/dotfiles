@@ -1,0 +1,367 @@
+" How to install plug.vim
+" curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+
+call plug#begin('~/.vim/plugged')
+
+" fundamental
+Plug 'curekoshimizu/vim-quickhl'
+Plug 'rking/ag.vim'
+Plug 'pasela/unite-webcolorname'
+Plug 'vim-scripts/dante.vim'
+Plug 'itchyny/lightline.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'Lokaltog/vim-easymotion'
+Plug 'tpope/vim-fugitive'
+Plug 'fuenor/qfixhowm'
+Plug 'tomtom/tcomment_vim'
+Plug 'sjl/gundo.vim'
+Plug 'airblade/vim-gitgutter'
+
+" completion
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
+
+" cpp
+Plug 'vim-scripts/a.vim'
+
+" rust
+"Plug 'rust-lang/rust.vim'
+
+" python
+"Plug 'python/black'
+
+" deprecated...
+Plug 'osyo-manga/unite-qfixhowm'
+Plug 'Shougo/unite.vim' " only for vimfiler and unite-qfixhowm
+Plug 'Shougo/vimfiler'
+
+call plug#end()
+
+"{{{ dante
+syntax on
+set laststatus=2
+set t_Co=256
+set background=dark
+colorscheme dante
+"}}}
+
+
+"{{{ lsp
+let g:lsp_highlights_enabled = 0
+let g:lsp_signs_enabled = 1
+
+" NOTE: you need to install pyls-isrot and pyls-black
+" pip install pyls-isort and pyls-black
+augroup LspAutoFormatting
+   autocmd!
+   if has("black")
+       autocmd BufWritePre *.py execute ':Black'
+   endif
+
+
+   " autocmd BufWritePre *.py LspDocumentFormatSync
+   autocmd BufWritePre *.rs LspDocumentFormatSync
+augroup END
+
+inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr>    pumvisible() ? "\<C-y>" : "\<cr>"
+
+function! s:configure_lsp() abort
+ nnoremap <buffer> <C-]> :<C-u>LspDefinition<CR>
+ nnoremap <buffer> gd :<C-u>LspDefinition<CR>
+ nnoremap <buffer> gD :<C-u>LspReferences<CR>
+ nnoremap <buffer> gs :<C-u>LspDocumentSymbol<CR>
+ nnoremap <buffer> gS :<C-u>LspWorkspaceSymbol<CR>
+ nnoremap <buffer> gQ :<C-u>LspDocumentFormat<CR>
+ vnoremap <buffer> gQ :LspDocumentRangeFormat<CR>
+ nnoremap <buffer> K :<C-u>LspHover<CR>
+ nnoremap <buffer> <F1> :<C-u>LspImplementation<CR>
+ nnoremap <buffer> <F2> :<C-u>LspRename<CR>
+endfunction
+call s:configure_lsp()
+
+let g:LanguageClient_serverCommands = {
+\ 'rust': ['rust-analyzer'],
+\ }
+"}}}
+
+
+
+"{{{ quickhl
+""" map
+" man # TOOD: REMOVE
+nmap ,m <Plug>(quickhl-manual-this)
+xmap ,m <Plug>(quickhl-manual-this)
+nmap ,M <Plug>(quickhl-manual-reset)
+xmap ,M <Plug>(quickhl-manual-reset)
+
+function! s:add_quickhl_manual_color(r, g, b, isFgWhite)
+    call add(g:quickhl_manual_colors, ManualBgColor(a:r, a:g, a:b, a:isFgWhite))
+endfunction
+
+let g:quickhl_manual_colors = []
+call s:add_quickhl_manual_color(233,  30,  99, 1)
+call s:add_quickhl_manual_color(255,  86,  34, 1)
+call s:add_quickhl_manual_color(156,  39, 176, 1)
+call s:add_quickhl_manual_color(  0, 137, 123, 1)
+call s:add_quickhl_manual_color( 84, 139,  47, 1)
+call s:add_quickhl_manual_color(  0, 188, 212, 0)
+call s:add_quickhl_manual_color( 63,  81, 181, 0)
+call s:add_quickhl_manual_color(139, 195,  74, 0)
+call s:add_quickhl_manual_color(194,  24,  91, 0)
+call s:add_quickhl_manual_color(240,  98, 146, 0)
+call s:add_quickhl_manual_color(251, 192,  45, 0)
+call s:add_quickhl_manual_color(205, 220,  73, 1)
+call s:add_quickhl_manual_color(103,  58, 183, 1)
+call s:add_quickhl_manual_color( 33, 150, 243, 1)
+call s:add_quickhl_manual_color( 48,  63, 159, 1)
+call s:add_quickhl_manual_color( 76, 175,  80, 1)
+call s:add_quickhl_manual_color(  0, 169, 244, 0)
+call s:add_quickhl_manual_color(255, 235,  59, 0)
+call s:add_quickhl_manual_color(230,  74,  25, 1)
+call s:add_quickhl_manual_color(255, 238,  88, 0)
+"}}}
+
+" rust-lang
+"let g:rustfmt_autosave = 1
+"let g:rustfmt_command = '$HOME/.cargo/bin/rustfmt'
+
+"{{{ lightline
+let g:lightline = {
+            \ 'colorscheme': 'my_wombat',
+            \ 'active': {
+            \   'left' : [ [ 'mode', 'paste' ], [ 'filename', 'fugitive', 'modified', 'readonly' ] ],
+            \   'right': [ 
+            \         ['lineinfo'],
+            \         [ 'mycharvaluehex', 'percent', 'filetype', 'myfileformat', 'myfileencoding' ] ],
+            \ },
+            \ 'inactive': {
+            \   'left' : [ [ 'fullpath'] ],
+            \   'right': [ [ ] ],
+            \ },
+            \ 'component': {
+		    \   'mycharvaluehex': '0x%B',
+            \   'modified': '%#ModifiedColor#%{MyModified()}',
+            \   'readonly': '%#ROColor#%{MyReadonly()}',
+            \   'pwd'     : '%#Normal#%{MyPwd()}',
+            \   'fullpath'  : '%F',
+            \   'myfileencoding'  : '%#FileEncodingColor#%{MyFileEncoding()}',
+            \   'myfileformat'    : '%#FileFormatColor#%{MyFileFormat()}',
+            \ },
+            \ 'component_function': {
+            \   'fugitive' : 'MyFugitive',
+            \ },
+            \ 'separator': { 'left': '', 'right': '' },
+            \ 'subseparator': { 'left': '', 'right': '' },
+            \ 'tabline_separator': { 'left': "", 'right': "" },
+            \ 'tabline_subseparator': { 'left': "", 'right': "" },
+            \ 'tabline' :  { 'right': [ ['pwd'] ] },
+            \ 'tab'     : {
+            \   'active': [ 'tabnum', 'filename' ],
+            \   'inactive': [ 'tabnum', 'filename' ], 
+            \ },
+            \ }
+
+function! MyFugitive()
+    try
+        if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head') && strlen(fugitive#head())
+            return ' ' . fugitive#head()
+        endif
+    catch
+    endtry
+    return ''
+endfunction
+
+function! MyFileFormat()
+    if &ff == 'unix'
+        call SetManualBgColor("FileFormatColor", 121, 134, 202, 0)
+        return ' LF (unix)'
+    elseif &ff == 'dos'
+        call SetManualBgColor("FileFormatColor", 205, 220, 57, 0)
+        return ' CRLF (win)'
+    elseif &ff == 'mac'
+        call SetManualBgColor("FileFormatColor", 255, 0, 0, 0)
+        return ' CR'
+    else
+        call SetManualBgColor("FileFormatColor", 255, 0, 0, 0)
+        return ' ?'
+    endif
+endfunction
+
+function! MyFileEncoding()
+    if &fenc == "utf-8"
+        call SetManualBgColor("FileEncodingColor", 121, 134, 202, 0)
+    elseif &fenc == 'ascii'
+        call SetManualBgColor("FileEncodingColor", 121, 134, 202, 0)
+    elseif &fenc == 'cp932'
+        call SetManualBgColor("FileEncodingColor", 205, 220, 57, 0)
+    elseif &fenc == ''
+        call SetManualBgColor("FileEncodingColor", 245, 245, 245, 0)
+        return ' -'
+    else
+        call SetManualBgColor("FileEncodingColor", 255, 0, 0, 0)
+    endif
+    return ' ' . &fenc
+endfunction
+
+function! MyModified()
+    if &modified
+        execute 'hi ModifiedColor ctermbg=darkred guibg=#ff0000 term=bold cterm=bold'
+        return ' +'
+    else 
+        if &modifiable
+            execute 'hi ModifiedColor ctermbg=238 guibg=#444444'
+            return '  '
+        else
+            execute 'hi ModifiedColor ctermbg=darkred guibg=#ff0000 term=bold cterm=bold'
+            return ' -'
+        endif
+    endif
+    endfunction
+function! MyReadonly()
+    execute 'hi ROColor ctermfg=196 ctermbg=238 guifg=#ff0000 guibg=#444444 term=bold cterm=bold'
+    return ' ' . (&ft !~? 'help' && &readonly ? 'RO' : '')
+endfunction
+function! MyPwd()
+    return " " . fnamemodify(getcwd(), ":~")
+endfunction
+
+let s:base03 = [ '#242424', 235 ]
+let s:base023 = [ '#353535 ', 236 ]
+let s:base02 = [ '#444444 ', 238 ]
+let s:base01 = [ '#585858', 240 ]
+let s:base00 = [ '#666666', 242  ]
+let s:base0 = [ '#808080', 244 ]
+let s:base1 = [ '#969696', 247 ]
+let s:base2 = [ '#a8a8a8', 248 ]
+let s:base3 = [ '#d0d0d0', 252 ]
+let s:black = [ '#000000', 0 ]
+let s:yellow = [ '#cae682', 180 ]
+let s:orange = [ '#e5786d', 173 ]
+let s:red = [ '#e5786d', 203 ]
+let s:magenta = [ '#f2c68a', 216 ]
+let s:blue = [ '#8ac6f2', 117 ]
+let s:dodgerblue = [ '#1e90ff', 27 ]
+let s:cyan = s:blue
+let s:green = [ '#95e454', 119 ]
+let s:p = {'normal': {}, 'inactive': {}, 'insert': {}, 'replace': {}, 'visual': {}, 'tabline': {}}
+let s:p.normal.left = [ [ s:base02, s:blue ], [ s:base3, s:base01 ] ]
+let s:p.normal.right = [ [ s:base3, s:base01], [ s:base3, s:base01 ] ]
+let s:p.inactive.left =  [ [ s:base1, s:base02 ], [ s:base00, s:base023 ] ]
+let s:p.inactive.right = [ [ s:base023, s:base01 ], [ s:base00, s:base02 ] ]
+let s:p.insert.left = [ [ s:base02, s:green ], [ s:base3, s:base01 ] ]
+let s:p.replace.left = [ [ s:base023, s:red ], [ s:base3, s:base01 ] ]
+let s:p.visual.left = [ [ s:base02, s:magenta ], [ s:base3, s:base01 ] ]
+let s:p.normal.middle = [ [ s:base2, s:base02 ] ]
+let s:p.inactive.middle = [ [ s:base1, s:base023 ] ]
+let s:p.tabline.left = [ [ s:base3, s:base00 ] ]
+let s:p.tabline.tabsel = [ [ s:base3, s:dodgerblue ] ]
+let s:p.tabline.middle = [ [ s:base02, s:base1 ] ]
+let s:p.tabline.right = [ [ s:base2, s:base01 ] ]
+let s:p.normal.error = [ [ s:base03, s:red ] ]
+let s:p.normal.warning = [ [ s:base023, s:yellow ] ]
+
+let g:lightline#colorscheme#my_wombat#palette = lightline#colorscheme#flatten(s:p)
+"}}}
+
+
+
+"{{{ ag
+let g:ag_mapping_message = 0
+let g:ag_apply_qmappings = 0
+
+function! s:AG()
+    let here = expand('<sfile>:p:h')
+    let cmd = input(printf(":Ag %s [%s]", expand("<cword>"), here))
+    execute cmd
+endfunction
+
+command! -nargs=0 AG call s:AG()
+"}}}
+
+"{{{ vimfiler
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_enable_auto_cd = 1
+let g:vimfiler_tree_leaf_icon = " |"
+nnoremap <silent> ,vf :<C-u>VimFilerBufferDir -split -no-quit -toggle<CR>
+nnoremap <silent> ,vv :<C-u>VimFilerBufferDir<CR>
+"}}}
+
+"{{ FZF
+" [Buffers] Jump to the existing window if possible
+let g:fzf_buffers_jump = 1
+
+nnoremap <silent> ,b :<C-u>Buffers<CR>
+nnoremap <silent> ,f :<C-u>FZF<CR>
+nnoremap <silent> ,g :<C-u>GFiles<CR>
+" TODO: no need to show file for ,g mode
+nnoremap <silent> ,,g :<C-u>GGrep<CR>
+
+nnoremap <silent> ,um :<C-u>FZFMru<CR>
+command! FZFMru call fzf#run({
+            \  'source':  v:oldfiles,
+            \  'sink':    'e',
+            \  'options': '-m -x +s',
+            \  'down':    '40%'})
+
+command! -bang -nargs=* GGrep
+  \ call fzf#vim#grep(
+  \   'git grep --line-number -- '.shellescape(<q-args>), 0,
+  \   fzf#vim#with_preview({'dir': systemlist('git rev-parse --show-toplevel')[0]}), <bang>0)
+
+function! s:build_quickfix_list(lines)
+  call setqflist(map(copy(a:lines), '{ "filename": v:val }'))
+  copen
+  cc
+endfunction
+
+let g:fzf_action = {
+  \ 'ctrl-f': function('s:build_quickfix_list'),
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-x': 'split',
+  \ 'ctrl-v': 'vsplit' }
+
+let $FZF_DEFAULT_OPTS = '--bind ctrl-a:select-all'
+"}}}
+
+"{{{ easymotion
+let g:EasyMotion_do_mapping = 0 "Disable default mappings
+nmap e <Plug>(easymotion-bd-w)
+nmap E <Plug>(easymotion-s2)
+"nmap L <Plug>(easymotion-overwin-line)
+"}}}
+
+"{{{ qfixhowm
+let s:script_path = expand('<sfile>:p:h')
+"echomsg howm_dir
+if !exists("g:howm_dir")
+    let howm_dir = s:script_path . '/howm'
+endif
+let howm_filename = '%Y-%m-%d-%H%M%S.md'
+let QFixHowm_FileType = 'markdown'
+let QFixHowm_Title = '# ['
+let QFixMRU_Title = {}
+let QFixMRU_Title['mkd'] = '^###[^#]'
+let QFixMRU_Title['mkd_regxp'] = '^###[^#]'
+let howm_fileencoding    = 'utf-8'
+let howm_fileformat      = 'unix'
+let qfixmemo_use_addtime  = 0
+let QFixHowm_SaveTime = -1
+let g:QFixHowm_Autoformat = 0 
+"}}}
+
+"{{{ unite.vim
+nnoremap <silent> ,uh :<C-u>Unite qfixhowm/new qfixhowm:nocache<CR>
+"}}}
+
+nnoremap <silent> ,c :checktime<CR>
