@@ -8,9 +8,13 @@ from dotfiles.logics import Fvwm2, Gdb, Git, Option, TMux, Vim, Vimperator, Zsh
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="install .XXX files")
+    parser = argparse.ArgumentParser(
+        description="install .XXX files", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     parser.add_argument("-w", dest="overwrite", action="store_true", help="overwrite option")
-    parser.add_argument("-d", dest="dest_dir", type=pathlib.Path, default="/tmp/abc", help="destination directory")
+    parser.add_argument(
+        "-d", dest="dest_dir", type=pathlib.Path, default=pathlib.Path.home(), help="destination directory"
+    )
     args = parser.parse_args()
     return args
 
