@@ -21,6 +21,11 @@ class Logic(abc.ABC):
     def __init__(self, options: Option) -> None:
         self._options = options
 
+    @property
+    @abc.abstractmethod
+    def name(self) -> str:
+        ...
+
     @abc.abstractmethod
     def run(self) -> ExitCode:
         ...
@@ -47,16 +52,28 @@ class CopyFile:
 
 
 class TMux(Logic):
+    @property
+    def name(self) -> str:
+        return "tmux"
+
     def run(self) -> ExitCode:
         return CopyFile(self._options, ".tmux.conf").run()
 
 
 class Gdb(Logic):
+    @property
+    def name(self) -> str:
+        return "gdb"
+
     def run(self) -> ExitCode:
         return CopyFile(self._options, ".gdbinit").run()
 
 
 class Git(Logic):
+    @property
+    def name(self) -> str:
+        return "git"
+
     # TODO: git-lfs check
     def run(self) -> ExitCode:
         return CopyFile(self._options, ".gitconfig").run()
