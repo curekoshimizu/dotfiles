@@ -32,11 +32,15 @@ ZSHENV_FILE={}
 """
 
 
+def _warning_message(base: str, program: str) -> None:
+    print(f"[warning] {base} needs {program}. But {program} not found")
+
+
 def program_exist(base: str, program: str) -> bool:
     if shutil.which(program) is not None:
         return True
 
-    print(f"[warning] {base} needs {program}. But {program} not found")
+    _warning_message(base, program)
     return False
 
 
@@ -232,8 +236,8 @@ class Vim(Logic):
         if (not plug_vim.exists()) or self._options.overwrite:
             response = requests.get("https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
             assert response.status_code == 200
-            with open(plug_vim, "w") as f_plug:
-                f_plug.write(response.text)
+            with open(plug_vim, "wb") as f_plug:
+                f_plug.write(response.content)
 
         # install .vimrc
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -260,4 +264,18 @@ class CommandLineHelper(Logic):
         program_exist(self.name, "direnv")
         program_exist(self.name, "docker")
         program_exist(self.name, "docker-compose")
+
+        # install docker buildx
+        buildx_plugin = self._options.dest_dir / ".docker" / "cli-plugins"
+        if not buildx_plugin.exists():
+            buildx_plugin.mkdir(parents=True)
+        buildx = buildx_plugin / "docker-buildx"
+        if (not buildx.exists()) or self._options.overwrite:
+            response = requests.get(
+                "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64"
+            )
+            assert response.status_code == 200
+            with open(buildx, "wb") as f_plug:
+                f_plug.write(response.content)
+
         return ExitCode.SUCCESS
