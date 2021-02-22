@@ -199,37 +199,6 @@ bindkey '^g' zz
 #alias cdp=peco-z-search
 alias cdp='echo "please use ctrl-g."'
 
-#function peco-f-search
-#{
-#  local res=$(find . | sort -rn | peco)
-#  echo $res | xargs -o vim
-#}
-#zle -N peco-f-search
-#bindkey '^t' peco-f-search
-#alias lancelot_vim="find ${LANCELOT_DOCKER_ROOT_DIR} -type d -name '.git' -prune -o -type f -print | sort -n | peco | xargs -o vim"
-
-
-# tmux Auto Run Settings
-case `hostname` in
-    vmfedora|ajimejilo )
-        if which tmux 2>&1 >/dev/null; then
-            #if not inside a tmux session, and if no session is started, start a new session
-            test -z "$TMUX" && (tmux attach || tmux new-session)
-        fi
-        ;;
-esac
-
-
-### ROS
-#source /opt/ros/melodic/setup.zsh
-#
-#export ROS_MY_WORKSPACE=$HOME/catkin_ws
-#source $ROS_MY_WORKSPACE/devel/setup.zsh
-#alias cw='cd $ROS_MY_WORKSPACE'
-#alias cs='cd $ROS_MY_WORKSPACE/src'
-#alias cm='cd $ROS_MY_WORKSPACE && catkin_make'
-
-
 ## z
 Z_FILE=$(cd $(dirname $0); pwd)/z/z.sh
 if [ -f $Z_FILE ]; then
