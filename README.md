@@ -22,6 +22,16 @@ installer.py is the body script.
 On the other hand, dot_installer.bash is a wrapper script of installer.py, which will take care of `curl` and `poetry` exist.
 If these commands are not found, dot_installer.bash will ask you to install them.
 
+## TODO
+
+* z
+* direnv
+* peco
+* git
+* git-lfs
+* zsh-completions
+
+
 ## LICENSE
 
 MIT License
