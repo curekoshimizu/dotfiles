@@ -35,3 +35,7 @@ class CopyFile:
 class TMux(Logic):
     def run(self) -> None:
         CopyFile(self._options, ".tmux.conf").run()
+
+class Gdb(Logic):
+    def run(self) -> None:
+        CopyFile(self._options, ".gdbinit").run()
