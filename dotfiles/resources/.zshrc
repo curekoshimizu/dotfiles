@@ -3,8 +3,6 @@
 fpath=($HOME/.zsh-completions/src $fpath)
 fpath=($HOME/.zfunc $fpath)
 
-
-
 ## NOTE: if you want to enable bazel zsh completion
 ## please read
 ##   https://docs.bazel.build/versions/master/completion.html
@@ -233,7 +231,10 @@ esac
 
 
 ## z
-source $(cd $(dirname $0); pwd)/z/z.sh
+Z_FILE=$(cd $(dirname $0); pwd)/z/z.sh
+if [ -f $Z_FILE ]; then
+    source $Z_FILE
+fi
 
 ## direnv
 export EDITOR=vim
