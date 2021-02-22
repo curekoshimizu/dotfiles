@@ -2,7 +2,7 @@ import pathlib
 import tempfile
 
 from dotfiles import Runner
-from dotfiles.logics import Option, TMux, Gdb
+from dotfiles.logics import Gdb, Git, Option, TMux
 
 
 def test_tmux() -> None:
@@ -21,3 +21,12 @@ def test_gdb() -> None:
         r.add_logic(Gdb(option))
         r.run()
         assert (option.dest_dir / ".gdbinit").exists()
+
+
+def test_git() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d))
+        r = Runner()
+        r.add_logic(Git(option))
+        r.run()
+        assert (option.dest_dir / ".gitconfig").exists()
