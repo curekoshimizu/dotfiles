@@ -258,4 +258,6 @@ class CommandLineHelper(Logic):
         program_exist(self.name, "peco")
         program_exist(self.name, "fzf")
         program_exist(self.name, "direnv")
+        program_exist(self.name, "docker")
+        program_exist(self.name, "docker-compose")
         return ExitCode.SUCCESS
