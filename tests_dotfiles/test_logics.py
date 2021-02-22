@@ -1,7 +1,7 @@
 import pathlib
 import tempfile
 
-from dotfiles.logics import ExitCode, Fvwm2, Gdb, Git, Option, TMux, Zsh
+from dotfiles.logics import ExitCode, Fvwm2, Gdb, Git, Option, TMux, Vim, Vimperator, Zsh
 
 
 def test_tmux() -> None:
@@ -10,6 +10,15 @@ def test_tmux() -> None:
         r = TMux(option)
         assert r.run() == ExitCode.SUCCESS
         assert (option.dest_dir / ".tmux.conf").exists()
+        assert r.run() == ExitCode.SKIP
+
+
+def test_vimperatorrc() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        r = Vimperator(option)
+        assert r.run() == ExitCode.SUCCESS
+        assert (option.dest_dir / ".vimperatorrc").exists()
         assert r.run() == ExitCode.SKIP
 
 
@@ -48,3 +57,12 @@ def test_zsh() -> None:
         assert (option.dest_dir / ".zshrc").exists()
         assert (option.dest_dir / ".zshenv").exists()
         assert r.run() == ExitCode.SUCCESS
+
+
+def test_vim() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        r = Vim(option)
+        assert r.run() == ExitCode.SUCCESS
+        assert (option.dest_dir / ".vimrc").exists()
+        assert r.run() == ExitCode.SKIP

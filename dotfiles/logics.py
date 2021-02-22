@@ -102,6 +102,15 @@ class TMux(Logic):
         return SymLink(self._options, ".tmux.conf").run()
 
 
+class Vimperator(Logic):
+    @property
+    def name(self) -> str:
+        return "vimperator"
+
+    def run(self) -> ExitCode:
+        return SymLink(self._options, ".vimperatorrc").run()
+
+
 class Gdb(Logic):
     @property
     def name(self) -> str:
@@ -154,8 +163,31 @@ class Zsh(Logic):
         if ret != ExitCode.SUCCESS:
             return ret
 
-        return CopyFile(
+        ret = CopyFile(
             self._options,
             src_path=RESOURCES_PATH / ".zshenv",
             dst_path=self._options.dest_dir / ".zshenv",
         ).run()
+        if ret != ExitCode.SUCCESS:
+            return ret
+
+        return ret
+
+
+class Vim(Logic):
+    @property
+    def name(self) -> str:
+        return "vim"
+
+    def run(self) -> ExitCode:
+
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            target = ".vimrc"
+            conf_path = RESOURCES_PATH / target
+            assert conf_path.exists()
+            f.writelines("execute 'source {}'".format(conf_path))
+            return CopyFile(
+                self._options,
+                src_path=pathlib.Path(f.name),
+                dst_path=self._options.dest_dir / target,
+            ).run()
