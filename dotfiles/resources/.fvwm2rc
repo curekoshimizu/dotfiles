@@ -1,0 +1,1002 @@
+#########################################
+#
+#	.fvwm2rc
+#	Jul 4, 2009
+#
+#########################################
+
+
+#################################
+#	Desktop Setting
+#################################
+#EdgeResistance	5 5
+EdgeScroll	100 100
+#EdgeScroll	0 0
+
+
+
+#################################
+#	Color
+#################################
+HilightColor white #1556C2
+
+
+
+#################################
+#	Font
+#################################
+# ウィンドウに使用されるフォント
+#WindowFont "rk14,k14"
+#WindowFont "-*-fixed-medium-r-*-*-14-*-*-*-*-*-iso8859-1"
+
+
+
+
+#################################
+#	Key Mapping
+#################################
+
+# Pageの移動
+Key Left	A       C       Scroll -100 +0
+Key Right 	A       C       Scroll +100 +0
+Key Up		A       C       Scroll +0 -100
+Key Down 	A       C       Scroll +0 +100
+
+# Desktopの移動
+#Key F1		A       C       Desk 0 0
+#Key F2		A       C       Desk 0 1
+
+# マウスの移動
+Key Left	A       M       CursorMove -10 +0
+Key Right 	A       M       CursorMove +10 +0
+Key Up		A       M       CursorMove +0   -10
+Key Down	A       M       CursorMove +0   +10
+
+
+# Windowの操作
+Key u 		A		CS		RaiseLower
+Key F4      A       C       Close
+Key F4      A       CS      Delete
+Key F4      A       CSM     Destroy
+Key r		A		CS		Resize
+
+Key n       A       CS      prev-raise-and-focus2
+Key p       A       CS      next-raise-and-focus2
+Key n       A       M       prev-raise-and-focus
+Key p       A       M       next-raise-and-focus
+
+
+
+# Windowの大きさ調整
+Key F8		A		C		Maximize 0 100
+Key F9		A		C		Maximize 50 100
+#Key F10		A		C		Maximize 100 100
+Key F10		A		C		Maximize grow 100
+
+# Windowの操作(Move)
+#Key m		A		CS		Move
+Key F1		A       C       Move 0 0
+
+Key h		A		M		Move-L
+Key j		A		M		Move-D
+Key k		A		M		Move-U
+Key l		A		M		Move-R
+
+# ショートカット
+#key k		A	CS	Exec kterm -xim
+#key k		A	CS	Exec mlterm
+key k		A	CS	Exec gnome-terminal
+key f		A	CS	Exec firefox
+key t		A	CS	Exec thunderbird
+key s		A	CS	Exec skype
+key l		A	CS	Exec nautilus --no-desktop 2>/dev/null
+Key m		A	CS	Popup RootMenu
+
+Key End		A	C	Restart fvwm2
+Key End		A	CS	Quit
+
+
+PointerKey space  A M		 Focus
+
+#################################
+#	Mouse
+#################################
+#
+# マウスによる挙動の設定
+#
+
+#-- 外枠 --#
+Mouse 1 F   	A       Resize-or-Raise
+Mouse 1 TS      A       Move-or-Raise
+
+#-- ボタン操作 --#
+Mouse 0 4		A		Maximize 100 100
+Mouse 0 2		A		Close
+
+# -- デスクトップ ---
+Mouse 1 R		A		Popup RootMenu
+Mouse 2 R		A		Nop
+Mouse 3 R		A	WindowList
+Mouse 4 R		A		Nop
+Mouse 5 R		A		Nop
+#Mouse 6 R		A		Nop
+#Mouse 7 R		A		Nop
+
+
+
+#################################
+#	ButtonStyle
+#################################
+
+################################
+#	Style
+#################################
+Style "*"		ClickToFocus
+Style "*clock"		Sticky, NoHandles,StaysOnTop,Notitle
+#Style "*irefox"   Sticky
+#Style "*hunderbird" Sticky
+Style "gnome-panel" Sticky, NoHandles,StaysOnTop,Notitle
+Style "*biff"		Sticky, NoHandles,StaysOnTop,Notitle,CirculateSkip
+Style "*"		BorderWidth 7, HandleWidth 7, BorderWidth 1
+
+Style "*"		SmartPlacement
+
+
+#################################
+#	initfunctions
+#################################
+AddToFunc InitFunction
+#+	"I" exec rembiff -geometry -1920+0
+#+	"I" exec mlterm -geometry +0+0
+#+	"I" exec skype -geometry -0+0
+#+	"I" exec gnome-terminal
++   "I" Module FvwmButtons
+#+	"I" Exec "xsetroot -solid #000011"
++	"I" Module FvwmPager 0 0
+#+   "I" exec nautilus --browser 2>/dev/null
+#+   "I" exec nautilus 2>/dev/null
+#+	"I" Module FvwmPager 0 1
+
+AddToFunc RestartFunction
++  "I" Module FvwmButtons
++	"I" Module FvwmPager 0 0
+#+	"I" Module FvwmPager 0 1
+
+
+
+
+#################################
+#								#
+#	Fvwm						#
+#								#
+#################################
+Style "Fvwm*"       NoTitle, Sticky
+Style "Fvwm*"       BorderWidth 2, CirculateSkipIcon, CirculateSkip
+
+#################################
+#	FvwmPager
+#################################
+
+# -- Size ---
+#DeskTopSize	10x2
+#DeskTopSize	10x2
+DeskTopSize	10x1
+
+# -- Settings ---
+Style "FvwmPager"  BorderWidth 0, NoHandles,Notitle, Sticky,CirculateSkip
+#Style "FvwmPager"	StaysOnTop
+
+
+# -- Geometry ---
+*FvwmPagerGeometry +0-0
+
+# -- Label ---
+#*FvwmPagerLabel 0 Desktop0
+#*FvwmPagerLabel 1 Mail
+
+# -- Color ---
+*FvwmPagerBack #000011
+*FvwmPagerFore Cyan
+*FvwmPagerHilight #282828
+
+
+#################################
+#	FvwmBottons
+#################################
+*FvwmButtonsGeometry 300x80-0-0
+*FvwmButtonsColumns 2
+*FvwmButtonsRows 1
+*FvwmButtons(Container(Columns 2, Rows 1))
+*FvwmButtons(Swallow(UseOld) "xload" "Exec xload -update 1 -hl red -jumpscroll 1 &")
+*FvwmButtons(Swallow(UseOld) "oclock" "Exec oclock &")
+#*FvwmButtons(Swallow(UseOld) "oclock" "Exec gnome-system-monitor &")
+*FvwmButtons(End)
+*FvwmButtons(1x1, Swallow(UseOld) "xdaliclock" "Exec xdaliclock -24 -noseconds -builtin0 -nocycle -memory low&")
+
+#*FvwmButtons(2x2 Frame 2 Swallow "FvwmIconMan" "Module FvwmIconMan")
+#*FvwmButtons(2x2 Frame 2 Swallow(UseOld) "FvwmPager" "Module FvwmPager 0 0")
+#*FvwmButtons(1x2 Frame 0 Container(Rows 2 Columns 2 Frame 0))
+
+#################################
+#	Menu
+#################################
+AddToMenu RootMenu "Menu" 	Title
++	""				Nop
++	"Mlterm"		Exec mlterm
++	"Kterm"			Exec kterm
++	"Xterm"			Exec xterm
++	"GNOME TERM"	Exec gnome-terminal
++	""				Nop
++	"X LOCK"		Exec xlock -mode clock
++	""				Nop
++	"  "
++	"  "
++	""				Nop
++	"Fvwm2 Quit"	Quit
++	""				Nop
++	"Fvwm2 Restart"	Restart fvwm2
++	""				Nop
+#+	"Quit Menu"		Popup Quit-Verify
+#AddToMenu Quit-Verify "Quit Menu"	Title
+
+
+#################################
+#	functions
+#################################
+AddToFunc next-raise-and-focus
++				"I" Next [*] Raise
++				"I" Next [*] Focus
+AddToFunc prev-raise-and-focus
++				"I" Prev [*] Raise
++				"I" Prev [*] Focus
+AddToFunc next-raise-and-focus2
++				"I" Next [CurrentScreen !Iconic] Raise
++				"I" Next [CurrentScreen !Iconic] Focus
+#+				"I" Next [CurrentDesk !Iconic] Raise
+#+				"I" Next [CurrentDesk !Iconic] Focus
+##+				"I" Next [CurrentPage !Iconic] Raise
+##+				"I" Next [CurrentPage !Iconic] Focus
+AddToFunc prev-raise-and-focus2
++				"I" Prev [CurrentScreen !Iconic] Raise
++				"I" Prev [CurrentScreen !Iconic] Focus
+#+				"I" Prev [CurrentDesk !Iconic] Raise
+#+				"I" Prev [CurrentDesk !Iconic] Focus
+AddToFunc Move-or-Raise	"I" Raise
++			"M" Move
++			"D" Maximize 100 100
+AddToFunc Resize-or-Raise 	"I" Raise
++				"M" Resize
++				"D" Maximize 100 100
+
+AddToFunc Move-L	"I" Move w-5 w+0
++			"I" CursorMove -5 +0
+AddToFunc Move-R	"I" Move w+5 w+0
++			"I" CursorMove +5 +0
+AddToFunc Move-U	"I" Move w+0 w-5
++			"I" CursorMove +0 -5
+AddToFunc Move-D	"I" Move w+0 w+5
++			"I" CursorMove +0 +5
+
+
+
+
+
+# カレントスクリーンでのみならこれが便利そう
+# いつかやるかもしれないからここに追記
+
+
+#AddToFunc next-raise-and-focus "I" Next [CurrentScreen !Iconic] Raise
+#+ "I" Next [CurrentScreen !Iconic] Focus
+#AddToFunc prev-raise-and-focus "I" Prev [CurrentScreen !Iconic] Raise
+#+ "I" Prev [CurrentScreen !Iconic] Focus 
+
+
+
+
+
+
+# 例
+#AddToFunc Focus-and-Warp"I" Focus
+#+"I" WarpToWindow 0 0
+
+#AddToFunc Warp"I" Next ($0 AcceptsFocus) Iconify -1
+#+"I" Next ($0 AcceptsFocus) Raise
+#+"I" Next ($0 AcceptsFocus) Focus-and-Warp
+
+#AddToFunc Warp-not-Deiconify"I" Next ($0 AcceptsFocus !iconic) Raise
+#+"I" Next ($0 AcceptsFocus !iconic) Focus-and-Warp
+
+#で、138 さんの例ですと
+#Key Return A C Warp kterm 
+
+
+
+
+
+
+ButtonStyle All -- Raised
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#
+# Title style
+#
+
+#TitleStyle ActiveUp    (HGradient 128 2 red 50 black 50 red -- Sunk)
+TitleStyle ActiveUp    (HGradient 128  2 black  50 black 50 black -- Sunk)
+TitleStyle ActiveDown  (HGradient 128 2 black 50 rgb:80/80/80 50 black -- Sunk)
+TitleStyle InActive    -- flat
+
+#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-
+#
+# Window decoration styles:
+#
+
+
+#Style "FvwmButtons" StaysOnTop
+Style "FvwmIconMan" NoHandles, BorderWidth 10, NoTitle
+#Style "dclock" StaysOnTop
+
+
+
+#AddToMenu MyMenu "MyMenu" Title
+#+ "&kterm" Exec exec kterm
+#+ "&xterm" Exec exec xterm
+#+ "&emacs" Exec exec emacs
+#+ "&firefox" Exec exec firefox
+#+ "&xcalc" Exec exec xcalc
+#Mouse 1 R A Mouse MyMenu
+
+#Module FvwmAuto 20
+
+#SnapAttraction 20 SameType Screen
+#SnapGrid 20 20
+
+
+
+ 
+#########################
+########################
+##
+## CORE FUNCTIONS
+##
+#######################
+#######################
+#
+##
+## FVWMの設定ファイルはもはや一つのスクリプトの様相を呈しています。
+## その一つが「関数」の定義で、下記に示すように引数を伴った関数を定義することが
+## できます。定義した関数は他のFVWMコマンドと同様の文法で実行できます。
+## 実際はスタートアップ時や、マウス・キーボードのバインド時に用います。
+##
+## 関数の定義は「追加」しかできません。関数内で行う処理をどんどん付け足していく
+## のです。そのためFVWMの再起動時を考えると、そのままでは関数がどんどん肥大化し
+## ていきます。それを防ぐため、まず「DestroyFunc」コマンドで既存の関数を破棄した
+## のち、空の関数に「+」で付け足していくという手順を踏みます。
+## menusやbindingsファイル内の説明も参照して下さい。
+##
+## FVWMの設定ファイルはスクリプトと同様、上から順番に解釈されていきます（多分）。
+## いずれにせよ、関数定義に於いてはDestroyFuncが出てきた時点で関数は破棄され、続く
+## AddToFuncで処理項目が追加されていきます。
+## このようにFVWM設定ファイルは結局、FVWMコマンドを連ねただけです。メニューや関数
+## を定義するとき、一行で収まらず複数の項目を使うとき、「+」で連結して行くわけです。
+##
+## + の後に続く「I」は、続くコマンドの実行条件を指示しています。「I」では「Immediate」
+## つまり即時実行を指示しています。これはマウスイベントとバインドするときにも効果
+## を発揮します。マウスバインドを想定した関数では H, M, C, Dなどの実行条件（状態）
+## を指定することができ、これと「I」を組み合わせることでマウスクリック・ダブルク
+## リック・ドラッグ時の動作にバリエーションが広がります。詳しくはbindingsファイル
+## の説明を参照して下さい。
+##
+#DestroyFunc FuncFvwmStopModule
+#AddToFunc   FuncFvwmStopModule
+#+ I KillModule $0
+#
+#DestroyFunc FuncFvwmStopModuleByAlias
+#AddToFunc   FuncFvwmStopModuleByAlias
+#+ I KillModule $0 $1
+#
+#DestroyFunc FuncFvwmRestartModule
+#AddToFunc   FuncFvwmRestartModule
+#+ I FuncFvwmStopModule $0
+#+ I Module $0
+#
+##
+## この前後で出てくる「Module」コマンドについて一言。
+## FVWMのモジュールには２種類有って、それ単独でFVWMのコマンドに組み込まれた
+## ものとそうでないモノがあります。例えばFvwmTaskBarは単独タイプで、それ自体
+## FVMWのコマンドとして使えます。しかしそうではないものが、「Module」コマンド
+## の引数にモジュール名を指定して、起動されるわけです。
+## 従ってこの前後の関数はそう言った非単独モジュールの起動を制御するための
+## 関数と言えます。ちなみに「KillModule」は問答無用でFVWMのモジュールを、
+## 単独非単独に関わらず終了させます。
+##
+#
+#DestroyFunc FuncFvwmRestartModuleByAlias
+#AddToFunc   FuncFvwmRestartModuleByAlias
+#+ I FuncFvwmStopModuleByAlias $0 $1
+#+ I Module $0 $1 $2
+#
+##
+## 下の関数内の「NoButton」において、一旦タイトルバーのボタンを全部外しています。
+## 補足説明が「bindings」ファイル内にありますが、esoxではこうしてタイトルバー
+## ボタンを全部消去した後、1, 2, 3, 5番のボタンだけを改めて使うようにしています。
+##
+#DestroyFunc FuncFvwmRemoveAllButtons
+#AddToFunc   FuncFvwmRemoveAllButtons
+#+ I Style "*" NoButton 1, NoButton 3, NoButton 5, NoButton 7, NoButton 9
+#+ I Style "*" NoButton 2, NoButton 4, NoButton 6, NoButton 8, NoButton 0
+#+ I TitleStyle Height 5
+#
+#
+###########################
+##########################
+##
+## Fvwm Start, Stop, and other "Re-" Functions
+##
+#########################
+#########################
+#
+## Rest and Init 
+## FVWMの初期化関数の定義部です。
+##
+#DestroyFunc FuncFvwmResetInitFunctions
+#AddToFunc   FuncFvwmResetInitFunctions
+#+ I Module FvwmBanner
+#+ I DestroyFunc StartFunction
+#+ I DestroyFunc InitFunction
+#+ I DestroyFunc RestartFunction
+#+ I DestroyFunc SessionInitFunction
+#+ I DestroyFunc SessionRestartFunction
+#+ I AddToFunc StartFunction
+#+ I Module FvwmAnimate
+#+ I FvwmTaskBar
+#+ I	FuncFvwmRemoveAllButtons
+#
+## Mouse Configuration
+## マウスの加速度設定を行っています。適宜書き換えて下さい。
+#Exec exec xset m 5 1
+#
+## Note: Require blackbox tool.
+## 背景画像をbsetbgプログラムを使って張り込みます。Execコマンドの使い方
+## はmenusファイル内の説明を参照して下さい。
+##
+#Exec exec bsetbg -full $HOME/.fvwm/esox/images/sky_esox2_1024.xpm
+#
+## 初期化関数を実行します。
+#FuncFvwmResetInitFunctions
+#
+##Exec exec fvwm-themes-images \
+##	--sky \
+##	--sky-colors black,rgb:62/85/b7,rgb:70/95/c2,rgb:48/6c/aa,rgb:21/44/91 \
+##	 --setroot --pattern-type altern:1,5,4
+#
+##
+## 「ImagePath」とは画像ファイルを指示するとき使う相対パスの起点ディレクトリの
+## 事です。たとえば
+## ImagePath /usr/local/share/icons;/usr/share/icons
+## とあって、メニューやボタンの画像として
+## hoge/icon.xpm
+## というように指示されていた場合、FVWMは
+## 1. /usr/local/share/icons/hoge/icon.xpm
+## 2. /usr/share/icons/hoge.icon.xpm
+## の順にファイルを探します。
+##
+#ImagePath $HOME/.fvwm/esox/images
+#ImagePath +
+#
+##
+## ここからカラーセット(Colorset)の定義が始まります。Colorsetとはメニューやボタ
+## ンなど、背景と文字を描画するもの全てに定義できる、文字色と背景色の指定をひと
+## まとめにしたものです。文字色と背景色だけでなく、背景画像、2D3D表示など指定
+## 可能です。定義したカラーセットは番号で管理され、随所で「**Style」コマンドと
+## 一緒に指示します。
+##
+## Colorset <Number> <Options>
+## これが一般的な書式です。<Number>によりセット番号を指示します。<Options>につ
+## いては、実際の設定例からman fvwmなどで引いてみて下さい。
+##
+##############################################################################
+##
+## Colorset (Colour set)
+##
+## Basic FVWM Colorset
+#Colorset 0 fg black, bg rgb:98/B0/C8, Plain, NoShape
+## window title, inactive and active
+#Colorset 1 fg black, bg rgb:98/B0/C8, Plain, NoShape
+#Colorset 2 fg black, bg white, Plain, NoShape
+## window borders, inactive and active
+#Colorset 3 fg black, bg rgb:98/B0/C8, Plain, NoShape
+#Colorset 4 fg black, bg rgb:98/B0/C8, Plain, NoShape
+#
+##
+##################
+## Menu Colorsets
+##
+## inactive menu item fg+bg and menu face
+#Colorset 5 fg rgb:20/20/20, bg white, \
+#	sh rgb:30/30/30, hi rgb:50/50/50, TiledPixmap decor/face.xpm, NoShape
+## active menu item fg+bg
+#Colorset 6 fg black, bg rgb:6f/a9/e5, Plain, NoShape
+## greyed menu item fg
+#Colorset 7 fg grey, bg grey, Plain, NoShape
+#
+##
+####################
+## Module Colorsets
+##
+## Common Colorsets
+#
+## Normal TaskBar Button
+#Colorset 10 fg rgb:20/20/20, bg white, \
+#	sh white, hi white, TiledPixmap decor/face.xpm, NoShape
+## Focused TaskBar Button
+#Colorset 11 fg rgb:20/20/20, bg white, \
+#	sh black, hi black, TiledPixmap decor/face.xpm, NoShape
+## Iconified TaskBar Button
+#Colorset 12 fg rgb:20/20/20, bg white, \
+#	sh white, hi white, TiledPixmap decor/title-iconified.xpm, NoShape
+#
+## -------------------------- Focus and Placement --------------------------
+#Emulate FVWM
+#HideGeometryWindow Never
+#BugOpts FlickeringMoveWorkaround Off
+#
+##
+## ここは「Snap」と呼ばれる機能の調節です。ウインドウが別のウインドウに近づい
+## たらぴったりくっつく様に吸い付く機能のことです。SnapAttractionでは、最初の
+## 引数で何ピクセル近づいたら吸い付かせるか指定します。次の引数で、どういった
+## ウインドウ同士で吸い付かせるのか指示します。最後の「Screen」が付くと、画面の
+## 端っこにも吸い付くようになります。
+##
+#SnapAttraction 10 SameType Screen
+##
+## SnapGridを使うと、ウインドウのMove, Resize時にここで指定したXYグリッドに
+## 吸着する形になります。通常は1ピクセルずつで大丈夫ですし、それがデフォルトです。
+##
+#SnapGrid 1 1
+##
+## XorValueで、ウインドウの移動やResizing時に表示する枠の色を決めます。ホントは
+## 引数としてunsigned long値が使えますが、省略するとデフォルトが使われ、大抵はそれで
+## 問題有りません。これはOpaqueなMoveやSizingが無効の時にしか影響しません。
+##
+#XorValue
+#
+## ---------------------- Paging and Mouse Parameters ----------------------
+##
+## 仮想デスクトップの数を変更します。ここでは縦横２ずつ、計４枚作ります。
+##
+#DeskTopSize 2 2
+## Warp between each edges.
+##
+## マウスポインタがスクリーンの端にあると、下のEdgeResistanceによりますが
+## 隣の仮想デスクトップにスクロールします。パーセンテージで指示し、「0 0」に
+## してしまうとスクロールしません。通常は「100 100」で一画面分まるまる移動し
+## ます。この例にすると、仮想デスクトップ全体としての端同士がループするよう
+## になります。
+##
+#EdgeScroll 100000 100000
+##
+## 第一引数で、何ミリ秒マウスポインタがスクリーンの端に止まっていればEdgeScroll
+## するのかを指示します。続く引数は何ピクセルScrollするかですが、EdgeScrollが指示
+## されているのでそちらが使われます。
+##
+#EdgeResistance 500  1
+##
+## EdgeThicknessはEdgeScrollが始まる事を関知するための、特殊な「帯」の幅です。
+## この帯はスクリーンの端にあり、この上にEdgeResistanceで指示したミリ秒だけ
+## マウスポインタが存在すると、EdgeScrollが発生します。
+#EdgeThickness 1
+#ClickTime 300
+##
+## 何ピクセル動けば、「ドラッグ」の開始と判定するか。
+##
+#MoveThreshold 3
+#
+## ここら辺はそのままで大丈夫です。
+#BugOpts ModalityIsEvil on
+#BusyCursor Read on, Wait on, ModuleSynchronous on
+#BugOpts MixedVisualWorkaround off
+#BugOpts RaiseOverNativeWindows off
+#Style * SaveUnderOff, BackingStoreOff
+#ModuleTimeout 30
+#
+#DefaultColorset 0
+#Style * Colorset 1
+#Style * HilightColorset 2
+#Style * BorderColorset 3
+#Style * HilightBorderColorset 4
+#
+## Opaque or Non opaque Resizing and Moving Policy
+## この「Opaque」というのがくせ者です。OpaqueでMoveとかSizingというのは、
+## 要するに「ウインドウの内容を表示しつつ移動したりサイズ変更する」ことです。
+## ただそれをすると処理が重たくなります。
+##
+## OpaquMoveSize では、対象ウインドウが画面の大きさに対してどれくらいの大きさか
+## を調べ、それよりも小さければOpaqueなMoveやSizingをします。
+## man fvwmでOpaqueを引けば真っ先に載っていますが・・・0を指示すると、問答無用で
+## Opaqueを使いません。代わりにウインドウの枠のみで移動やサイズ変更します。
+##
+#OpaqueMoveSize 0
+##
+## 上はデフォルト指定です。こちらはウインドウのStyleとしてOpaqueにリサイズするのか、
+## Outlineのみでリサイズするのか指定しています。「*」なので、全ウインドウでOutline
+## のみのサイズ変更を指示しています。Opaqueにしたければ「ResizeOpaque」にします。
+##
+#Style * ResizeOutline
+#
+## Title Bar buttons and Frame Border Policy
+##
+## ここで改めて、ウインドウのスタイルとしてタイトルバーボタンの1, 2, 3, 5番を使う
+## ように指示しています。
+##
+#Style * Button 1, Button 2, Button 3, Button 5
+#Style * FvwmButtons
+#Style * BorderWidth 2, HandleWidth 2
+#Style * FvwmBorder, FirmBorder
+#
+## Other Policy
+#Style * WindowShadeSteps 25, WindowShadeScrolls
+#SetAnimation  10  -.01 0 .01 .03 .08 .18 .3 .45 .6 .75 .85 .90 .94 .97 .99 1.0
+#Style * MwmDecor, OLDecor, NoOverride, MwmFunctions
+#
+## Window Placement Policy
+#Style * TileCascadePlacement
+##
+## NoPPositionとは、プログラム側でウインドウの位置を決めるのではなく、Fvwm側で
+## 決めることを指示するオプションです。中にはプログラム自身で前回終了時のウイン
+## ドウの位置を設定ファイルから読み出し、指定しようとするのもあります。
+## XMMSなどがそうですが、そうした場合は設定ファイルの最後の方で、そのウインドウの
+## Styleだけ「UsePPosition」で上書きしておきます。
+##
+#Style * NoPPosition
+#
+## Iconifying Policy
+##
+## これが非常に重要です！これを外すと、Iconifyするときデスクトップにアイコン化され
+## てしまいます。NoIconを指示することにより、TaskBarにアイコン化されるわけです。
+##
+#Style * NoIcon
+#
+## Focus Policy
+##
+## フォーカスとそのウインドウの最前面への移動はだいたい以下の設定でオッケーです。
+## つまり、これでWindowsと同様のフォーカスが効きます。
+## 元々Windowsユーザーで、WMを初めて何が厭かというとそのフォーカス動作とウインド
+## ウの前面への移動がマッチしていない点や、マウスポインタの下のウインドウへ勝手に
+## フォーカスが移ってしまう挙動だと思います。FVWMでは以下の設定と、FvwmAutoRaise
+## モジュールを実行しておくことでWindowsとそっくりなフォーカス挙動を実現できます。
+##
+#Style * ClickToFocus
+#Style * ClickToFocusRaises
+#Style * MouseFocusClickRaises
+## "Transient" -- temporaly window. in Windows, say, "Dialog Box"
+##
+## 以下では"Transient"な（一時的な）・・・つまり、Windowsで言うところの「ダイアロ
+## グボックス」のウインドウスタイルを指定しています。
+##
+## まずDecorateTransientでTransientウインドウにもタイトルバー、タイトルバーボタン
+## などの一般的なFVWMウインドウの装飾をするようにします。デフォルトでは装飾されま
+## せん。
+##
+#Style * DecorateTransient
+## "StackTransietnParent" has no effect if Raise/LowerTransient are not used.
+## 続いて以下の処理でTransientウインドウのフォーカス挙動を調整しています。
+## 
+#Style * RaiseTransient
+#Style * LowerTransient
+#Style * StackTransientParent
+#Style * GrabFocusTransient
+#
+##
+###############################################################
+##
+## Button and Title and Border Styles and Decorations
+##
+###############################################################
+##
+## ここからはタイトルバーと、タイトルバーの両脇にあるボタンのスタイル
+## （外観）設定です。
+## TitleStyle [<Status>] <Options>
+## ButtonStyle [<Status>] <Options>
+## []囲みは省略可能な引数です。
+## <Status>としてはActiveUp, ActiveDown, Inactive等がTitleStyleでは指定可能
+## です。その後、Optionsが続きます。
+##
+#
+#TitleStyle ActiveUp   TiledPixmap decor/title-active.xpm
+#TitleStyle ActiveDown TiledPixmap decor/title-active.xpm
+#TitleStyle Inactive   TiledPixmap decor/title-inactive.xpm
+#TitleStyle Height 20
+#TitleStyle Centered
+#TitleStyle -- Flat
+#BorderStyle	Simple -- HiddenHandles NoInset
+#
+##
+## ここからがタイトルバーのボタンスタイルの設定です。ButtonStyleで「All」
+## 指定で、一旦全ボタンのデフォルト設定を指定しています。これは実際のボタン
+## 画像は透過画像であるため、その背景を指定しておく必要があるからです。
+## その後、AddButtonStyleコマンドでここのボタンの画像設定を行います。
+##
+#ButtonStyle All Pixmap decor/empty.xpm
+#ButtonStyle All ToggledActiveUp   Pixmap decor/title-active.xpm
+#ButtonStyle All ToggledActiveDown Pixmap decor/title-active.xpm
+#ButtonStyle All ToggledInactive   Pixmap decor/title-inactive.xpm
+#ButtonStyle All -- UseTitleStyle
+#ButtonStyle	All -- Flat
+#
+##
+## ボタンスタイルの設定です。行を分割するときはバックスラッシュを使います。
+##
+#AddButtonStyle 1 \
+#	ActiveUp   (Pixmap decor/close-activeup.xpm   -- flat) \
+#	ActiveDown (Pixmap decor/close-activedown.xpm -- flat) \
+#	Inactive   (Pixmap decor/inactive.xpm   -- flat)
+#AddButtonStyle 2 \
+#	ActiveUp   (Pixmap decor/options-activeup.xpm   -- flat) \
+#	ActiveDown (Pixmap decor/options-activedown.xpm -- flat) \
+#	Inactive   (Pixmap decor/inactive.xpm   -- flat)
+#AddButtonStyle 3 \
+#	ActiveUp   (Pixmap decor/iconify-activeup.xpm   -- flat) \
+#	ActiveDown (Pixmap decor/iconify-activedown.xpm -- flat) \
+#	Inactive   (Pixmap decor/inactive.xpm   -- flat)
+#AddButtonStyle 5 \
+#	ActiveUp   (Pixmap decor/maximize-activeup.xpm   -- flat) \
+#	ActiveDown (Pixmap decor/maximize-activedown.xpm -- flat) \
+#	Inactive   (Pixmap decor/inactive.xpm   -- flat)
+#
+##
+## これがちょっと分からないんですが・・・とりあえず、これできちんと動いてます。
+##
+#ButtonStyle 1 - Clear
+#ButtonStyle 2 - Clear MWMDecorMenu
+#ButtonStyle 3 - Clear MWMDecorMin
+#ButtonStyle 5 - Clear MWMDecorMax
+#
+##
+###############################################################
+##
+## Fvwm Modules Configuration
+##
+## ここからFvwmのモジュールに関するスタイル設定が始まります。
+## ウインドウとしてのスタイル設定は
+## Style <WindowName> <StyleOptions>
+## として指定します。WindowName中では「*」によるワイルドカードが使えます。
+##
+#
+#Style "Fvwm*"		Sticky, Title, Handles, WindowListHit, CirculateSkip
+#Style "FvwmBanner"	NoTitle, StaysOnTop, WindowListSkip, NeverFocus
+#Style "FvwmPager"	NoTitle, NoHandles, WindowListSkip
+#Style "FvwmButtons"	NoTitle, NoHandles, WindowListSkip
+#Style "FvwmIdent"	NoTitle, NoHandles, WindowListSkip
+#Style "FvwmTaskBar"	NoTitle, NoHandles, WindowListSkip
+#Style "FvwmIconMan"	NoTitle, NoHandles, WindowListSkip
+#Style "FvwmWinList" NoTitle, NoHandles, WindowListSkip
+#Style "FvwmConsole"	CirculateHit, GrabFocus
+#Style "FvwmForm"	CirculateHit
+#Style "FvwmScript"	Slippery, CirculateHit
+#
+#*FvwmIdent: Colorset 5
+#
+##
+##############################################################################
+##
+## FvwmTaskBar Configration
+##
+## ここから個別のFvwmモジュールの設定が始まります。
+## esoxではFvwmTaskBar以外あまり使っていないので、ひどく簡単です。
+## FvwmButtonなどで凝ったWharfやドッグ関連を実現しようとするとめちゃくちゃ複雑に
+## なります。
+##
+#
+#Style "FvwmTaskBar" NoTitle,Sticky,WindowListSkip,\
+#	CirculateSkip,NoHandles,TitleAtBottom
+#
+#DestroyModuleConfig FvwmTaskBar: *
+## defined in the option
+#*FvwmTaskBar: Geometry +0+0
+#*FvwmTaskBar: Rows 1
+#*FvwmTaskBar: Colorset 10
+#*FvwmTaskBar: FocusColorset 11
+#*FvwmTaskBar: IconColorset 12
+#*FvwmTaskBar: TipsColorset 10
+#
+#*FvwmTaskBar: Action Click1 FuncFvwmDeiconifyFocusAndRaise
+#*FvwmTaskBar: Action Click2 Popup MenuFvwmWindowOps Mouse c c
+#*FvwmTaskBar: Action Click3 Iconify
+#
+## Flatなボタンを表示するので、フォーカスのあるウインドウボタンを
+## 特に強調する必要はありません。
+#*FvwmTaskBar: NoBrightFocus
+#
+## WindowListSkipスタイルが適用されたウインドウはタスクバーに表示しません。
+#*FvwmTaskBar: UseSkipList
+#*FvwmTaskBar: AutoStick
+#
+## StartNameは「スタートボタン」に表示される文字列です。
+## 今回は絵だけですので、文字列は何も指定しません。
+#*FvwmTaskBar: StartName
+#*FvwmTaskBar: StartMenu MenuFvwmRoot Root +0 +25p
+#*FvwmTaskBar: StartIcon start_a.xpm
+#
+## Transientsウインドウ（ダイアログボックス）もタスクバーボタンに表示します。
+#*FvwmTaskBar: ShowTransients
+#*FvwmTaskBar: DeskOnly
+#*FvwmTaskBar: MailCheck 0
+#*FvwmTaskBar: NoIconAction SendToModule FvwmAnimate animate
+#*FvwmTaskBar: ClockFormat %m/%d %R
+#*FvwmTaskBar: ShowTips
+#
+##
+##############################################################################
+##
+## Window Operation Functions and Menus
+##
+## Binding Functions
+##
+## "I" stands for Immediate
+## "M" stands for Motion
+## "C" stands for Click
+## "H" stands for Hold
+## "D" stands for Double Click
+##
+## ここからはウインドウ操作関数群と、ウインドウ操作メニューの定義です。
+##
+#
+#DestroyFunc FuncFvwmDeiconifyFocusAndRaise
+#AddToFunc   FuncFvwmDeiconifyFocusAndRaise
+#+ I Iconify off
+#+ I Focus
+#+ I Raise
+#
+#DestroyFunc FuncFvwmRestore
+#AddToFunc   FuncFvwmRestore
+#+ I ThisWindow (!Iconic !Shaded Maximized) Maximize    false
+#+ I ThisWindow (!Iconic  Shaded          ) WindowShade false
+#+ I ThisWindow ( Iconic                  ) Iconify     false
+#
+## This defines all window operations
+#DestroyMenu MenuFvwmWindowOps
+#AddToMenu   MenuFvwmWindowOps "Window Operations" Title
+#+ "Move%menu/window-move.xpm%"                 Move
+#+ "Resize%menu/window-resize.xpm%"             Resize
+#+ "(De)&Iconify	(F2)%menu/window-iconify.xpm%"       Iconify
+#+ "(Un)&Shade	(F3)%menu/window-shade.xpm%"            WindowShade
+#+ "Ma&ximize	(F5)%menu/window-maximize.xpm%"        Maximize On grow grow
+#+ "Maximize &Vert.	(F6)%menu/window-maximize.xpm%"  Maximize On    0 grow
+#+ "Maximize &Horiz.	(F7)%menu/window-maximize.xpm%" Maximize On grow    0
+#+ "&Restore	(F8)%menu/window.xpm%"              FuncFvwmRestore
+#+ "(Un)Stick%menu/window-stick.xpm%"            Stick
+#+ "Raise%menu/window-raise.xpm%"               Raise
+#+ "Lower%menu/window-lower.xpm%"               Lower
+#+ "Identify%menu/window-identify.xpm%"          Module FvwmIdent
+#+ "Switch to...%menu/windows.xpm%"              WindowList
+#+ "" Nop
+#+ "Delete%menu/window-delete.xpm%"             Delete
+#+ "Close (F4)%menu/window-close.xpm%"               Close
+#+ "Destroy%menu/window-destroy.xpm%"            Destroy
+#+ "" Nop
+#+ "Right	Page%menu/window-move.xpm%"	AnimatedMove w+100 w
+#+ "Left	Page%menu/window-move.xpm%"	AnimatedMove w-100 w
+#+ "Down	Page%menu/window-move.xpm%"	AnimatedMove w w+100
+#+ "Up	Page%menu/window-move.xpm%"	AnimatedMove w w-100
+#+ "" Nop
+#+ "%menu/window.xpm%TitleAtTop"    Pick (CirculateHit) Style $n TitleAtTop
+#+ "%menu/window.xpm%TitleAtBottom" Pick (CirculateHit) Style $n TitleAtBottom
+#+ "%menu/window.xpm%Title"         Pick (CirculateHit) Style $n Title
+#+ "%menu/window.xpm%NoTitle"       Pick (CirculateHit) Style $n NoTitle
+#+ "" Nop
+#+ "Other Operation%menu/refresh.xpm%"	Popup MenuFvwmOtherWindowOps
+#
+#DestroyMenu MenuFvwmOtherWindowOps
+#AddToMenu   MenuFvwmOtherWindowOps "Other Operation" Title
+#+ "%menu/refresh.xpm%RefreshWindow"    RefreshWindow
+#+ "%menu/refresh.xpm%RecaptureWindow"  RecaptureWindow
+#+ "%menu/refresh.xpm%PlaceAgain"       PlaceAgain anim
+#+ "" Nop
+#+ "%menu/refresh.xpm%&Cascade" FvwmRearrange -cascade -m 3 3 -incx 2
+#+ "%menu/refresh.xpm%&PlaceAgain" All (CurrentPage !Sticky) PlaceAgain anim
+#+ "%menu/refresh.xpm%Tile &horizontally" FvwmRearrange -tile -h -m 2 2 98 98
+#+ "%menu/refresh.xpm%Tile &vertically"   FvwmRearrange -tile    -m 2 2 98 98
+#+ "%menu/refresh.xpm%Arrange Icons" All (CurrentDesk Iconic) RecaptureWindow
+#
+##
+##############################################################################
+##
+## Read Key and Mouse Configurations.
+##
+#
+##
+## 外部設定ファイルの読み込みにはReadコマンドを使います。
+##
+#
+#Read "esox/bindings"
+#
+##
+##############################################################################
+##
+## Read Menu Configurations
+##
+#
+#Read "esox/menus"
+#
+##
+##############################################################################
+##
+## FvwmBanner Module Configuration
+##
+#
+#DestroyModuleConfig FvwmBanner: *
+#*FvwmBanner: NoDecor
+#*FvwmBanner: Pixmap banner.xpm
+#*FvwmBanner: Timeout 3
+#
+##
+##############################################################################
+##
+## Cursors Style Configuration
+##
+## マウスカーソルのスタイルの指示です。
+##
+#
+#CursorStyle ROOT         left_ptr		black	white
+#CursorStyle POSITION     top_left_corner	black	white
+#CursorStyle TITLE        top_left_arrow		black	white
+#CursorStyle DEFAULT      top_left_arrow		black	white
+#CursorStyle SYS          hand2			black	white
+#CursorStyle MOVE         fleur			black	white
+#CursorStyle RESIZE       sizing			black	white
+#CursorStyle WAIT         watch			black	white
+#CursorStyle MENU         top_left_arrow		black	white
+#CursorStyle SELECT       crosshair		black	white
+#CursorStyle DESTROY      pirate			black	white
+#CursorStyle TOP          top_side		black	white
+#CursorStyle RIGHT        right_side		black	white
+#CursorStyle BOTTOM       bottom_side		black	white
+#CursorStyle LEFT         left_side		black	white
+#CursorStyle TOP_LEFT     top_left_corner	black	white
+#CursorStyle TOP_RIGHT    top_right_corner	black	white
+#CursorStyle BOTTOM_LEFT  bottom_left_corner	black	white
+#CursorStyle BOTTOM_RIGHT bottom_right_corner	black	white
+#CursorStyle TOP_EDGE     top_side		black	white
+#CursorStyle RIGHT_EDGE   right_side		black	white
+#CursorStyle BOTTOM_EDGE  bottom_side		black	white
+#CursorStyle LEFT_EDGE    left_side		black	white
+#CursorStyle STROKE       plus			black	white
+#
+##
+##############################################################################
+##
+## Xinerama Off
+##
+## Xineramaとはマルチディスプレイを利用するためのオプションです。
+## とりあえずオフにしておきます。
+##
+#Xinerama False
+#XineramaSls False
+#
+##
+##############################################################################
+##
+## Application Specific Styles
+##
+## MiniIconを指定しておくと、タスクバーにアイコンが表示されます。
+##
+#
+#Style "XMMS" MiniIcon menu/xmms.xpm, UsePPosition
+#Style "rxvt" MiniIcon menu/xconsole.xpm
+#Style "Emacs" MiniIcon menu/gnu.xpm
+#Style "VMware*" MiniIcon menu/remote.xpm
+#Style "Mozilla*" MiniIcon menu/mozilla.xpm
+#Style "gFTP*" MiniIcon menu/folder_ftp.xpm
+#Style "kppp" MiniIcon menu/kppp.xpm
+#Style "GQview" MiniIcon menu/image-viewer.xpm
+#Style "Gimp" MiniIcon menu/gimp.xpm
+#Style "KSnapshot" MiniIcon menu/ksnapshot.xpm
+#Style "*KColorChooser*" MiniIcon menu/colorpicker.xpm
+#Style "GNUPlot" MiniIcon menu/mathematica.xpm
+#Style "Acro*" MiniIcon menu/acroread.xpm
+#Style "gv*" MiniIcon menu/ghostview.xpm
+#Style "xpdf" MiniIcon menu/ghostview.xpm
+#Style "xdvi" MiniIcon menu/xapp.xpm
+#Style "Top" MiniIcon menu/monitoring.xpm
+#Style "xosview*" MiniIcon menu/xosview.xpm
