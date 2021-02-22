@@ -4,7 +4,7 @@ import argparse
 import pathlib
 
 from dotfiles import Runner
-from dotfiles.logics import Gdb, Git, Option, TMux
+from dotfiles.logics import Fvwm2, Gdb, Git, Option, TMux
 
 
 def parse_args() -> argparse.Namespace:
@@ -21,6 +21,7 @@ def main() -> None:
     r = Runner()
     r.add_logic(TMux(opt))
     r.add_logic(Gdb(opt))
+    r.add_logic(Fvwm2(opt))
     r.add_logic(Git(opt))
     r.run()
 

@@ -1,7 +1,7 @@
 import pathlib
 import tempfile
 
-from dotfiles.logics import ExitCode, Gdb, Git, Option, TMux
+from dotfiles.logics import ExitCode, Fvwm2, Gdb, Git, Option, TMux
 
 
 def test_tmux() -> None:
@@ -19,6 +19,15 @@ def test_gdb() -> None:
         r = Gdb(option)
         assert r.run() == ExitCode.SUCCESS
         assert (option.dest_dir / ".gdbinit").exists()
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_fvwm2() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Fvwm2(option)
+        assert r.run() == ExitCode.SUCCESS
+        assert (option.dest_dir / ".fvwm2rc").exists()
         assert r.run() == ExitCode.SUCCESS
 
 

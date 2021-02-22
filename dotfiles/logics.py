@@ -111,6 +111,15 @@ class Gdb(Logic):
         return SymLink(self._options, ".gdbinit").run()
 
 
+class Fvwm2(Logic):
+    @property
+    def name(self) -> str:
+        return "fvwm2"
+
+    def run(self) -> ExitCode:
+        return SymLink(self._options, ".fvwm2rc").run()
+
+
 class Git(Logic):
     @property
     def name(self) -> str:
@@ -125,5 +134,7 @@ class Git(Logic):
             f.write(GIT_CONFIG_TEMPLATE.format(src).strip())
             f.flush()
             return CopyFile(
-                self._options, src_path=pathlib.Path(f.name), dst_path=self._options.dest_dir / target
+                self._options,
+                src_path=pathlib.Path(f.name),
+                dst_path=self._options.dest_dir / target,
             ).run()
