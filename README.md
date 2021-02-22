@@ -27,10 +27,6 @@ If these commands are not found, dot_installer.bash will ask you to install them
 * z
 * direnv
 * peco
-* git
-* git-lfs
-* zsh-completions
-
 
 ## LICENSE
 

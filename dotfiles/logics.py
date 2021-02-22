@@ -32,6 +32,14 @@ ZSHENV_FILE={}
 """
 
 
+def program_exist(base: str, program: str) -> bool:
+    if shutil.which(program) is not None:
+        return True
+
+    print(f"[warning] {base} needs {program}. But {program} not found")
+    return False
+
+
 @dataclass
 class Option:
     dest_dir: pathlib.Path
@@ -112,6 +120,8 @@ class TMux(Logic):
         return "tmux"
 
     def run(self) -> ExitCode:
+        program_exist(self.name, "tmux")
+        program_exist(self.name, "xsel")
         return SymLink(self._options, ".tmux.conf").run()
 
 
@@ -130,6 +140,7 @@ class Gdb(Logic):
         return "gdb"
 
     def run(self) -> ExitCode:
+        program_exist(self.name, "gdb")
         return SymLink(self._options, ".gdbinit").run()
 
 
@@ -139,6 +150,7 @@ class Fvwm2(Logic):
         return "fvwm2"
 
     def run(self) -> ExitCode:
+        program_exist(self.name, "fvwm2")
         return SymLink(self._options, ".fvwm2rc").run()
 
 
@@ -149,6 +161,8 @@ class Git(Logic):
 
     # TODO: git-lfs check
     def run(self) -> ExitCode:
+        program_exist(self.name, "git")
+        program_exist(self.name, "git-lfs")
         with tempfile.NamedTemporaryFile(mode="w") as f:
             target = ".gitconfig"
             src = RESOURCES_PATH / target
@@ -168,6 +182,7 @@ class Zsh(Logic):
         return "zsh"
 
     def run(self) -> ExitCode:
+        program_exist(self.name, "zsh")
         zsh_completions = self._options.dest_dir / ".zsh-completions"
         if not zsh_completions.exists():
             Repo.clone_from("https://github.com/zsh-users/zsh-completions.git", zsh_completions)
@@ -207,6 +222,7 @@ class Vim(Logic):
         return "vim"
 
     def run(self) -> ExitCode:
+        program_exist(self.name, "vim")
         dot_vim = self._options.dest_dir / ".vim" / "autoload"
         if not dot_vim.exists():
             dot_vim.mkdir(parents=True)
