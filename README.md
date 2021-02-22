@@ -24,7 +24,6 @@ If these commands are not found, dot_installer.bash will ask you to install them
 
 ## TODO
 
-* docker, buildkit, docker-compose
 * GL
 * cuda
 * npm
