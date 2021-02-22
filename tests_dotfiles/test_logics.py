@@ -65,4 +65,5 @@ def test_vim() -> None:
         r = Vim(option)
         assert r.run() == ExitCode.SUCCESS
         assert (option.dest_dir / ".vimrc").exists()
+        assert (option.dest_dir / ".vim").exists()
         assert r.run() == ExitCode.SKIP
