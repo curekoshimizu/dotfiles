@@ -138,3 +138,24 @@ class Git(Logic):
                 src_path=pathlib.Path(f.name),
                 dst_path=self._options.dest_dir / target,
             ).run()
+
+
+class Zsh(Logic):
+    @property
+    def name(self) -> str:
+        return "zsh"
+
+    def run(self) -> ExitCode:
+        ret = CopyFile(
+            self._options,
+            src_path=RESOURCES_PATH / ".zshrc",
+            dst_path=self._options.dest_dir / ".zshrc",
+        ).run()
+        if ret != ExitCode.SUCCESS:
+            return ret
+
+        return CopyFile(
+            self._options,
+            src_path=RESOURCES_PATH / ".zshenv",
+            dst_path=self._options.dest_dir / ".zshenv",
+        ).run()
