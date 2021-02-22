@@ -1,4 +1,5 @@
-from dotfiles import Runner, TMux
+from dotfiles import Runner
+from dotfiles.logics import TMux
 
 
 def test_tmux() -> None:
