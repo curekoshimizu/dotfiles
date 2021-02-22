@@ -1,0 +1,120 @@
+[color]
+    ui = auto
+[core]
+    editor = vim 
+    preloadindex = true
+    # [autoCRLF]
+    # true  : automatically converting CRLF file to LF file when it is committed
+    #         and, automatically converting LF to CRLF when it is checked out
+    # false : not automatically converting
+    autoCRLF = false
+[i18n]
+    commitencoding = UTF-8
+[diff "sjis"]
+    # How to use
+    # if you have .gitattributes file which contains the following setting, 
+    # then you can diff all of *.c files after converting them to UTF-8
+    #------------------------
+    # *.c diff=sjis
+    #------------------------
+    textconv = "f() { \
+            if test `which nkf` ; then\
+                nkf -Lu $@;\
+            else\
+                iconv -f sjis $@;\
+            fi\
+        };f"
+[rebase]
+    autostash = true
+[alias]
+    co = checkout
+    st = status
+    f  = fetch --prune
+    pr = pull --rebase
+    c  = commit -v
+    empty-commit = commit --allow-empty
+
+    # cancel
+    reset-to-head = reset --hard HEAD
+    reset-add = reset HEAD
+    ####reset-current-commit = reset --soft HEAD^ # just commit, go to the previous state with the current change (need test...)
+
+    # log
+    s   = log -n 20 --date=short       --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s'
+    l   = log -n 20 --date=short       --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s' --graph
+    a   = log -n 20 --date=short --all --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s' --graph
+    ss  = log -n -1 --date=short       --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s'
+    ll  = log -n -1 --date=short       --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s' --graph
+    aa  = log -n -1 --date=short --all --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s' --graph
+
+    # git Log with Filename
+    lf = "!f() { \
+            git LL --name-status --color=always $@ \
+            | sed -e \"s/ M\t/         \t/g\" \
+            | sed -e \"s/ D\t/ [Delete]\t/g\" \
+            | sed -e \"s/ A\t/ [Add]   \t/g\" \
+            | sed -s '/^$/d'  \
+            | less -r -F; \
+    };f"
+    logfile = !git lf
+
+    # diff
+    d  = diff                  --color-words --ignore-all-space
+    d1 = diff HEAD~            --color-words --ignore-all-space
+    d2 = diff HEAD~~           --color-words --ignore-all-space
+    d3 = diff HEAD~~~          --color-words --ignore-all-space
+    d4 = diff HEAD~~~~         --color-words --ignore-all-space
+    d5 = diff HEAD~~~~~        --color-words --ignore-all-space
+    d10 = diff HEAD~~~~~~~~~~  --color-words --ignore-all-space
+
+    diff-fname = diff --name-status
+    diff-fname-only = diff --name-only
+
+    # svn
+    svn-push = svn dcommit
+    svn-f    = svn fetch
+    svn-pull = svn rebase
+    # making a patch for TortoiseSvn
+    make-patch = diff --no-prefix --no-textconv
+
+    # branch
+
+    # display all of branches including remote branches
+    br = branch -a
+
+
+    brall = "!f(){ \
+        for branch in `git branch -a | grep -v HEAD`;do echo -e `git show --format=\"%ai %ar\t by %an\" $branch | head -n 1` \\t$branch; done | sort  \
+        };f" 
+    brremote = "!f(){ \
+        for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format=\"%ai %ar\t by %an\" $branch | head -n 1` \\t$branch; done | sort  \
+        };f" 
+    # rename branch
+    move-branch = "!f(){ \
+        if test $# == 1 -o $# == 2 ; then\
+            git branch -m $@;\
+        else\
+            echo \"[usage1] git movebranch (new branch name))\";\
+            echo \"[usage2] git movebranch (old branch name) (new branch name)\";\
+        fi\
+        };f"
+
+    make-branch = checkout -b
+
+    copy-branch = "!f(){ \
+        if test $# == 2 ; then\
+            git checkout -b $@;\
+        else\
+            echo \"[usage1] git copybranch (new name) (origin name)\";\
+        fi\
+        };f"
+
+    branchall= "!f(){ \
+        for branch in `git branch -a | grep -v HEAD`; do echo `git show --format=\"%ai %ar by %an\t%d\" $branch | head -n 1`; done \
+        };f | sort | uniq"
+
+    delete-branch       = branch -d
+    delete-branch-force = branch -D
+
+    branch-no-merged = branch --no-merged
+    branch-merged    = branch --merged

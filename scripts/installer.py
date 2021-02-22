@@ -17,10 +17,10 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     options = parse_args()
-    opt = Option(dest_dir=options.dest_dir)
+    opt = Option(dest_dir=options.dest_dir, overwrite=options.overwrite)
     r = Runner()
     r.add_logic(TMux(opt))
-    # r.add_logic(Gdb(opt))
+    r.add_logic(Gdb(opt))
     r.add_logic(Git(opt))
     r.run()
 
