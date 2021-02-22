@@ -201,6 +201,9 @@ class Vim(Logic):
         return "vim"
 
     def run(self) -> ExitCode:
+        dot_vim = self._options.dest_dir / ".vim"
+        if not dot_vim.exists():
+            dot_vim.mkdir()
 
         with tempfile.NamedTemporaryFile(mode="w") as f:
             target = ".vimrc"
