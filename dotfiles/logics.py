@@ -1,10 +1,22 @@
 import abc
 import enum
-import shutil
 import pathlib
+import shutil
+import tempfile
 from dataclasses import dataclass
 
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
+
+
+GIT_CONFIG_TEMPLATE = """
+[include]
+    path = {}
+[filter "lfs"]
+    clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+"""
 
 
 @dataclass
@@ -51,27 +63,33 @@ class SymLink:
         dst.symlink_to(src)
         return ExitCode.SUCCESS
 
+
 class CopyFile:
-    def __init__(self, options: Option, filename: str) -> None:
+    def __init__(
+        self,
+        options: Option,
+        src_path: pathlib.Path,
+        dst_path: pathlib.Path,
+    ) -> None:
         self._options = options
-        self._filename = filename
+        self._src_path = src_path
+        self._dst_path = dst_path
 
     def run(self) -> ExitCode:
-        src = RESOURCES_PATH / self._filename
-        dst = self._options.dest_dir / self._filename
-        assert src.exists(), f"{src} not found"
+        dst = self._options.dest_dir / self._dst_path
+        assert self._src_path.exists(), f"{self._src_path} not found"
         if dst.exists():
             if self._options.overwrite:
                 if dst.is_symlink():
                     dst.unlink()
                 elif dst.is_file():
-                    pass # try overwrite
+                    pass  # try overwrite
                 else:
                     return ExitCode.SKIP
             else:
                 return ExitCode.SKIP
 
-        shutil.copy(src, dst)
+        shutil.copy(self._src_path, dst)
         return ExitCode.SUCCESS
 
 
@@ -100,4 +118,12 @@ class Git(Logic):
 
     # TODO: git-lfs check
     def run(self) -> ExitCode:
-        return CopyFile(self._options, ".gitconfig").run()
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            target = ".gitconfig"
+            src = RESOURCES_PATH / target
+            assert src.exists()
+            f.write(GIT_CONFIG_TEMPLATE.format(src).strip())
+            f.flush()
+            return CopyFile(
+                self._options, src_path=pathlib.Path(f.name), dst_path=self._options.dest_dir / target
+            ).run()
