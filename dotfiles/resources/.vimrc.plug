@@ -344,9 +344,7 @@ nmap E <Plug>(easymotion-s2)
 "{{{ qfixhowm
 let s:script_path = expand('<sfile>:p:h')
 "echomsg howm_dir
-if !exists("g:howm_dir")
-    let howm_dir = s:script_path . '/howm'
-endif
+let howm_dir = '$HOME/.howm'
 let howm_filename = '%Y-%m-%d-%H%M%S.md'
 let QFixHowm_FileType = 'markdown'
 let QFixHowm_Title = '# ['
