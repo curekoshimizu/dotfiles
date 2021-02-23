@@ -524,6 +524,7 @@ set wrap
 set showmatch
 set scrolloff=5
 set cursorline
+set nofoldenable
 
 set smartindent
 set listchars=
