@@ -261,6 +261,7 @@ class CommandLineHelper(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "peco")
+        program_exist(self.name, "ag")
         program_exist(self.name, "fzf")
         program_exist(self.name, "direnv")
         program_exist(self.name, "docker")
