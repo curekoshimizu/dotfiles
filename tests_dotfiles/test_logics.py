@@ -1,7 +1,21 @@
 import pathlib
 import tempfile
 
-from dotfiles.logics import CommandLineHelper, ExitCode, Fvwm2, Gdb, Git, Option, TMux, Vim, Vimperator, Zsh
+from dotfiles.logics import (
+    CommandLineHelper,
+    Docker,
+    ExitCode,
+    Fvwm2,
+    Gdb,
+    Git,
+    Node,
+    Option,
+    Python,
+    TMux,
+    Vim,
+    Vimperator,
+    Zsh,
+)
 
 
 def _check_file_exist(target: pathlib.Path) -> None:
@@ -79,5 +93,31 @@ def test_command() -> None:
         option = Option(dest_dir=pathlib.Path(d), overwrite=True)
         r = CommandLineHelper(option)
         assert r.run() == ExitCode.SUCCESS
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_docker() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Docker(option)
+        assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".docker" / "cli-plugins" / "docker-buildx")
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_python() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Python(option)
+        assert r.run() == ExitCode.SUCCESS
+        _check_file_exist(option.dest_dir / ".pyenv")
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_node() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Node(option)
+        assert r.run() == ExitCode.SUCCESS
+        _check_file_exist(option.dest_dir / ".nvm")
         assert r.run() == ExitCode.SUCCESS
