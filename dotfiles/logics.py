@@ -25,6 +25,10 @@ GIT_CONFIG_TEMPLATE = """
 ZSHRC_TEMPLATE = """
 ZSHRC_FILE={}
 . $ZSHRC_FILE
+
+# somehow these settings were overwritten
+bindkey "^P" history-beginning-search-backward
+bindkey "^N" history-beginning-search-forward
 """
 
 ZSHENV_TEMPLATE = """
@@ -264,6 +268,16 @@ class CommandLineHelper(Logic):
         program_exist(self.name, "ag")
         program_exist(self.name, "fzf")
         program_exist(self.name, "direnv")
+
+        return ExitCode.SUCCESS
+
+
+class Docker(Logic):
+    @property
+    def name(self) -> str:
+        return "docker"
+
+    def run(self) -> ExitCode:
         program_exist(self.name, "docker")
         program_exist(self.name, "docker-compose")
 
@@ -281,5 +295,33 @@ class CommandLineHelper(Logic):
                 f_plug.write(response.content)
             mode = buildx.stat().st_mode
             buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        return ExitCode.SUCCESS
+
+
+class Python(Logic):
+    @property
+    def name(self) -> str:
+        return "python"
+
+    def run(self) -> ExitCode:
+        program_exist(self.name, "python3")
+
+        pyenv = self._options.dest_dir / ".pyenv"
+        if not pyenv.exists():
+            Repo.clone_from("https://github.com/pyenv/pyenv.git", pyenv)
+
+        return ExitCode.SUCCESS
+
+
+class Node(Logic):
+    @property
+    def name(self) -> str:
+        return "node"
+
+    def run(self) -> ExitCode:
+        nvm = self._options.dest_dir / ".nvm"
+        if not nvm.exists():
+            Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
 
         return ExitCode.SUCCESS

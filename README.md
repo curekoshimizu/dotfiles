@@ -24,6 +24,8 @@ If these commands are not found, dot_installer.bash will ask you to install them
 
 ## TODO
 
+* vim docker
+* vimfiler
 * GL
 * cuda
 * npm

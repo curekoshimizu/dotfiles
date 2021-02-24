@@ -10,7 +10,6 @@ export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-p:up'
 PATH=/usr/local/bin:$PATH
 PATH=$PATH:/sbin:/usr/bin:/bin:$HOME/bin
 PATH=$PATH:$HOME/.poetry/bin
-
 ## Mac Brew Settings (coreutils)
 #case ${OSTYPE} in
 #    darwin*)
@@ -37,6 +36,19 @@ if [ -d ${HOME}/.cargo/env ];
     then source ${HOME}/.cargo/env;
 fi
 
+# pyenv
+PYENV_ROOT="$HOME/.pyenv"
+if [ -d ${PYENV_ROOT} ]; then
+    export PYENV_ROOT
+    export PATH="$PYENV_ROOT/bin:$PATH"
+fi
+
+NVM_DIR="$HOME/.nvm"
+if [ -d ${NVM_DIR} ]; then
+    export NVM_DIR
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+fi
 
 # unused because I started to use nvm
 # # NPM
