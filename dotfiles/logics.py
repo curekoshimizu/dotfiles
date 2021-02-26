@@ -26,6 +26,11 @@ ZSHRC_TEMPLATE = """
 ZSHRC_FILE={}
 . $ZSHRC_FILE
 
+# kubectl
+if command -v kubectl 1>/dev/null 2>&1; then
+    source <(kubectl completion zsh)
+fi
+
 # somehow these settings were overwritten
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
