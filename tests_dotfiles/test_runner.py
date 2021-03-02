@@ -12,14 +12,13 @@ def _check_file_exist(target: pathlib.Path) -> None:
 
 def test_runner() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
 
         r = Runner()
         r.add_logic(Gdb(option))
         r.add_logic(Vim(option))
+        r.run()
 
         _check_file_exist(option.dest_dir / ".gdbinit")
         _check_file_exist(option.dest_dir / ".vimrc")
         _check_file_exist(option.dest_dir / ".vim")
-
-        r.run()
