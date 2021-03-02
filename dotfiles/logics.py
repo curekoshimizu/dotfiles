@@ -263,6 +263,39 @@ class Vim(Logic):
             ).run()
 
 
+class NeoVim(Logic):
+    @property
+    def name(self) -> str:
+        return "nvim"
+
+    def run(self) -> ExitCode:
+        program_exist(self.name, "nvim")
+        nvim_dir = self._options.dest_dir / ".config" / "nvim"
+        if not nvim_dir.exists():
+            nvim_dir.mkdir(parents=True)
+
+        # install plug.vim
+        plug_dir = self._options.dest_dir / ".local" / "share" / "nvim" / "site" / "autoload"
+        if not plug_dir.exists():
+            plug_dir.mkdir(parents=True)
+
+        plug_vim = plug_dir / "plug.vim"
+        if (not plug_vim.exists()) or self._options.overwrite:
+            response = requests.get("https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
+            assert response.status_code == 200
+            with open(plug_vim, "wb") as f_plug:
+                f_plug.write(response.content)
+
+        # install .vimrc
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            target = ".vimrc"
+            conf_path = RESOURCES_PATH / target
+            assert conf_path.exists()
+            f.write("execute 'source {}'".format(conf_path))
+            f.flush()
+            return CopyFile(self._options, src_path=pathlib.Path(f.name), dst_path=nvim_dir / "init.vim").run()
+
+
 class CommandLineHelper(Logic):
     @property
     def name(self) -> str:
