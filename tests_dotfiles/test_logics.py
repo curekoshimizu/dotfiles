@@ -8,6 +8,7 @@ from dotfiles.logics import (
     Fvwm2,
     Gdb,
     Git,
+    NeoVim,
     Node,
     Option,
     Python,
@@ -85,6 +86,16 @@ def test_vim() -> None:
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".vimrc")
         _check_file_exist(option.dest_dir / ".vim")
+        assert r.run() == ExitCode.SKIP
+
+
+def test_neovim() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        r = NeoVim(option)
+        assert r.run() == ExitCode.SUCCESS
+        _check_file_exist(option.dest_dir / ".local" / "share" / "nvim" / "site" / "autoload" / "plug.vim")
+        _check_file_exist(option.dest_dir / ".config" / "nvim" / "init.vim")
         assert r.run() == ExitCode.SKIP
 
 

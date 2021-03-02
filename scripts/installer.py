@@ -4,7 +4,20 @@ import argparse
 import pathlib
 
 from dotfiles import Runner
-from dotfiles.logics import CommandLineHelper, Docker, Gdb, Git, Node, Option, Python, TMux, Vim, Vimperator, Zsh
+from dotfiles.logics import (
+    CommandLineHelper,
+    Docker,
+    Gdb,
+    Git,
+    NeoVim,
+    Node,
+    Option,
+    Python,
+    TMux,
+    Vim,
+    Vimperator,
+    Zsh,
+)
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,6 +44,7 @@ def main() -> None:
     r.add_logic(Git(opt))
     r.add_logic(Zsh(opt))
     r.add_logic(Vim(opt))
+    r.add_logic(NeoVim(opt))
     r.add_logic(CommandLineHelper(opt))
     r.add_logic(Docker(opt))
     r.add_logic(Python(opt))
