@@ -1,4 +1,5 @@
-from typing import List
+from concurrent.futures import ThreadPoolExecutor
+from typing import Iterator, List
 
 import emoji
 
@@ -13,8 +14,13 @@ class Runner:
         self._logics.append(logic)
 
     def run(self) -> None:
-        for logic in self._logics:
-            exit_code = logic.run()
+        def _logic_run(logic: Logic) -> ExitCode:
+            return logic.run()
+
+        with ThreadPoolExecutor() as executor:
+            results: Iterator[ExitCode] = executor.map(_logic_run, self._logics)
+
+        for logic, exit_code in zip(self._logics, results):
             if exit_code == ExitCode.SUCCESS:
                 print(emoji.emojize(f"{logic.name} success:OK_hand:"))
             elif exit_code == ExitCode.SKIP:
