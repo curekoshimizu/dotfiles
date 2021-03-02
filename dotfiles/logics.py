@@ -368,3 +368,30 @@ class Node(Logic):
             Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
 
         return ExitCode.SUCCESS
+
+
+class Rust(Logic):
+    @property
+    def name(self) -> str:
+        return "rust"
+
+    def run(self) -> ExitCode:
+        program_exist(self.name, "rustc")
+
+        # install rust-analyzer
+        bin_dir = self._options.dest_dir / "bin"
+        if not bin_dir.exists():
+            bin_dir.mkdir(parents=True)
+        rust_analyzer = bin_dir / "rust-analyzer"
+
+        if (not rust_analyzer.exists()) or self._options.overwrite:
+            response = requests.get(
+                "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux"
+            )
+            assert response.status_code == 200
+            with open(rust_analyzer, "wb") as f_plug:
+                f_plug.write(response.content)
+            mode = rust_analyzer.stat().st_mode
+            rust_analyzer.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        return ExitCode.SUCCESS
