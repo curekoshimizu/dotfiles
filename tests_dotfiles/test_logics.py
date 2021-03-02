@@ -12,6 +12,7 @@ from dotfiles.logics import (
     Node,
     Option,
     Python,
+    Rust,
     TMux,
     Vim,
     Vimperator,
@@ -131,4 +132,13 @@ def test_node() -> None:
         r = Node(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".nvm")
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_rust() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Rust(option)
+        assert r.run() == ExitCode.SUCCESS
+        _check_file_exist(option.dest_dir / "bin" / "rust-analyzer")
         assert r.run() == ExitCode.SUCCESS

@@ -13,6 +13,7 @@ from dotfiles.logics import (
     Node,
     Option,
     Python,
+    Rust,
     TMux,
     Vim,
     Vimperator,
@@ -49,6 +50,7 @@ def main() -> None:
     r.add_logic(Docker(opt))
     r.add_logic(Python(opt))
     r.add_logic(Node(opt))
+    r.add_logic(Rust(opt))
 
     r.run()
 
