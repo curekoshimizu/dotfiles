@@ -44,6 +44,11 @@ Plug 'osyo-manga/unite-qfixhowm'
 Plug 'Shougo/unite.vim' " only for vimfiler and unite-qfixhowm
 Plug 'Shougo/vimfiler'
 
+if exists('g:use_neovim')
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    "NOTE: please run :CocInstall coc-rust-analyzer"
+endif
+
 call plug#end()
 
 "{{{ dante

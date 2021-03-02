@@ -41,6 +41,11 @@ ZSHENV_FILE={}
 . $ZSHENV_FILE
 """
 
+NEOVIM_TEMPLATE = """
+let g:use_neovim = 1
+execute 'source {}'
+"""
+
 
 def _warning_message(base: str, program: str) -> None:
     print(f"[warning] {base} needs {program}. But {program} not found")
@@ -291,7 +296,7 @@ class NeoVim(Logic):
             target = ".vimrc"
             conf_path = RESOURCES_PATH / target
             assert conf_path.exists()
-            f.write("execute 'source {}'".format(conf_path))
+            f.write(NEOVIM_TEMPLATE.format(conf_path).strip())
             f.flush()
             return CopyFile(self._options, src_path=pathlib.Path(f.name), dst_path=nvim_dir / "init.vim").run()
 
