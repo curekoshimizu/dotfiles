@@ -662,9 +662,11 @@ command! -nargs=0 CopyBreak call s:set_gdb_break()
 
 " ref : http://pocke.hatenablog.com/entry/2014/10/26/145646
 "if $TMUX == ''
+if has("clipboard") && !exists('g:use_neovim')
     set clipboard^=autoselect
     set clipboard^=unnamedplus
     set clipboard^=unnamed
+endif
 "end
 
 augroup MoveDir
