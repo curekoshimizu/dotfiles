@@ -2,6 +2,23 @@
 
 set -eu
 
+if ! type python3 >/dev/null 2>&1; then
+    echo "python3 not found."
+    exit 1
+fi
+
+if ! python3 -m distutils.util >/dev/null 2>&1; then
+    echo "distutils module not found."
+    read -p "do you want to install python3-distutils? (y/N):" yn
+    case "$yn" in 
+        [yY])
+            sudo apt-get install python3-distutils
+            ;;
+        *)
+            exit 1;;
+    esac
+fi
+
 if ! type curl >/dev/null 2>&1; then
     echo "curl not found."
     read -p "do you want to install curl? (y/N):" yn
