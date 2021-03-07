@@ -200,7 +200,7 @@ bindkey '^g' zz
 alias cdp='echo "please use ctrl-g."'
 
 ## z
-Z_FILE=$(cd $(dirname $0); pwd)/z/z.sh
+Z_FILE=$(cd $(dirname $0); pwd)/.z/z.sh
 source $Z_FILE
 
 ## direnv
