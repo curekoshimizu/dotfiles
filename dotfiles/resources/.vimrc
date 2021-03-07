@@ -1014,7 +1014,7 @@ highlight DiffText   cterm=bold ctermfg=10 ctermbg=21
 
 augroup load_templates
 autocmd!
-    let s:load_templates_dir = s:script_path . '/template'
+    let s:load_templates_dir = s:script_path . '/.template'
     let s:load_templates_command="0read ".s:load_templates_dir
     autocmd BufNewFile *.c execute s:load_templates_command ."/template.c"
     autocmd BufNewFile *.cpp execute s:load_templates_command ."/template.cpp"
