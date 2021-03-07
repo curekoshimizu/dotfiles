@@ -322,7 +322,6 @@ class Docker(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "docker")
-        program_exist(self.name, "docker-compose")
 
         # install docker buildx
         buildx_plugin = self._options.dest_dir / ".docker" / "cli-plugins"
@@ -338,6 +337,27 @@ class Docker(Logic):
                 f_plug.write(response.content)
             mode = buildx.stat().st_mode
             buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        # install docker-compose
+        response = requests.get("https://api.github.com/repos/docker/compose/releases/latest")
+        content = response.json()
+        assert "name" in content
+        compose_release_name = content["name"]
+
+        bin_dir = self._options.dest_dir / "bin"
+        if not bin_dir.exists():
+            bin_dir.mkdir(parents=True)
+        compose = bin_dir / "docker-compose"
+
+        if (not compose.exists()) or self._options.overwrite:
+            response = requests.get(
+                f"https://github.com/docker/compose/releases/download/{compose_release_name}/docker-compose-Linux-x86_64"
+            )
+            assert response.status_code == 200
+            with open(compose, "wb") as f_plug:
+                f_plug.write(response.content)
+            mode = compose.stat().st_mode
+            compose.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
         return ExitCode.SUCCESS
 

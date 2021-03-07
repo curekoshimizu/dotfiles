@@ -114,6 +114,7 @@ def test_docker() -> None:
         r = Docker(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".docker" / "cli-plugins" / "docker-buildx")
+        _check_file_exist(option.dest_dir / "bin" / "docker-compose")
         assert r.run() == ExitCode.SUCCESS
 
 
