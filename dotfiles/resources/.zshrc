@@ -214,3 +214,8 @@ fi
 if command -v pyenv 1>/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
+
+# minikube
+if command -v minikube 1>/dev/null 2>&1; then
+    source <(minikube completion zsh) # for zsh users
+fi
