@@ -9,6 +9,7 @@ from dotfiles.logics import (
     Docker,
     Gdb,
     Git,
+    Golang,
     NeoVim,
     Node,
     Option,
@@ -51,6 +52,7 @@ def main() -> None:
     r.add_logic(Python(opt))
     r.add_logic(Node(opt))
     r.add_logic(Rust(opt))
+    r.add_logic(Golang(opt))
 
     r.run()
 

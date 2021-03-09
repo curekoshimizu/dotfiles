@@ -3,6 +3,7 @@ import enum
 import pathlib
 import shutil
 import stat
+import tarfile
 import tempfile
 from dataclasses import dataclass
 
@@ -413,5 +414,40 @@ class Rust(Logic):
                 f_plug.write(response.content)
             mode = rust_analyzer.stat().st_mode
             rust_analyzer.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+
+        return ExitCode.SUCCESS
+
+
+class Golang(Logic):
+    @property
+    def name(self) -> str:
+        return "golang"
+
+    def run(self) -> ExitCode:
+        # install golang
+
+        target = self._options.dest_dir / ".golang"
+        if (not target.exists()) or self._options.overwrite:
+
+            if target.exists():
+                assert (target / "bin" / "go").exists()
+                shutil.rmtree(target)
+
+            with tempfile.TemporaryDirectory() as d:
+                temp_dir = pathlib.Path(d)
+                response = requests.get("https://golang.org/VERSION?m=text")
+                assert response.status_code == 200
+                filename = f"{response.text}.linux-amd64.tar.gz"
+                response = requests.get(f"https://golang.org/dl/{filename}")
+
+                targz = temp_dir / filename
+
+                with open(targz, "wb") as f:
+                    f.write(response.content)
+
+                with tarfile.open(targz, "r:gz") as t:
+                    t.extractall(path=d)
+                assert (temp_dir / "go").exists()
+                (temp_dir / "go").rename(target)
 
         return ExitCode.SUCCESS
