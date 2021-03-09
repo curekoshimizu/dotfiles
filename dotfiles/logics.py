@@ -427,13 +427,14 @@ class Golang(Logic):
         # install golang
 
         target = self._options.dest_dir / ".golang"
-        if (not target.exists()) or self._options.overwrite:
-
+        if target.exists() and (not self._options.overwrite):
+            return ExitCode.SKIP
+        else:
             if target.exists():
                 assert (target / "bin" / "go").exists()
                 shutil.rmtree(target)
 
-            with tempfile.TemporaryDirectory() as d:
+            with tempfile.TemporaryDirectory(dir=self._options.dest_dir) as d:
                 temp_dir = pathlib.Path(d)
                 response = requests.get("https://golang.org/VERSION?m=text")
                 assert response.status_code == 200
@@ -449,5 +450,4 @@ class Golang(Logic):
                     t.extractall(path=d)
                 assert (temp_dir / "go").exists()
                 (temp_dir / "go").rename(target)
-
-        return ExitCode.SUCCESS
+            return ExitCode.SUCCESS
