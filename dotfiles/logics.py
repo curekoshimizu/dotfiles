@@ -48,15 +48,15 @@ execute 'source {}'
 """
 
 
-def _warning_message(base: str, program: str) -> None:
-    print(f"[warning] {base} needs {program}. But {program} not found")
+def _warning_message(base: str, program: str, help_message: str = "") -> None:
+    print(f"[warning] {base} needs {program}. But {program} not found. {help_message}")
 
 
-def program_exist(base: str, program: str) -> bool:
+def program_exist(base: str, program: str, help_message: str = "") -> bool:
     if shutil.which(program) is not None:
         return True
 
-    _warning_message(base, program)
+    _warning_message(base, program, help_message)
     return False
 
 
@@ -381,14 +381,18 @@ class Python(Logic):
 class Node(Logic):
     @property
     def name(self) -> str:
-        return "node"
+        return "nodejs"
 
     def run(self) -> ExitCode:
-        nvm = self._options.dest_dir / ".nvm"
-        if not nvm.exists():
-            Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
+        program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'")
+        program_exist(self.name, "node", "try 'nvm install --lst --latest-npm'")
 
-        return ExitCode.SUCCESS
+        nvm = self._options.dest_dir / ".nvm"
+        if nvm.exists():
+            return ExitCode.SKIP
+        else:
+            Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
+            return ExitCode.SUCCESS
 
 
 class Rust(Logic):
