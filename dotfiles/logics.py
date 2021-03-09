@@ -384,8 +384,8 @@ class Node(Logic):
         return "nodejs"
 
     def run(self) -> ExitCode:
-        program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'")
-        program_exist(self.name, "node", "try 'nvm install --lst --latest-npm'")
+        program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'.")
+        program_exist(self.name, "node", "try 'nvm install --lst --latest-npm'.")
 
         nvm = self._options.dest_dir / ".nvm"
         if nvm.exists():
@@ -401,7 +401,7 @@ class Rust(Logic):
         return "rust"
 
     def run(self) -> ExitCode:
-        program_exist(self.name, "rustc")
+        program_exist(self.name, "rustc", "try \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\".")
 
         # install rust-analyzer
         bin_dir = self._options.dest_dir / "bin"
