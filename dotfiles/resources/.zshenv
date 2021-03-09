@@ -17,19 +17,11 @@ PATH=$PATH:$HOME/.poetry/bin
 #        PATH=/usr/local/texlive/2014/bin/x86_64-darwin:$PATH
 #        ;;
 #esac
-#
-## Go Settings
-case ${OSTYPE} in
-  darwin*)
-    export GOROOT=/usr/local/opt/go/libexec
-    ;;
-  *)
-#    export GOROOT=/usr/local/go
-    ;;
-esac
 
-#export GOPATH=$HOME/GO_PATH
-#PATH=$GOROOT/bin:$GOPATH/bin:$PATH
+## Golang
+if [ -d ${HOME}/.golang ]; then
+    export PATH=$PATH:$HOME/.golang/bin
+fi
 
 ## RUST
 if [ -d ${HOME}/.cargo/env ];
