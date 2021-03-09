@@ -8,6 +8,7 @@ from dotfiles.logics import (
     Fvwm2,
     Gdb,
     Git,
+    Golang,
     NeoVim,
     Node,
     Option,
@@ -142,4 +143,13 @@ def test_rust() -> None:
         r = Rust(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / "bin" / "rust-analyzer")
+        assert r.run() == ExitCode.SUCCESS
+
+
+def test_golang() -> None:
+    with tempfile.TemporaryDirectory() as d:
+        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        r = Golang(option)
+        assert r.run() == ExitCode.SUCCESS
+        _check_file_exist(option.dest_dir / ".golang" / "bin" / "go")
         assert r.run() == ExitCode.SUCCESS
