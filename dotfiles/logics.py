@@ -187,7 +187,7 @@ class Git(Logic):
             target = ".gitconfig"
             src = RESOURCES_PATH / target
             assert src.exists()
-            f.write(GIT_CONFIG_TEMPLATE.format(src).strip())
+            f.write(GIT_CONFIG_TEMPLATE.format(src).lstrip())
             f.flush()
             return CopyFile(
                 self._options,
@@ -210,7 +210,7 @@ class Zsh(Logic):
         with tempfile.NamedTemporaryFile(mode="w") as f:
             conf_path = RESOURCES_PATH / ".zshrc"
             assert conf_path.exists()
-            f.write(ZSHRC_TEMPLATE.format(conf_path).strip())
+            f.write(ZSHRC_TEMPLATE.format(conf_path).lstrip())
             f.flush()
             ret = CopyFile(
                 self._options,
@@ -223,7 +223,7 @@ class Zsh(Logic):
         with tempfile.NamedTemporaryFile(mode="w") as f:
             conf_path = RESOURCES_PATH / ".zshenv"
             assert conf_path.exists()
-            f.write(ZSHENV_TEMPLATE.format(conf_path).strip())
+            f.write(ZSHENV_TEMPLATE.format(conf_path).lstrip())
             f.flush()
             ret = CopyFile(
                 self._options,
@@ -297,7 +297,7 @@ class NeoVim(Logic):
             target = ".vimrc"
             conf_path = RESOURCES_PATH / target
             assert conf_path.exists()
-            f.write(NEOVIM_TEMPLATE.format(conf_path).strip())
+            f.write(NEOVIM_TEMPLATE.format(conf_path).lstrip())
             f.flush()
             return CopyFile(self._options, src_path=pathlib.Path(f.name), dst_path=nvim_dir / "init.vim").run()
 
