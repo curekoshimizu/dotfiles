@@ -20,15 +20,22 @@ Plug 'sjl/gundo.vim'
 Plug 'airblade/vim-gitgutter'
 
 " completion
-Plug 'prabirshrestha/async.vim'
-Plug 'prabirshrestha/vim-lsp'
-Plug 'mattn/vim-lsp-settings'
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+if exists('g:use_neovim')
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'rust-lang/rust.vim'
+
+    "NOTE: please run :CocInstall coc-rust-analyzer"
+else
+    Plug 'prabirshrestha/async.vim'
+    Plug 'prabirshrestha/vim-lsp'
+    Plug 'mattn/vim-lsp-settings'
+    Plug 'prabirshrestha/asyncomplete.vim'
+    Plug 'prabirshrestha/asyncomplete-lsp.vim'
+    Plug 'autozimu/LanguageClient-neovim', {
+        \ 'branch': 'next',
+        \ 'do': 'bash install.sh',
+        \ }
+endif
 
 " cpp
 Plug 'vim-scripts/a.vim'
@@ -44,10 +51,6 @@ Plug 'osyo-manga/unite-qfixhowm'
 Plug 'Shougo/unite.vim' " only for vimfiler and unite-qfixhowm
 Plug 'Shougo/vimfiler'
 
-if exists('g:use_neovim')
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    "NOTE: please run :CocInstall coc-rust-analyzer"
-endif
 
 call plug#end()
 
@@ -64,18 +67,18 @@ colorscheme dante
 let g:lsp_highlights_enabled = 0
 let g:lsp_signs_enabled = 1
 
-" NOTE: you need to install pyls-isrot and pyls-black
-" pip install pyls-isort and pyls-black
-augroup LspAutoFormatting
-   autocmd!
-   if has("black")
-       autocmd BufWritePre *.py execute ':Black'
-   endif
-
-
-   " autocmd BufWritePre *.py LspDocumentFormatSync
-   autocmd BufWritePre *.rs LspDocumentFormatSync
-augroup END
+" " NOTE: you need to install pyls-isrot and pyls-black
+" " pip install pyls-isort and pyls-black
+" augroup LspAutoFormatting
+"    autocmd!
+"    if has("black")
+"        autocmd BufWritePre *.py execute ':Black'
+"    endif
+"
+"
+"    " autocmd BufWritePre *.py LspDocumentFormatSync
+"    " autocmd BufWritePre *.rs LspDocumentFormatSync
+" augroup END
 
 inoremap <expr> <Tab>   pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
@@ -138,8 +141,15 @@ call s:add_quickhl_manual_color(255, 238,  88, 0)
 "}}}
 
 " rust-lang
-"let g:rustfmt_autosave = 1
+let g:rustfmt_autosave = 1
 "let g:rustfmt_command = '$HOME/.cargo/bin/rustfmt'
+
+"{{{ coc
+nmap <silent> ,gd <Plug>(coc-definition)
+nmap <silent> ,gy <Plug>(coc-type-definition)
+nmap <silent> ,gi <Plug>(coc-implementation)
+nmap <silent> ,gr <Plug>(coc-references)
+"}}}
 
 "{{{ lightline
 let g:lightline = {
