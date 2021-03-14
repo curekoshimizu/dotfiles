@@ -1023,7 +1023,6 @@ autocmd!
     autocmd BufNewFile *.c execute s:load_templates_command ."/template.c"
     autocmd BufNewFile *.cpp execute s:load_templates_command ."/template.cpp"
     autocmd BufNewFile *.py execute s:load_templates_command ."/template.py"
-    autocmd BufNewFile .gitignore execute s:load_templates_command ."/.gitignore"
     autocmd BufNewFile *.html execute s:load_templates_command ."/template.html"
 augroup END
 
