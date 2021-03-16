@@ -62,8 +62,8 @@ case `hostname` in
     curekoshimizu )
         _prompt_main_color=cyan
         ;;
-    koshimizu.local )
-        _prompt_main_color=red
+    koshimizu )
+        _prompt_main_color=magenta
         ;;
     * )
         _prompt_main_color=yellow
