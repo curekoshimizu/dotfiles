@@ -12,12 +12,15 @@ Plug 'vim-scripts/dante.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'pbogut/fzf-mru.vim'
 Plug 'Lokaltog/vim-easymotion'
 Plug 'tpope/vim-fugitive'
 Plug 'fuenor/qfixhowm'
 Plug 'tomtom/tcomment_vim'
 Plug 'sjl/gundo.vim'
 Plug 'airblade/vim-gitgutter'
+Plug 'mipmip/vim-run-in-blender' 
+Plug 'dense-analysis/ale'
 
 " completion
 if exists('g:use_neovim')
@@ -37,6 +40,9 @@ else
         \ }
 endif
 
+" python
+Plug 'bonprosoft/pysen.vim'
+
 " cpp
 Plug 'vim-scripts/a.vim'
 
@@ -45,6 +51,10 @@ Plug 'vim-scripts/a.vim'
 
 " python
 "Plug 'python/black'
+
+" tsx, jsx
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 
 " deprecated...
 Plug 'osyo-manga/unite-qfixhowm'
@@ -323,11 +333,11 @@ nnoremap <silent> ,g :<C-u>GFiles<CR>
 nnoremap <silent> ,,g :<C-u>GGrep<CR>
 
 nnoremap <silent> ,um :<C-u>FZFMru<CR>
-command! FZFMru call fzf#run({
-            \  'source':  v:oldfiles,
-            \  'sink':    'e',
-            \  'options': '-m -x +s',
-            \  'down':    '40%'})
+" command! FZFMru call fzf#run({
+"             \  'source':  v:oldfiles,
+"             \  'sink':    'e',
+"             \  'options': '-m -x +s',
+"             \  'down':    '40%'})
 
 command! -bang -nargs=* GGrep
   \ call fzf#vim#grep(
@@ -378,3 +388,15 @@ nnoremap <silent> ,uh :<C-u>Unite qfixhowm/new qfixhowm:nocache<CR>
 "}}}
 
 nnoremap <silent> ,c :checktime<CR>
+
+
+function! s:pysen()
+    LspDocumentFormatSync
+    " LspDocumentDiagnostics 
+endfunction
+
+command! Pysen call s:pysen()
+
+let b:ale_linters = {'typescriptreact': ['eslint']}
+let g:ale_fixers = { 'typescriptreact': ['eslint']}
+let g:ale_fix_on_save = 1

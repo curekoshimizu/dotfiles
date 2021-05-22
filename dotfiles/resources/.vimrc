@@ -383,6 +383,7 @@ call SetManualFgColor("Function",  33, 150, 243, 0)
 "call SetManualBgColor("Function",   92, 107, 192, 1)
 "call SetManualBgColor("Function",   61,  90, 254, 1)
 "call SetManualFgColor("Function", 255,  87,  34, 0)
+call SetManualBgColor("ALEError",  255, 193,   7, 0)
 
 highlight LspErrorHighlight term=underline cterm=underline gui=underline
 highlight LspWarningHighlight term=underline cterm=underline gui=underline
@@ -475,6 +476,7 @@ augroup FileTypeSettings
     autocmd!
     autocmd BufNewFile,BufRead *.{md,mdwn,mkd,mkdn,mark*} set filetype=markdown
     autocmd BufNewFile,BufRead *.tml set filetype=toml
+    autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescriptreact
 augroup END
 "}}}
 
