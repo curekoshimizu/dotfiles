@@ -86,16 +86,17 @@ class Logic(abc.ABC):
 
 
 class SymLink:
-    def __init__(self, options: Option, filename: str) -> None:
-        self._options = options
+    def __init__(self, overwrite: bool, dest_dir: pathlib.Path, filename: str) -> None:
+        self._overwrite = overwrite
+        self._dest_dir = dest_dir
         self._filename = filename
 
     def run(self) -> ExitCode:
         src = RESOURCES_PATH / self._filename
-        dst = self._options.dest_dir / self._filename
+        dst = self._dest_dir / self._filename
         assert src.exists(), f"{src} not found"
         if dst.exists():
-            if self._options.overwrite:
+            if self._overwrite:
                 if dst.is_symlink():
                     dst.unlink()
             else:
@@ -142,7 +143,7 @@ class TMux(Logic):
     def run(self) -> ExitCode:
         program_exist(self.name, "tmux")
         program_exist(self.name, "xsel")
-        return SymLink(self._options, ".tmux.conf").run()
+        return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf").run()
 
 
 class Vimperator(Logic):
@@ -151,7 +152,7 @@ class Vimperator(Logic):
         return "vimperator"
 
     def run(self) -> ExitCode:
-        return SymLink(self._options, ".vimperatorrc").run()
+        return SymLink(self._options.overwrite, self._options.dest_dir, ".vimperatorrc").run()
 
 
 class Gdb(Logic):
@@ -161,7 +162,7 @@ class Gdb(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "gdb")
-        return SymLink(self._options, ".gdbinit").run()
+        return SymLink(self._options.overwrite, self._options.dest_dir, ".gdbinit").run()
 
 
 class Fvwm2(Logic):
@@ -171,7 +172,7 @@ class Fvwm2(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "fvwm2")
-        return SymLink(self._options, ".fvwm2rc").run()
+        return SymLink(self._options.overwrite, self._options.dest_dir, ".fvwm2rc").run()
 
 
 class Git(Logic):
@@ -183,6 +184,12 @@ class Git(Logic):
     def run(self) -> ExitCode:
         program_exist(self.name, "git")
         program_exist(self.name, "git-lfs")
+        # .config/git/ignore
+        config_git = self._options.dest_dir / ".config" / "git"
+        if not config_git.exists():
+            config_git.mkdir(parents=True)
+        SymLink(self._options.overwrite, config_git, "ignore")
+        # .gitconfig
         with tempfile.NamedTemporaryFile(mode="w") as f:
             target = ".gitconfig"
             src = RESOURCES_PATH / target

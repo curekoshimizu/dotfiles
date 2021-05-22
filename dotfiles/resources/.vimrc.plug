@@ -398,5 +398,7 @@ endfunction
 command! Pysen call s:pysen()
 
 let b:ale_linters = {'typescriptreact': ['eslint']}
-let g:ale_fixers = { 'typescriptreact': ['eslint']}
+let g:ale_fixers = {
+\    'typescriptreact': ['eslint'],
+\ }
 let g:ale_fix_on_save = 1
