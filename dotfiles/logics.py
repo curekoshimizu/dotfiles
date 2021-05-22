@@ -188,7 +188,9 @@ class Git(Logic):
         config_git = self._options.dest_dir / ".config" / "git"
         if not config_git.exists():
             config_git.mkdir(parents=True)
-        SymLink(self._options.overwrite, config_git, "ignore")
+        ret = SymLink(self._options.overwrite, config_git, "ignore").run()
+        if ret != ExitCode.SUCCESS:
+            return ret
         # .gitconfig
         with tempfile.NamedTemporaryFile(mode="w") as f:
             target = ".gitconfig"

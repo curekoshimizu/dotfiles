@@ -68,6 +68,7 @@ def test_git() -> None:
         r = Git(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".gitconfig")
+        _check_file_exist(option.dest_dir / ".config" / "git" / "ignore")
         assert r.run() == ExitCode.SKIP
 
 
@@ -134,7 +135,7 @@ def test_node() -> None:
         r = Node(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".nvm")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run() == ExitCode.SKIP
 
 
 def test_rust() -> None:
