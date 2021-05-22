@@ -113,6 +113,7 @@
         for branch in `git branch -a | grep -v HEAD`; do echo `git show --format=\"%ai %ar by %an\t%d\" $branch | head -n 1`; done \
         };f | sort | uniq"
 
+    push-force = push --force-with-lease
     delete-branch       = branch -d
     delete-branch-force = branch -D
 
