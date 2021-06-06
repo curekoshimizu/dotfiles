@@ -51,6 +51,13 @@ fi
 ## Java Settings
 #export JAVA_HOME=/usr/java/default
 
+TIMEFMT=$'\n'
+TIMEFMT=${TIMEFMT}$'------------------------\n'
+TIMEFMT=${TIMEFMT}$'Program : %J\nCPU     : %P\n'
+TIMEFMT=${TIMEFMT}$'user    : %*Us (CPU seconds spent in user mode.)\n'
+TIMEFMT=${TIMEFMT}$'system  : %*Ss (CPU seconds spent in kernel mode.)\n'
+TIMEFMT=${TIMEFMT}$'total   : %*Es\n'
+TIMEFMT=${TIMEFMT}$'------------------------'
 
 ##===================================================================
 #
