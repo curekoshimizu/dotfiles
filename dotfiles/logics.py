@@ -1,5 +1,6 @@
 import abc
 import enum
+import multiprocessing
 import pathlib
 import shutil
 import stat
@@ -21,6 +22,12 @@ GIT_CONFIG_TEMPLATE = """
     smudge = git-lfs smudge -- %f
     process = git-lfs filter-process
     required = true
+[fetch]
+    parallel = {}
+[submodule]
+    fetchJobs = {}
+[http]
+    maxRequests = {}
 """
 
 ZSHRC_TEMPLATE = """
@@ -196,7 +203,8 @@ class Git(Logic):
             target = ".gitconfig"
             src = RESOURCES_PATH / target
             assert src.exists()
-            f.write(GIT_CONFIG_TEMPLATE.format(src).lstrip())
+            nthreads = multiprocessing.cpu_count()
+            f.write(GIT_CONFIG_TEMPLATE.format(src, nthreads, nthreads, nthreads).lstrip())
             f.flush()
             return CopyFile(
                 self._options,
