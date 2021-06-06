@@ -53,11 +53,15 @@ fi
 
 TIMEFMT=$'\n'
 TIMEFMT=${TIMEFMT}$'------------------------\n'
-TIMEFMT=${TIMEFMT}$'Program : %J\nCPU     : %P\n'
+TIMEFMT=${TIMEFMT}$'Program : %J\nCPU     : %P = (user + system)/total\n'
 TIMEFMT=${TIMEFMT}$'user    : %*Us (CPU seconds spent in user mode.)\n'
 TIMEFMT=${TIMEFMT}$'system  : %*Ss (CPU seconds spent in kernel mode.)\n'
 TIMEFMT=${TIMEFMT}$'total   : %*Es\n'
 TIMEFMT=${TIMEFMT}$'------------------------'
+
+
+NCORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')
+NTHREADS=$(grep ^siblings /proc/cpuinfo | uniq | awk '{print $3}')
 
 ##===================================================================
 #

@@ -1,5 +1,11 @@
 [color]
     ui = auto
+# [fetch]
+#     parallel = ${NTHREADS:=2}
+# [submodule]
+#     fetchJobs = ${NTHREADS:=1}
+# [http]
+#     maxRequests = ${NTHREADS:=5}
 [core]
     editor = vim 
     preloadindex = true
@@ -119,3 +125,5 @@
 
     branch-no-merged = branch --no-merged
     branch-merged    = branch --merged
+
+    cl = clone --recurse-submodules
