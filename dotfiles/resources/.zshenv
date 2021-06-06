@@ -63,6 +63,10 @@ TIMEFMT=${TIMEFMT}$'------------------------'
 NCORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')
 NTHREADS=$(grep ^siblings /proc/cpuinfo | uniq | awk '{print $3}')
 
+if docker buildx help 2>&1 >/dev/null; then
+    export DOCKER_BUILDKIT=1
+fi
+
 ##===================================================================
 #
 ## ------------------------------------------------
