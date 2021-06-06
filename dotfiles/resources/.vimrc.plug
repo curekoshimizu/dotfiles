@@ -27,6 +27,16 @@ if exists('g:use_neovim')
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
     Plug 'rust-lang/rust.vim'
 
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+
+
+    " NOTE: 
+    "  :RustTest!  : rust test all
+    "
+
     "NOTE: please run :CocInstall coc-rust-analyzer"
 else
     Plug 'prabirshrestha/async.vim'
@@ -397,8 +407,14 @@ endfunction
 
 command! Pysen call s:pysen()
 
-let b:ale_linters = {'typescriptreact': ['eslint']}
+"{{{ ale.vim
+let b:ale_linters = {
+\   'typescriptreact': ['eslint'],
+\   'typescript': ['eslint'],
+\ }
 let g:ale_fixers = {
-\    'typescriptreact': ['eslint'],
+\   'typescriptreact': ['eslint'],
+\   'typescript': ['eslint'],
 \ }
 let g:ale_fix_on_save = 1
+"}}}
