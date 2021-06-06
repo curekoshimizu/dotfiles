@@ -428,7 +428,7 @@ class Rust(Logic):
 
         if (not rust_analyzer.exists()) or self._options.overwrite:
             response = requests.get(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/latest/download/rust-analyzer-linux"
+                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2021-05-17/rust-analyzer-linux"
             )
             assert response.status_code == 200
             with open(rust_analyzer, "wb") as f_plug:
