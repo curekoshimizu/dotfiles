@@ -5,6 +5,7 @@
 call plug#begin('~/.vim/plugged')
 
 " fundamental
+Plug 'mbbill/undotree'
 Plug 'curekoshimizu/vim-quickhl'
 Plug 'rking/ag.vim'
 Plug 'pasela/unite-webcolorname'
