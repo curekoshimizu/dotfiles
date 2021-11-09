@@ -39,12 +39,22 @@ function git-branch() {
 alias dc='docker-compose'
 alias gtar='tar'
 alias gmake='make'
-alias ls='ls --color'
-alias ll='ls -l --color'
-alias la='ls -a --color'
-alias ltr='ls -ltr --color'
-alias duh='du -b | sort -n | numfmt --to=iec --suffix=B --padding=5'
 
+case "${OSTYPE}" in
+darwin*)
+  alias ls="ls -G"
+  alias ll="ls -lG"
+  alias la="ls -laG"
+  alias ltr='ls -ltrG'
+  ;;
+linux*)
+  alias ls='ls --color'
+  alias ll='ls -l --color'
+  alias la='ls -la --color'
+  alias ltr='ls -ltr --color'
+  ;;
+esac
+alias duh='du -b | sort -n | numfmt --to=iec --suffix=B --padding=5'
 
 alias -g H='$(git-hash)'
 alias -g B='$(git-branch)'
