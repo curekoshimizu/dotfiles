@@ -402,7 +402,7 @@ class Node(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'.")
-        program_exist(self.name, "node", "try 'nvm install --lst --latest-npm'.")
+        program_exist(self.name, "node", "try 'nvm install --lts --latest-npm'.")
 
         nvm = self._options.dest_dir / ".nvm"
         if nvm.exists():
