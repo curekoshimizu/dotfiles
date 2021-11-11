@@ -54,6 +54,10 @@ endif
 " python
 Plug 'bonprosoft/pysen.vim'
 
+" golang
+Plug 'mattn/vim-goimports'
+Plug 'tweekmonster/gofmt.vim'
+
 " cpp
 Plug 'vim-scripts/a.vim'
 
@@ -418,4 +422,9 @@ let g:ale_fixers = {
 \   'typescript': ['eslint'],
 \ }
 let g:ale_fix_on_save = 1
+"}}}
+
+
+"{{{ mattn/vim-goimports
+let g:goimports = 1
 "}}}
