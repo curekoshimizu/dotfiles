@@ -51,9 +51,9 @@
     lf = "!f() { \
             git LL --name-status --color=always $@ \
             | sed -e \"s/ M\t/         \t/g\" \
-            | sed -e \"s/ D\t/ [Delete]\t/g\" \
-            | sed -e \"s/ A\t/ [Add]   \t/g\" \
-            | sed -s '/^$/d'  \
+             -e \"s/ D\t/ [Delete]\t/g\" \
+             -e \"s/ A\t/ [Add]   \t/g\" \
+             -e '/^$/d'  \
             | less -r -F; \
     };f"
     logfile = !git lf
