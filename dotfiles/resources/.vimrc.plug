@@ -273,7 +273,6 @@ function! MyReadonly()
     execute 'hi ROColor ctermfg=196 ctermbg=238 guifg=#ff0000 guibg=#444444 term=bold cterm=bold'
     return ' ' . (&ft !~? 'help' && &readonly ? 'RO' : '')
 endfunction
-
 function! MyPwd()
     return " " . fnamemodify(getcwd(), ":~")
 endfunction
