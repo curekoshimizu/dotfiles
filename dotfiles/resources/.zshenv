@@ -24,7 +24,7 @@ if [ -d ${HOME}/.golang ]; then
 fi
 
 ## RUST
-if [ -d ${HOME}/.cargo/env ];
+if [ -f ${HOME}/.cargo/env ];
     then source ${HOME}/.cargo/env;
 fi
 
@@ -59,13 +59,20 @@ TIMEFMT=${TIMEFMT}$'system  : %*Ss (CPU seconds spent in kernel mode.)\n'
 TIMEFMT=${TIMEFMT}$'total   : %*Es\n'
 TIMEFMT=${TIMEFMT}$'------------------------'
 
-
-NCORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')
-NTHREADS=$(grep ^siblings /proc/cpuinfo | uniq | awk '{print $3}')
-
-if docker buildx help 2>&1 >/dev/null; then
-    export DOCKER_BUILDKIT=1
-fi
+UNAME_OUT="$(uname -s)"
+case "${UNAME_OUT}" in
+Linux*)
+	NCORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')
+	NTHREADS=$(grep ^siblings /proc/cpuinfo | uniq | awk '{print $3}')
+	if docker buildx help 2>&1 >/dev/null; then
+		export DOCKER_BUILDKIT=1
+	fi
+	machine=Linux;;
+Darwin*)
+    machine=Mac;;
+*)
+    machine="UNKNOWN:${UNAME_OUT}"
+esac
 
 ##===================================================================
 #

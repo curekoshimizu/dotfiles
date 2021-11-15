@@ -1,0 +1,160 @@
+# vi mode
+set-window-option -g mode-keys vi
+
+# add prefix key (ordinary prefix key is Ctrl-b)
+set -g prefix C-q
+
+# new window
+bind C new-window
+bind c new-window \; command-prompt -p "Name for this new window: " "rename-window '%%'"
+
+bind | select-layout even-horizontal
+bind - select-layout even-vertical
+
+# split
+bind s split-window -v
+bind v split-window -h
+
+# how to move between the pains
+bind h select-pane -L\; refresh-client -S
+bind j select-pane -D\; refresh-client -S
+bind k select-pane -U\; refresh-client -S
+bind l select-pane -R\; refresh-client -S
+
+# resize the current pain
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+bind -r Left  resize-pane -L 5
+bind -r Down  resize-pane -D 5
+bind -r Up    resize-pane -U 5
+bind -r Right resize-pane -R 5
+
+# resize all of the pains
+bind | select-layout even-horizontal
+bind - select-layout even-vertical
+
+# reload
+bind r source-file ~/.tmux.conf \; display "Reloaded!"
+
+
+bind-key -T copy-mode-vi v send -X begin-selection
+bind-key -T copy-mode-vi y send-keys -X copy-pipe-and-cancel "pbcopy"
+bind-key -T copy-mode-vi MouseDragEnd1Pane send-keys -X copy-pipe-and-cancel "pbcopy"
+bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "pbcopy"
+bind-key -T copy-mode-vi ] send -X "pbpaste | tmux load-buffer - && tmux paste-buffer"
+bind-key -T copy-mode-vi p send -X "pbpaste | tmux load-buffer - && tmux paste-buffer"
+bind-key p run "pbpaste | tmux load-buffer - && tmux paste-buffer"
+
+# # HOW TO USE
+# # <C-q> ">"  or <C-q> "o"
+# # 1. wrinting tmux-buffer to ~/.tmux-buffer
+# # 2. copy ~/.tmux-buffer to clipboard using xsel or pbcopy
+# # <C-q> "<" 
+# # 1. copy ~/.tmux-buffer from clipboard using xsel or pbpaste
+# # 2. wrinting to tmux-buffer from ~/.tmux-buffer
+# bind-key o save-buffer ~/.tmux-buffer \; run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (1).'
+# bind-key > save-buffer ~/.tmux-buffer \; run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (2).'
+# bind-key < if-shell 'xsel --clipboard --output > ~/.tmux-buffer || pbpaste > ~/.tmux-buffer' 'load-buffer ~/.tmux-buffer ; paste-buffer'
+# bind-key p if-shell 'xsel --clipboard --output > ~/.tmux-buffer || pbpaste > ~/.tmux-buffer' 'load-buffer ~/.tmux-buffer ; paste-buffer'
+# 
+# bind-key -T copy-mode-vi v     send-keys -X begin-selection
+# #bind-key -T copy-mode-vi Enter send-keys -X copy-selection-and-cancel\; save-buffer ~/.tmux-buffer \; run-shell 'xsel --clipboard --input < ~/.tmux-buffer || pbcopy < ~/.tmux-buffer' \; display-message 'Copied to clipboard.'
+# bind-key -T copy-mode-vi y     send-keys -X copy-selection\; save-buffer ~/.tmux-buffer \; run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (3).'
+
+# (Useful command)
+# $ tmux list-keys
+
+bind-key -T prefix x kill-pane
+
+set -g mouse on
+bind -T root WheelUpPane   if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"
+#bind-key -T copy-mode-vi MouseDragEnd1Pane \
+#    select-pane \; \
+#    send-keys -X copy-selection\; \
+#    save-buffer ~/.tmux-buffer \; run-shell 'xsel --clipboard --input < ~/.tmux-buffer | xsel --input < ~/.tmux-buffer ' \; \
+#    display-message 'Copied to clipboard (4).'
+# bind-key -T copy-mode-vi MouseDragEnd1Pane \
+#     send-keys -X copy-selection \; \
+#     save-buffer ~/.tmux-buffer \; \
+#     run-shell 'xsel --clipboard --input < ~/.tmux-buffer | xsel --input < ~/.tmux-buffer ' \; \
+#     display-message 'Copied to clipboard (4).'
+# 
+# bind-key -T root MouseDown2Pane run-shell "xsel --output >~/.tmux-buffer; xsel --output | tmux load-buffer - && tmux paste-buffer" \; display-message "Paste (1)."
+
+# MEMO
+#  * if you want to use terminal functions, press "shift" while you want to do
+
+# bind-key -T copy-mode-vi DoubleClick1Pane \
+#     select-pane \; \
+#     send-keys -X select-word \; \
+#     run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (5).'
+# bind-key -n DoubleClick1Pane \
+#     select-pane \; \
+#     copy-mode -M \; \
+#     send-keys -X select-word \; \
+#     run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (6).'
+
+# # Triple LMB Select & Copy (Line)
+# bind-key -T copy-mode-vi TripleClick1Pane \
+#     select-pane \; \
+#     send-keys -X select-line \; \
+#     run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (7).'
+# bind-key -n TripleClick1Pane \
+#     select-pane \; \
+#     copy-mode -M \; \
+#     send-keys -X select-line \; \
+#     run-shell 'xsel --clipboard --input < ~/.tmux-buffer && xsel --input < ~/.tmux-buffer' \; display-message 'Copied to clipboard (8).'
+
+
+# toggle mouse mode to allow mouse copy/paste
+# set mouse on with prefix m
+bind m \
+    set -g mode-mouse on \;\
+    set -g mouse-resize-pane on \;\
+    set -g mouse-select-pane on \;\
+    set -g mouse-select-window on \;\
+    refresh-client -S \;\
+    display 'Mouse: ON' \
+# set mouse off with prefix M
+bind M \
+    set -g mode-mouse off \;\
+    set -g mouse-resize-pane off \;\
+    set -g mouse-select-pane off \;\
+    set -g mouse-select-window off \;\
+    refresh-client -S \;\
+    display 'Mouse: OFF'
+
+# toggle mouse mode
+if-shell "if [[ `tmux -V | cut -d' ' -f2` -lt 2.1 ]]; then true; else false; fi" \
+    "setw -g mode-mouse off; set-option -g mouse-resize-pane off; set-option -g mouse-select-pane off; set-option -g mouse-select-window off;"
+
+
+## ----- outline ------------------------------------------------
+set-option -g status-position top
+# status bar can handle utf-8
+if-shell "if [[ `tmux -V | cut -d' ' -f2` -lt 2.1 ]]; then true; else false; fi" \
+    'set-option -g status-utf8 on'
+
+# origin is 1
+set -g base-index 1
+set -g pane-base-index 1
+
+# status bar settings
+set-option -g status-justify "centre"
+set-option -g status-bg "colour238"
+set-option -g status-fg "colour255"
+
+set-option -g status-left-length 20
+#set-option -g status-left "#[fg=colour255,bg=colour241]Session: #S #[default]"
+set-option -g status-right-length 60
+set-option -g status-right "#[fg=colour255,bg=colour241] #(tmux show-options -gw mode-mouse) | #h | %m/%d %H:%M#[default]"
+set-window-option -g window-status-format " #I: #W "
+set-window-option -g window-status-current-format "#[fg=colour255,bg=colour27,bold] #I: #W #[default]"
+
+set -sg escape-time 1
+
+# history
+set-option -g history-limit 100000

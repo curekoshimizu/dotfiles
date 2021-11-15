@@ -4,12 +4,14 @@ import multiprocessing
 import pathlib
 import shutil
 import stat
+import sys
 import tarfile
 import tempfile
 from dataclasses import dataclass
+from typing import Optional
 
 import requests
-from git import Repo  # type: ignore
+from git import Repo
 
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
 
@@ -93,14 +95,17 @@ class Logic(abc.ABC):
 
 
 class SymLink:
-    def __init__(self, overwrite: bool, dest_dir: pathlib.Path, filename: str) -> None:
+    def __init__(
+        self, overwrite: bool, dest_dir: pathlib.Path, filename: str, dest_filename: Optional[str] = None
+    ) -> None:
         self._overwrite = overwrite
         self._dest_dir = dest_dir
         self._filename = filename
+        self._dest_filename: str = filename if dest_filename is None else dest_filename
 
     def run(self) -> ExitCode:
         src = RESOURCES_PATH / self._filename
-        dst = self._dest_dir / self._filename
+        dst = self._dest_dir / self._dest_filename
         assert src.exists(), f"{src} not found"
         if dst.exists():
             if self._overwrite:
@@ -150,7 +155,10 @@ class TMux(Logic):
     def run(self) -> ExitCode:
         program_exist(self.name, "tmux")
         program_exist(self.name, "xsel")
-        return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf").run()
+        if sys.platform == "darwin":
+            return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf.mac", ".tmux.conf").run()
+        else:
+            return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf").run()
 
 
 class Vimperator(Logic):
