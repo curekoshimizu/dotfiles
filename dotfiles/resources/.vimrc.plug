@@ -55,8 +55,8 @@ endif
 Plug 'bonprosoft/pysen.vim'
 
 " golang
+" Please install goimports and
 Plug 'mattn/vim-goimports'
-Plug 'tweekmonster/gofmt.vim'
 
 " cpp
 Plug 'vim-scripts/a.vim'
@@ -267,11 +267,13 @@ function! MyModified()
             return ' -'
         endif
     endif
-    endfunction
+endfunction
+
 function! MyReadonly()
     execute 'hi ROColor ctermfg=196 ctermbg=238 guifg=#ff0000 guibg=#444444 term=bold cterm=bold'
     return ' ' . (&ft !~? 'help' && &readonly ? 'RO' : '')
 endfunction
+
 function! MyPwd()
     return " " . fnamemodify(getcwd(), ":~")
 endfunction
@@ -426,5 +428,6 @@ let g:ale_fix_on_save = 1
 
 
 "{{{ mattn/vim-goimports
+let g:goimports_show_loclist = 0
 let g:goimports = 1
 "}}}
