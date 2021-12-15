@@ -29,7 +29,7 @@
 [alias]
     co = checkout
     st = status
-    f  = fetch --prune
+    f  = fetch --prune --all --tags --prune-tags
     pr = pull --rebase
     c  = commit -v
     empty-commit = commit --allow-empty

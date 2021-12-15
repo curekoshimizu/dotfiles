@@ -39,20 +39,25 @@ if exists('g:use_neovim')
     "
 
     "NOTE: please run :CocInstall coc-rust-analyzer"
+
+
+    " これは何のためにいれていたか忘れたが、
+    " python で :w するたびに Quickfix がでるようになったので
+    " 消した
+    " Plug 'autozimu/LanguageClient-neovim', {
+    "     \ 'branch': 'next',
+    "     \ 'do': 'bash install.sh',
+    "     \ }
 else
     Plug 'prabirshrestha/async.vim'
     Plug 'prabirshrestha/vim-lsp'
     Plug 'mattn/vim-lsp-settings'
     Plug 'prabirshrestha/asyncomplete.vim'
     Plug 'prabirshrestha/asyncomplete-lsp.vim'
-    Plug 'autozimu/LanguageClient-neovim', {
-        \ 'branch': 'next',
-        \ 'do': 'bash install.sh',
-        \ }
 endif
 
 " python
-Plug 'bonprosoft/pysen.vim'
+" Plug 'bonprosoft/pysen.vim'
 
 " golang
 " Please install goimports and
@@ -430,3 +435,14 @@ let g:ale_fix_on_save = 1
 let g:goimports_show_loclist = 0
 let g:goimports = 1
 "}}}
+
+
+
+let      g:lsp_diagnostics_echo_delay  = 0
+let      g:lsp_diagnostics_float_cursor  = 0
+let      g:lsp_diagnostics_float_delay  = 0
+let      g:lsp_diagnostics_highlights_delay = 0
+let      g:lsp_diagnostics_signs_enabled  = 0
+let      g:lsp_diagnostics_signs_insert_mode_enabled = 0
+let      g:lsp_diagnostics_signs_delay = 0 
+let      g:lsp_auto_enable  = 0
