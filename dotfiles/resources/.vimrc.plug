@@ -22,12 +22,16 @@ Plug 'sjl/gundo.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'mipmip/vim-run-in-blender' 
 Plug 'dense-analysis/ale'
+Plug 'hashivim/vim-terraform'
 
 " completion
 if exists('g:use_neovim')
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    " :CocInstall coc-rls を実行する
+
     Plug 'rust-lang/rust.vim'
 
+    nmap <silent> <C-]> <Plug>(coc-definition)
     nmap <silent> gd <Plug>(coc-definition)
     nmap <silent> gy <Plug>(coc-type-definition)
     nmap <silent> gi <Plug>(coc-implementation)
@@ -56,12 +60,16 @@ else
     Plug 'prabirshrestha/asyncomplete-lsp.vim'
 endif
 
+" Test runner (goなど)
+Plug 'vim-test/vim-test'
+
 " python
 " Plug 'bonprosoft/pysen.vim'
 
 " golang
 " Please install goimports and
 Plug 'mattn/vim-goimports'
+"Plug 'buoto/gotests-vim' " 試してみたいと思っている
 
 " cpp
 Plug 'vim-scripts/a.vim'
@@ -435,4 +443,3 @@ let g:ale_fix_on_save = 1
 let g:goimports_show_loclist = 0
 let g:goimports = 1
 "}}}
-
