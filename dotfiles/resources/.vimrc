@@ -531,6 +531,7 @@ if has('persistent_undo')
 endif
 
 " 検索設定
+set iskeyword+=- " ハイフンは単語の一部として扱う
 set nowrapscan
 set hlsearch
 set incsearch
