@@ -552,6 +552,12 @@ set smartindent
 set listchars=
 set nolist
 set wildmode=longest,list,full
+if exists('&wildoptions')
+  try
+    set wildoptions+=pum,tagfile
+  catch /E474/
+  endtry
+endif
 
 " 改行時に コメントが続くのを防止
 augroup FormatOptions
