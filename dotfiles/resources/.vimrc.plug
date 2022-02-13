@@ -30,14 +30,6 @@ if exists('g:use_neovim')
     " :CocInstall coc-rls を実行する
 
     Plug 'rust-lang/rust.vim'
-
-    nmap <silent> <C-]> <Plug>(coc-definition)
-    nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
-
-
     " NOTE: 
     "  :RustTest!  : rust test all
     "
@@ -134,7 +126,15 @@ function! s:configure_lsp() abort
  nnoremap <buffer> <F1> :<C-u>LspImplementation<CR>
  nnoremap <buffer> <F2> :<C-u>LspRename<CR>
 endfunction
-call s:configure_lsp()
+if exists('g:use_neovim')
+    nmap <silent> <C-]> <Plug>(coc-definition)
+    nmap <silent> gd <Plug>(coc-definition)
+    nmap <silent> gy <Plug>(coc-type-definition)
+    nmap <silent> gi <Plug>(coc-implementation)
+    nmap <silent> gr <Plug>(coc-references)
+else
+    call s:configure_lsp()
+endif
 
 let g:LanguageClient_serverCommands = {
 \ 'rust': ['rust-analyzer'],
