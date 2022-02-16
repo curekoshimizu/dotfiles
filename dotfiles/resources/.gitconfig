@@ -28,10 +28,14 @@
     autostash = true
 [alias]
     co = checkout
+    cp = ! git checkout `git branch | peco --prompt 'GIT BRANCH>' | head -n 1 | sed -e 's/^*\\s+//g'`
+    pu = ! git push origin `git branch | peco --prompt 'GIT BRANCH>' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*\\s+//g'`
+    pl = ! git pull origin `git branch | peco --prompt 'GIT BRANCH>' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*\\s+//g'`
     st = status
     f  = fetch --prune --all --tags --prune-tags
     pr = pull --rebase
     c  = commit -v
+    current-branch = symbolic-ref --short HEAD
     empty-commit = commit --allow-empty
 
     # cancel
