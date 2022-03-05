@@ -35,6 +35,7 @@ if [ -d ${PYENV_ROOT} ]; then
     export PATH="$PYENV_ROOT/bin:$PATH"
 fi
 
+# nvm
 NVM_DIR="$HOME/.nvm"
 if [ -d ${NVM_DIR} ]; then
     export NVM_DIR
@@ -46,6 +47,13 @@ if [ -d ${NVM_DIR} ]; then
     fi
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
+
+# serverless
+SERVERLESS_DIR="$HOME/.serverless"
+if [ -d ${SERVERLESS_DIR} ]; then
+    export PATH="${SERVERLESS_DIR}/bin:$PATH"
+fi
+    
 
 # unused because I started to use nvm
 # # NPM
