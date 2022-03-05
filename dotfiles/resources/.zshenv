@@ -38,7 +38,12 @@ fi
 NVM_DIR="$HOME/.nvm"
 if [ -d ${NVM_DIR} ]; then
     export NVM_DIR
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    if [ -e "$NVM_DIR/nvm.sh" ]; then
+      # lazy load
+      alias nvm='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && nvm'
+      alias node='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && node'
+      alias npm='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && npm'
+    fi
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 fi
 
