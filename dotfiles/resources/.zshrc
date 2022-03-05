@@ -1,4 +1,3 @@
-
 # Add completion files
 fpath=($HOME/.zsh-completions/src $fpath)
 fpath=($HOME/.zfunc $fpath)
@@ -242,4 +241,9 @@ fi
 # minikube
 if command -v minikube 1>/dev/null 2>&1; then
     source <(minikube completion zsh) # for zsh users
+fi
+
+# kubectl
+if command -v kubectl 1>/dev/null 2>&1; then
+    source <(kubectl completion zsh)
 fi
