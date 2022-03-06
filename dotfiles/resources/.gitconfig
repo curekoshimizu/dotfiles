@@ -27,10 +27,24 @@
 [rebase]
     autostash = true
 [alias]
+    # TODO: (peco -> fzf) preview が使えるほうが便利そう
+    # 加えて branch から action で switch とか
+    #        files から action で restore, add, diff とか便利そう (preview で diff がでる)
+
+    # switch
+    si = ! git branch | peco --prompt 'GIT BRANCH>' | head -n 1 | sed -e "s/^*//g" | xargs git switch || echo "git switch command failed..."
+    # pull
+    p = ! git symbolic-ref --short HEAD | xargs -I{} git pull origin {} && git l -n 3 || echo "git pull command failed..."
+    # push
+    pus = ! git branch | peco --prompt '[GIT PUSH] >' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*//g' | xargs -I{} git push origin {} && git l -n 3 || echo "git push command failed..."
+    # add
+    ad= "!if [ \"`git status --porcelain | grep -E '^.[^ ]'`\" != \"\" ]; then git add `git status --porcelain | grep -E '^.[^ ]' | peco | sed -e 's/.* //'`; fi"
+    # diff peco files
+    df= "!if [ \"`git status --porcelain | grep -E '^.[^ ]'`\" != \"\" ]; then git diff `git status --porcelain | grep -E '^.[^ ]' | peco | sed -e 's/.* //'`; fi"
+    # git restore
+    resto = "!if [ \"`git status --porcelain | grep -E '^.[^ ]'`\" != \"\" ]; then git restore `git status --porcelain | grep -E '^.[^ ]' | peco | sed -e 's/.* //'`; fi"
+
     co = checkout
-    cp = ! git checkout `git branch | peco --prompt 'GIT BRANCH>' | head -n 1 | sed -e 's/^*\\s+//g'`
-    pu = ! git push origin `git branch | peco --prompt 'GIT BRANCH>' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*\\s+//g'`
-    pl = ! git pull origin `git branch | peco --prompt 'GIT BRANCH>' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*\\s+//g'`
     st = status
     f  = fetch --prune --all --tags --prune-tags
     pr = pull --rebase
