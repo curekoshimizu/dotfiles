@@ -45,6 +45,11 @@ darwin*)
   alias ll="ls -lG"
   alias la="ls -laG"
   alias ltr='ls -ltrG'
+  if ! sed --version > /dev/null 2>&1; then
+      # sed is not GNU sed.
+      # How to install GNU sed -- brew install gnu-sed.
+      alias sed="gsed"
+  fi
   ;;
 linux*)
   alias ls='ls --color'
@@ -233,17 +238,17 @@ source $Z_FILE
 
 ## direnv
 export EDITOR=vim
-if which direnv 2>&1 >/dev/null; then
+if which direnv >/dev/null 2>&1; then
     eval "$(direnv hook zsh)"
     alias tmux='direnv exec / tmux'
 fi
 
 # minikube
-if command -v minikube 1>/dev/null 2>&1; then
+if command -v minikube >/dev/null 2>&1; then
     source <(minikube completion zsh) # for zsh users
 fi
 
 # kubectl
-if command -v kubectl 1>/dev/null 2>&1; then
+if command -v kubectl >/dev/null 2>&1; then
     source <(kubectl completion zsh)
 fi
