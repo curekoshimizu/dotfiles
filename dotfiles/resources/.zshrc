@@ -28,11 +28,11 @@ fadd() {
 
 
 # git alias
-function git-hash(){                                    
-    git log --date=short --pretty='format:%h %cd %an%d %s' --graph --all | peco | sed -e 's/\([0-9a-f]\+\).\+$/\1/' | awk -F ' ' '{print $NF}'
-}                                                       
 function git-branch() {
-    git branch -a | peco --prompt "GIT BRANCH>" | head -n 1  | tr -d " " | tr -d "*"
+    git branch | peco --prompt "GIT BRANCH>" | head -n 1  | tr -d " " | tr -d "*"
+}
+function git-changed-files(){
+  git status --short | peco | awk '{print $2}'
 }
 
 alias dc='docker-compose'
@@ -60,8 +60,8 @@ linux*)
 esac
 alias duh='du -b | sort -n | numfmt --to=iec --suffix=B --padding=5'
 
-alias -g H='$(git-hash)'
 alias -g B='$(git-branch)'
+alias -g F='$(git-changed-files)'
 
 # alias tree='tree -C'
 
