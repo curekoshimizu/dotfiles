@@ -34,7 +34,7 @@
     # switch
     si = ! git branch | peco --prompt 'GIT BRANCH>' | head -n 1 | sed -e "s/^*//g" | xargs git switch || echo "git switch command failed..."
     # pull
-    p = ! git symbolic-ref --short HEAD | xargs -I{} git pull origin {} && git l -n 3 || echo "git pull command failed..."
+    p = ! git f && git symbolic-ref --short HEAD | xargs -I{} git merge origin {} && git l -n 3 || echo "git pull command failed..."
     # push
     pus = ! git branch | peco --prompt '[GIT PUSH] >' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*//g' | xargs -I{} git push origin {} && git l -n 3 || echo "git push command failed..."
     # add
@@ -51,8 +51,9 @@
     c  = commit -v
     current-branch = symbolic-ref --short HEAD
     empty-commit = commit --allow-empty
+    latest-tag = describe --tags --abbrev=0
 
-    # cancel
+    # reset
     reset-to-head = reset --hard HEAD
     reset-add = reset HEAD
     ####reset-current-commit = reset --soft HEAD^ # just commit, go to the previous state with the current change (need test...)
