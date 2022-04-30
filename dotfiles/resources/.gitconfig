@@ -1,3 +1,5 @@
+[includeIf "gitdir:~/curekoshimizu_checkoutroot/"]
+    path = .gitconfig.curekoshimizu
 [color]
     ui = auto
 [core]
