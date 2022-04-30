@@ -5,10 +5,11 @@ description = "dotfile installer"
 authors = ["curekoshimizu <shugo@manabe.mail-box.ne.jp>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8"
+python = ">=3.8,<4"
 emoji = "^1.2.0"
 GitPython = "^3.1.13"
 requests = "^2.25.1"
+urllib3 = "^1.26.9"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
