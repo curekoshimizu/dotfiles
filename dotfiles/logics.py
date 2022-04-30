@@ -107,7 +107,8 @@ class SymLink:
         src = RESOURCES_PATH / self._filename
         dst = self._dest_dir / self._dest_filename
         assert src.exists(), f"{src} not found"
-        if dst.exists():
+
+        if dst.exists() or dst.is_symlink():
             if self._overwrite:
                 if dst.is_symlink():
                     dst.unlink()
