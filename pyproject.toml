@@ -2,7 +2,7 @@
 name = "dotfiles"
 version = "0.1.0"
 description = "dotfile installer"
-authors = ["curekoshimizu <shugo@manabe.mail-box.ne.jp>"]
+authors = ["curekoshimizu <45332899+curekoshimizu@users.noreply.github.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
