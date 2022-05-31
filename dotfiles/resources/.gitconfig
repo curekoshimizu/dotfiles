@@ -1,5 +1,12 @@
 [includeIf "gitdir:~/curekoshimizu_checkoutroot/"]
     path = .gitconfig.curekoshimizu
+
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+
+[url "https://github.com/rust-lang/crates.io-index"]
+    insteadOf = https://github.com/rust-lang/crates.io-index
+
 [color]
     ui = auto
 [core]
