@@ -23,6 +23,7 @@ Plug 'airblade/vim-gitgutter'
 Plug 'mipmip/vim-run-in-blender' 
 Plug 'dense-analysis/ale'
 Plug 'hashivim/vim-terraform'
+Plug 'mattn/vim-maketable'
 
 " completion
 if exists('g:use_neovim')
