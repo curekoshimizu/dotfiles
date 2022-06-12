@@ -4,6 +4,8 @@ set-window-option -g mode-keys vi
 # add prefix key (ordinary prefix key is Ctrl-b)
 set -g prefix C-q
 
+set -g default-terminal xterm
+
 # new window
 bind C new-window
 bind c new-window \; command-prompt -p "Name for this new window: " "rename-window '%%'"
