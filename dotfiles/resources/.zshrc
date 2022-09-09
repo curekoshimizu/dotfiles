@@ -111,6 +111,7 @@ setopt hist_reduce_blanks
 setopt hist_ignore_space
 setopt share_history
 setopt extended_history
+setopt nohashcmds
 
 # bindkey "^P" history-beginning-search-backward
 # bindkey "^N" history-beginning-search-forward
