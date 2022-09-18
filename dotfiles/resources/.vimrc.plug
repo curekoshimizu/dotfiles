@@ -197,7 +197,7 @@ let g:lightline = {
             \   'left' : [ [ 'mode', 'paste' ], [ 'filename', 'fugitive', 'modified', 'readonly' ] ],
             \   'right': [ 
             \         ['lineinfo'],
-            \         [ 'mycharvaluehex', 'percent', 'filetype', 'myfileformat', 'myfileencoding' ] ],
+            \         [ 'mycharvaluehex', 'lspCondCheck', 'percent', 'filetype', 'myfileformat', 'myfileencoding', 'lspCondCheck' ] ],
             \ },
             \ 'inactive': {
             \   'left' : [ [ 'fullpath'] ],
@@ -211,6 +211,7 @@ let g:lightline = {
             \   'fullpath'  : '%F',
             \   'myfileencoding'  : '%#FileEncodingColor#%{MyFileEncoding()}',
             \   'myfileformat'    : '%#FileFormatColor#%{MyFileFormat()}',
+            \   'lspCondCheck'    : '%{LspCondCheck()}',
             \ },
             \ 'component_function': {
             \   'fugitive' : 'MyFugitive',
@@ -249,6 +250,30 @@ function! MyFileFormat()
     else
         call SetManualBgColor("FileFormatColor", 255, 0, 0, 0)
         return ' ?'
+    endif
+endfunction
+
+function! LspCondCheck()
+    let error_msg = " LSP not running"
+    if &filetype == "typescriptreact"
+        if executable("typescript-language-server")
+            return ""
+        elseif executable("npm")
+            return " npm not executable..."
+        else
+            " You might forget `npm install -g typescript typescript-language-server`
+            " or nvm use xxxx."
+            " ref. https://github.com/prabirshrestha/vim-lsp/wiki/Servers-TypeScript
+            return $error_msg
+        endif
+    elseif &filetype == "go"
+        if executable("gopls")
+            return ""
+        else
+            return $error_msg
+        endif
+    else
+        return ""
     endif
 endfunction
 
