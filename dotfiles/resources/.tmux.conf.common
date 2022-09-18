@@ -6,15 +6,14 @@ set -g prefix C-q
 
 
 # new window
-bind C new-window
-bind c new-window \; command-prompt -p "Name for this new window: " "rename-window '%%'"
+bind c new-window -c "#{pane_current_path}"\; command-prompt -p "Name for this new window: " "rename-window '%%'"
 
 bind | select-layout even-horizontal
 bind - select-layout even-vertical
 
 # split
-bind s split-window -v
-bind v split-window -h
+bind s split-window -v -c "#{pane_current_path}"
+bind v split-window -h -c "#{pane_current_path}"
 
 # how to move between the pains
 bind h select-pane -L\; refresh-client -S
