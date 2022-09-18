@@ -731,6 +731,32 @@ if &readonly
 endif
 "}}}
 
+"{{{ inlay hints
+highlight lspInlayHintsType ctermfg=4
+highlight lspInlayHintsParameter ctermfg=4
+let g:lsp_inlay_hints_delay = 100
+let g:lsp_inlay_hints_enabled = 1
+let g:lsp_inlay_hints_mode = {
+\  'normal': ['always'],
+\}
+" autocmd User lsp_setup call lsp#register_server({
+" \   'name': 'gopls',
+" \   'cmd': ['gopls'],
+" \   'allowlist': ['go'],
+" \   'initialization_options': {
+" \     'ui.inlayhint.hints': {
+" \         'assignVariableTypes': v:true,
+" \         'compositeLiteralFields': v:true,
+" \         'compositeLiteralTypes': v:true,
+" \         'constantValues': v:true,
+" \         'functionTypeParameters': v:true,
+" \         'parameterNames': v:true,
+" \         'rangeVariableTypes': v:true,
+" \     },
+" \   }
+" \ })
+"}}}
+
 "{{{ tab settings
 set showtabline=2
 set tabline=%!MakeTabLine()
