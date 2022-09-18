@@ -156,10 +156,21 @@ class TMux(Logic):
     def run(self) -> ExitCode:
         program_exist(self.name, "tmux")
         program_exist(self.name, "xsel")
-        if sys.platform == "darwin":
-            return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf.mac", ".tmux.conf").run()
-        else:
-            return SymLink(self._options.overwrite, self._options.dest_dir, ".tmux.conf").run()
+
+        # install .tmux.conf
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            conf_path = RESOURCES_PATH / ".tmux.conf.common"
+            conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.linux")
+            assert conf_path.exists()
+            assert conf2_path.exists()
+            f.write("source-file '{}'\n".format(conf_path))
+            f.write("source-file '{}'\n".format(conf2_path))
+            f.flush()
+            return CopyFile(
+                self._options,
+                src_path=pathlib.Path(f.name),
+                dst_path=self._options.dest_dir / ".tmux.conf",
+            ).run()
 
 
 class Vimperator(Logic):
