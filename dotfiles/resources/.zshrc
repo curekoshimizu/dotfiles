@@ -8,6 +8,7 @@ fpath=($HOME/.zfunc $fpath)
 ##   copy this script to $HOME/.zsh-completions/src
 
 
+
 # git alias
 function git-branch() {
     git branch | peco --prompt "GIT BRANCH>" | head -n 1  | tr -d " " | tr -d "*"
@@ -234,3 +235,17 @@ fi
 if command -v kubectl >/dev/null 2>&1; then
     source <(kubectl completion zsh)
 fi
+
+# lazy load
+function lazy_load_nvm 
+{
+    if [ -z ${NVM_LOADED} ]; then
+        # if use npm, nvm or vim, load NVM settings.
+        if [[ $1 = *"npm"* ]] || [[ $1 = *"nvm"* ]] || [[ $1 = *"vim"* ]]; then
+            NVM_LOADED=1
+            load_nvm
+        fi
+    fi
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook preexec  lazy_load_nvm

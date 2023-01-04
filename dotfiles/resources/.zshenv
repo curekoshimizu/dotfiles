@@ -37,17 +37,19 @@ if [ -d ${PYENV_ROOT} ]; then
 fi
 
 # nvm
-NVM_DIR="$HOME/.nvm"
-if [ -d ${NVM_DIR} ]; then
-    export NVM_DIR
-    if [ -e "$NVM_DIR/nvm.sh" ]; then
-      # lazy load
-      alias nvm='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && nvm'
-      alias node='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && node'
-      alias npm='unalias nvm node npm && . "$NVM_DIR"/nvm.sh && npm'
+
+# function for lazy load
+function load_nvm
+{
+    NVM_DIR="$HOME/.nvm"
+    if [ -d ${NVM_DIR} ]; then
+        export NVM_DIR
+        if [ -e "$NVM_DIR/nvm.sh" ]; then
+          . "$NVM_DIR"/nvm.sh
+        fi
+        [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
     fi
-    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-fi
+}
 
 # serverless
 SERVERLESS_DIR="$HOME/.serverless"

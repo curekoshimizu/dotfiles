@@ -734,7 +734,7 @@ endif
 "{{{ inlay hints
 highlight lspInlayHintsType ctermfg=4
 highlight lspInlayHintsParameter ctermfg=4
-let g:lsp_inlay_hints_delay = 100
+let g:lsp_inlay_hints_delay = 1000
 let g:lsp_inlay_hints_enabled = 1
 let g:lsp_inlay_hints_mode = {
 \  'normal': ['always'],
