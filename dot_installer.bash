@@ -37,7 +37,7 @@ if ! type poetry >/dev/null 2>&1; then
     read -p "do you want to install poetry? (y/N):" yn
     case "$yn" in 
         [yY])
-            curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3
+            curl -sSL https://install.python-poetry.org | python3 -
             ;;
         *)
             exit 1;;
