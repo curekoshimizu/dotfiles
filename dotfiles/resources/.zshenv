@@ -9,7 +9,7 @@ export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-p:up'
 ## Basic PATH
 PATH=/usr/local/bin:$PATH
 PATH=$PATH:/sbin:/usr/bin:/bin:$HOME/bin
-PATH=$PATH:$HOME/.poetry/bin
+PATH=$PATH:$HOME/.local/bin:$HOME/.poetry/bin
 ## Mac Brew Settings (coreutils)
 #case ${OSTYPE} in
 #    darwin*)
