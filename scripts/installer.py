@@ -13,6 +13,7 @@ from dotfiles.logics import (
     NeoVim,
     Node,
     Option,
+    PyProjectTemplate,
     Python,
     Rust,
     TMux,
@@ -50,6 +51,7 @@ def main() -> None:
     r.add_logic(CommandLineHelper(opt))
     r.add_logic(Docker(opt))
     r.add_logic(Python(opt))
+    r.add_logic(PyProjectTemplate(opt))
     r.add_logic(Node(opt))
     r.add_logic(Rust(opt))
     r.add_logic(Golang(opt))

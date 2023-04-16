@@ -427,14 +427,16 @@ class PyProjectTemplate(Logic):
 
         src = RESOURCES_PATH / "py_project_template" / "bin" / "py_project_template.bash"
         dst = bin_dir / "py_project_template.bash"
-        if dst.exists() or dst.is_symlink():
-            if self._options.overwrite:
-                if dst.is_symlink():
-                    dst.unlink()
-            else:
-                return ExitCode.SKIP
+        if dst.exists():
+            return ExitCode.SKIP
 
-        dst.symlink_to(src)
+        with open(dst, "w") as f:
+            f.write("#!/usr/bin/env bash\n")
+            f.write(f"{src.absolute()}\n")
+
+        new_permission = dst.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+        dst.chmod(new_permission)
+
         return ExitCode.SUCCESS
 
 
