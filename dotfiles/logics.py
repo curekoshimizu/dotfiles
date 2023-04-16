@@ -432,7 +432,7 @@ class PyProjectTemplate(Logic):
 
         with open(dst, "w") as f:
             f.write("#!/usr/bin/env bash\n")
-            f.write(f"{src.absolute()}\n")
+            f.write(f"{src.absolute()} $@\n")
 
         new_permission = dst.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         dst.chmod(new_permission)
