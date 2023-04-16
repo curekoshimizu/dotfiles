@@ -160,7 +160,7 @@ class TMux(Logic):
         # install .tmux.conf
         with tempfile.NamedTemporaryFile(mode="w") as f:
             conf_path = RESOURCES_PATH / ".tmux.conf.common"
-            conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.linux")
+            conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.conf.linux")
             assert conf_path.exists()
             assert conf2_path.exists()
             f.write("source-file '{}'\n".format(conf_path))
