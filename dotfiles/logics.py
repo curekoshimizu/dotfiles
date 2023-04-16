@@ -415,6 +415,29 @@ class Python(Logic):
         return ExitCode.SUCCESS
 
 
+class PyProjectTemplate(Logic):
+    @property
+    def name(self) -> str:
+        return "py-project-template"
+
+    def run(self) -> ExitCode:
+        bin_dir = self._options.dest_dir / "bin"
+        if not bin_dir.exists():
+            bin_dir.mkdir(parents=True)
+
+        src = RESOURCES_PATH / "py_project_template" / "bin" / "py_project_template.bash"
+        dst = bin_dir / "py_project_template.bash"
+        if dst.exists() or dst.is_symlink():
+            if self._options.overwrite:
+                if dst.is_symlink():
+                    dst.unlink()
+            else:
+                return ExitCode.SKIP
+
+        dst.symlink_to(src)
+        return ExitCode.SUCCESS
+
+
 class Node(Logic):
     @property
     def name(self) -> str:

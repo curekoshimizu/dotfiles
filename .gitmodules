@@ -1,3 +1,6 @@
 [submodule "z"]
 	path = dotfiles/resources/.z
 	url = https://github.com/rupa/z.git
+[submodule "py_project_template"]
+	path = dotfiles/resources/py_project_template
+	url = git@github.com:curekoshimizu/py_project_template.git
