@@ -20,7 +20,7 @@ PATH=$PATH:$HOME/.local/bin:$HOME/.poetry/bin
 
 ## Golang
 if [ -d ${HOME}/.golang ]; then
-    export PATH=$PATH:$HOME/.golang/bin
+    export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
 fi
 
 ## RUST
