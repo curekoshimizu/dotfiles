@@ -432,6 +432,7 @@ class PyProjectTemplate(Logic):
 
         with open(dst, "w") as f:
             f.write("#!/usr/bin/env bash\n")
+            f.write('[ -d "$1" ] || { echo "Error: directory ($1) does not exist."; exit 1; }\n')
             f.write(f'FILE_PATH=$(realpath "$1" 2> /dev/null)\n')
             f.write(f"{src.absolute()} " + "${FILE_PATH} ${@:2}\n")
 
