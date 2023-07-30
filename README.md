@@ -3,6 +3,12 @@
 Install dot files for curekoshimizu (this script author).
 For example, .vimrc, .gitconfig, .zshrc, and so on.
 
+## How to checkout
+
+```
+git clone --recurse git@github.com:curekoshimizu/dotfiles.git ~/curekoshimizu_checkoutroot/dotfiles
+```
+
 
 ## How to run
 
