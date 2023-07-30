@@ -90,6 +90,23 @@ Darwin*)
     machine="UNKNOWN:${UNAME_OUT}"
 esac
 
+
+## IM-CONFIG
+if [ "$(uname)" = "Linux" ]; then
+    if command -v fcitx &>/dev/null; then
+        input_method=fcitx
+    elif command -v ibus &>/dev/null; then
+        input_method=ibus
+    fi
+
+    if [[ -n "$input_method" ]]; then
+        export GTK_IM_MODULE="$input_method"
+        export XMODIFIERS="@im=$input_method"
+        export QT_IM_MODULE="$input_method"
+    fi
+fi
+
+
 ##===================================================================
 #
 ## ------------------------------------------------
