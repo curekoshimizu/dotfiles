@@ -148,4 +148,4 @@
     branch-no-merged = branch --no-merged
     branch-merged    = branch --merged
 
-    cl = clone --recurse-submodules
+    cl = clone --recurse
