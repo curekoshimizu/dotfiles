@@ -433,7 +433,7 @@ class PyProjectTemplate(Logic):
         with open(dst, "w") as f:
             f.write("#!/usr/bin/env bash\n")
             f.write('[ -d "$1" ] || { echo "Error: directory ($1) does not exist."; exit 1; }\n')
-            f.write(f'FILE_PATH=$(realpath "$1" 2> /dev/null)\n')
+            f.write('FILE_PATH=$(realpath "$1" 2> /dev/null)\n')
             f.write(f"{src.absolute()} " + "${FILE_PATH} ${@:2}\n")
 
         new_permission = dst.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
@@ -506,7 +506,8 @@ class Golang(Logic):
                 temp_dir = pathlib.Path(d)
                 response = requests.get("https://golang.org/VERSION?m=text")
                 assert response.status_code == 200
-                filename = f"{response.text}.linux-amd64.tar.gz"
+                goversion = response.text.split("\n")[0]
+                filename = f"{goversion}.linux-amd64.tar.gz"
                 response = requests.get(f"https://golang.org/dl/{filename}")
 
                 targz = temp_dir / filename
