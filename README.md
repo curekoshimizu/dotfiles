@@ -5,22 +5,21 @@ For example, .vimrc, .gitconfig, .zshrc, and so on.
 
 ## How to checkout
 
-```
+```shell
 git clone --recurse git@github.com:curekoshimizu/dotfiles.git ~/curekoshimizu_checkoutroot/dotfiles
 ```
-
 
 ## How to run
 
 Run
 
-```
+```shell
 poetry run scripts/installer.py
 ```
 
 or
 
-```
+```shell
 ./dot_installer.bash
 ```
 
@@ -30,13 +29,13 @@ If these commands are not found, dot_installer.bash will ask you to install them
 
 ## TODO
 
-* vim docker
-* vimfiler
-* GL
-* cuda
-* npm
-* golang
-* rust
+- vim docker
+- vimfiler
+- GL
+- cuda
+- npm
+- golang
+- rust
 
 ## LICENSE
 
