@@ -407,6 +407,8 @@ class Python(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "python3")
+        if program_exist(self.name, "poetry"):
+            print("did you run 'poetry config virtualenvs.in-project true'?'")
 
         pyenv = self._options.dest_dir / ".pyenv"
         if not pyenv.exists():
