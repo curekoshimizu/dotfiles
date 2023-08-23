@@ -237,11 +237,11 @@ if command -v kubectl >/dev/null 2>&1; then
 fi
 
 # lazy load
-function lazy_load_nvm 
+function lazy_load_nvm
 {
     if [ -z ${NVM_LOADED} ]; then
         # if use npm, nvm or vim, load NVM settings.
-        if [[ $1 = *"npm"* ]] || [[ $1 = *"nvm"* ]] || [[ $1 = *"vim"* ]]; then
+        if [[ $1 = *"sls"* ]] || [[ $1 = *"npm"* ]] || [[ $1 = *"nvm"* ]] || [[ $1 = *"vim"* ]]; then
             NVM_LOADED=1
             load_nvm
         fi
