@@ -10,7 +10,7 @@
 [color]
     ui = auto
 [core]
-    editor = vim 
+    editor = vim
     preloadindex = true
     # [autoCRLF]
     # true  : automatically converting CRLF file to LF file when it is committed
@@ -21,7 +21,7 @@
     commitencoding = UTF-8
 [diff "sjis"]
     # How to use
-    # if you have .gitattributes file which contains the following setting, 
+    # if you have .gitattributes file which contains the following setting,
     # then you can diff all of *.c files after converting them to UTF-8
     #------------------------
     # *.c diff=sjis
@@ -65,7 +65,6 @@
     # reset
     reset-to-head = reset --hard HEAD
     reset-add = reset HEAD
-    ####reset-current-commit = reset --soft HEAD^ # just commit, go to the previous state with the current change (need test...)
 
     # log
     s   = log -n 20 --date=short       --pretty='format:%C(yellow)%h %C(green)%cd %C(bold blue)%an%C(auto)%d %C(reset)%s'
@@ -113,10 +112,10 @@
 
     brall = "!f(){ \
         for branch in `git branch -a | grep -v HEAD`;do echo -e `git show --format=\"%ai %ar\t by %an\" $branch | head -n 1` \\t$branch; done | sort  \
-        };f" 
+        };f"
     brremote = "!f(){ \
         for branch in `git branch -r | grep -v HEAD`;do echo -e `git show --format=\"%ai %ar\t by %an\" $branch | head -n 1` \\t$branch; done | sort  \
-        };f" 
+        };f"
     # rename branch
     move-branch = "!f(){ \
         if test $# == 1 -o $# == 2 ; then\
@@ -148,4 +147,5 @@
     branch-no-merged = branch --no-merged
     branch-merged    = branch --merged
 
-    cl = clone --recurse
+    cl     = clone --recurse
+    cldev = "!sh -c 'git cl $(echo \"$1\" | sed \"s/github\\.com/dev.&/\")' -"
