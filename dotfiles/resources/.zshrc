@@ -38,6 +38,17 @@ linux*)
   alias ll='ls -l --color'
   alias la='ls -la --color'
   alias ltr='ls -ltr --color'
+
+  # minikubeではなくkindをつかってみることに
+  # if command -v minikube >/dev/null 2>&1; then
+  #   alias kubectl="minikube kubectl --"
+  # fi
+  # minikube
+  # 自動補完がうまくうごかないときがあるのでOFFにしたが動くようになっているかもしれない
+  # if command -v minikube >/dev/null 2>&1; then
+  #     source <(minikube completion zsh) # for zsh users
+  # fi
+
   ;;
 esac
 alias duh='du -b | sort -n | numfmt --to=iec --suffix=B --padding=5'
@@ -226,12 +237,8 @@ if which direnv >/dev/null 2>&1; then
     alias tmux='direnv exec / tmux'
 fi
 
-# minikube
-if command -v minikube >/dev/null 2>&1; then
-    source <(minikube completion zsh) # for zsh users
-fi
-
 # kubectl
+alias k='kubectl'
 if command -v kubectl >/dev/null 2>&1; then
     source <(kubectl completion zsh)
 fi
@@ -249,3 +256,6 @@ function lazy_load_nvm
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook preexec  lazy_load_nvm
+
+
+
