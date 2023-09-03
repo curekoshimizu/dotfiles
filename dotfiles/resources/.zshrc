@@ -8,6 +8,14 @@ fpath=($HOME/.zfunc $fpath)
 ##   copy this script to $HOME/.zsh-completions/src
 
 
+# for aws command
+AWS_COMPLETER_PATH=$(which aws_completer)
+# Check if aws_completer exists and is executable
+if [ -n "$AWS_COMPLETER_PATH" ] && [ -x "$AWS_COMPLETER_PATH" ]; then
+  autoload bashcompinit && bashcompinit
+  complete -C "$AWS_COMPLETER_PATH" aws
+fi
+
 
 # git alias
 function git-branch() {
@@ -256,6 +264,3 @@ function lazy_load_nvm
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook preexec  lazy_load_nvm
-
-
-

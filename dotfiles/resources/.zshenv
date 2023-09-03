@@ -36,6 +36,12 @@ if [ -d ${PYENV_ROOT} ]; then
     export PATH="$PYENV_ROOT/shims:${PATH}"
 fi
 
+## rye
+RYE_ROOT="$HOME/.rye/shims"
+if [ -d ${RYE_ROOT} ]; then
+    export PATH="${RYE_ROOT}:${PATH}"
+fi
+
 # nvm
 
 # function for lazy load
@@ -56,7 +62,7 @@ SERVERLESS_DIR="$HOME/.serverless"
 if [ -d ${SERVERLESS_DIR} ]; then
     export PATH="${SERVERLESS_DIR}/bin:$PATH"
 fi
-    
+
 
 # unused because I started to use nvm
 # # NPM
