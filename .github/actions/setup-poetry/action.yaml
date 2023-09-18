@@ -9,28 +9,11 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - uses: actions/setup-python@v4
+    - name: Install python
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ inputs.python-version }}
-
-
-
-    # - name: Install Poetry
-    #   run: |
-    #     pip install poetry
-    # - uses: actions/setup-python@v4
-    #   with:
-    #     python-version: ${{ inputs.python-version }}
-    #     cache: poetry
-    #     cache-dependency-path: poetry.lock
-    # - name: Set Poetry environment
-    #   run: |
-    #     poetry env use ${{ inputs.python-version}}
-    # - name: Install dependencies
-    #   run: |
-    #     poetry install --no-root
-
-    - name: Load cached venv
+    - name: Load cached poetry
       id: cached-poetry-bin
       uses: actions/cache@v3
       with:
@@ -38,10 +21,13 @@ runs:
         key: poetry-${{ inputs.python-version }}-${{ inputs.poetry-version }}
     - name: Install poetry
       if: steps.cached-poetry-bin.outputs.cache-hit != 'true'
+      shell: bash
       run: curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python3 -
     - name: Set PATH
+      shell: bash
       run: echo "/opt/poetry/bin" >> $GITHUB_PATH
     - name: poetry configure
+      shell: bash
       run: |
         poetry config virtualenvs.create true
         poetry config virtualenvs.in-project true
@@ -69,6 +55,7 @@ runs:
         key: venv-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      shell: bash
       run: poetry install --no-root
     # # # - run: poetry --version
     # # # # - name: Install project
