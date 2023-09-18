@@ -31,22 +31,6 @@ runs:
       run: |
         poetry config virtualenvs.create true
         poetry config virtualenvs.in-project true
-
-    # - name: Install Poetry
-    #   if: steps.cached-poetry-bin.outputs.cache-hit != 'true'
-    #   uses: snok/install-poetry@v1
-    #   with:
-    #     version: ${{ inputs.poetry-version }}
-    # - name: Set a path
-    #   run: |
-    #     echo "/root/.local/bin" >> $GITHUB_PATH
-
-
-    # - run: echo $GITHUB_PATH
-    #     # /root/.local/bin/poetry config virtualenvs.create true
-    #     # /root/.local/bin/poetry config virtualenvs.in-project true
-    # - name: Check Poetry version
-    #   run: /root/.local/bin/poetry --version
     - name: Load cached venv
       id: cached-poetry-dependencies
       uses: actions/cache@v3
@@ -56,7 +40,4 @@ runs:
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       shell: bash
-      run: poetry install --no-root
-    # # # - run: poetry --version
-    # # # # - name: Install project
-    # # # #   run: poetry install --no-interaction
+      run: poetry install --no-root --no-interaction
