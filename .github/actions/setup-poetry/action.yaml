@@ -8,25 +8,68 @@ inputs:
     required: true
 runs:
   using: 'composite'
-  setups:
+  steps:
     - uses: actions/setup-python@v4
       with:
-        python-version: ${{ python-version }}
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+        python-version: ${{ inputs.python-version }}
+
+
+
+    # - name: Install Poetry
+    #   run: |
+    #     pip install poetry
+    # - uses: actions/setup-python@v4
+    #   with:
+    #     python-version: ${{ inputs.python-version }}
+    #     cache: poetry
+    #     cache-dependency-path: poetry.lock
+    # - name: Set Poetry environment
+    #   run: |
+    #     poetry env use ${{ inputs.python-version}}
+    # - name: Install dependencies
+    #   run: |
+    #     poetry install --no-root
+
+    - name: Load cached venv
+      id: cached-poetry-bin
+      uses: actions/cache@v3
       with:
-        virtualenvs-create: true
-        virtualenvs-in-project: true
-        installer-parallel: true
+        path: /opt/poetry
+        key: poetry-${{ inputs.python-version }}-${{ inputs.poetry-version }}
+    - name: Install poetry
+      if: steps.cached-poetry-bin.outputs.cache-hit != 'true'
+      run: curl -sSL https://install.python-poetry.org | POETRY_HOME=/opt/poetry python3 -
+    - name: Set PATH
+      run: echo "/opt/poetry/bin" >> $GITHUB_PATH
+    - name: poetry configure
+      run: |
+        poetry config virtualenvs.create true
+        poetry config virtualenvs.in-project true
+
+    # - name: Install Poetry
+    #   if: steps.cached-poetry-bin.outputs.cache-hit != 'true'
+    #   uses: snok/install-poetry@v1
+    #   with:
+    #     version: ${{ inputs.poetry-version }}
+    # - name: Set a path
+    #   run: |
+    #     echo "/root/.local/bin" >> $GITHUB_PATH
+
+
+    # - run: echo $GITHUB_PATH
+    #     # /root/.local/bin/poetry config virtualenvs.create true
+    #     # /root/.local/bin/poetry config virtualenvs.in-project true
+    # - name: Check Poetry version
+    #   run: /root/.local/bin/poetry --version
     - name: Load cached venv
       id: cached-poetry-dependencies
       uses: actions/cache@v3
       with:
         path: .venv
-        key: venv-${{ python-version }}-${{ poetry-version }}-${{ hashFiles('poetry.lock') }}
+        key: venv-${{ inputs.python-version }}-${{ inputs.poetry-version }}-${{ hashFiles('poetry.lock') }}
     - name: Install dependencies
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: poetry install --no-interaction --no-root
-    - run: poetry --version
-    # - name: Install project
-    #   run: poetry install --no-interaction
+      run: poetry install --no-root
+    # # # - run: poetry --version
+    # # # # - name: Install project
+    # # # #   run: poetry install --no-interaction
