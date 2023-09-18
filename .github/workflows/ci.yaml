@@ -18,6 +18,6 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           poetry-version: ${{ env.POETRY_VERSION }}
-      # - name: Run tests
-      #   run: |
-      #     poetry shell pytest .
+      - name: Run tests
+        run: |
+          poetry shell pytest .
