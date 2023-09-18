@@ -31,7 +31,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .venv
-          key: venv-${{ matrix-os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
+          key: venv-${{ matrix.os }}-${{ matrix.python-version }}-${{ matrix.poetry-version }}-${{ hashFiles('poetry.lock') }}
       #----------------------------------------------
       # install dependencies if cache does not exist
       #----------------------------------------------
