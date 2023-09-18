@@ -4,11 +4,54 @@ env:
   PYTHON_VERSION: "3.10"
   POETRY_VERSION: "1.6.1"
 jobs:
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: psf/black@stable
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: cache-deps
+        uses: ./.github/actions/setup-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Run tests
+        shell: bash
+        run: poetry run black .
+  isort:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: cache-deps
+        uses: ./.github/actions/setup-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Run tests
+        shell: bash
+        run: poetry run isort -y
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: cache-deps
+        uses: ./.github/actions/setup-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Run tests
+        shell: bash
+        run: poetry run flake8 .
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: cache-deps
+        uses: ./.github/actions/setup-poetry
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Run tests
+        shell: bash
+        run: poetry run mypy .
   ci:
     runs-on: ubuntu-latest
     steps:
