@@ -16,6 +16,7 @@ from dotfiles.logics import (
     PyProjectTemplate,
     Python,
     Rust,
+    Terraform,
     TMux,
     Vim,
     Vimperator,
@@ -49,6 +50,7 @@ def main() -> None:
     r.add_logic(Vim(opt))
     r.add_logic(NeoVim(opt))
     r.add_logic(CommandLineHelper(opt))
+    r.add_logic(Terraform(opt))
     r.add_logic(Docker(opt))
     r.add_logic(Python(opt))
     r.add_logic(PyProjectTemplate(opt))

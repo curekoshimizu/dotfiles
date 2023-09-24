@@ -36,6 +36,12 @@ if [ -d ${PYENV_ROOT} ]; then
     export PATH="$PYENV_ROOT/shims:${PATH}"
 fi
 
+# tfenv
+TFENV_ROOT="$HOME/.tfenv"
+if [ -d ${TFENV_ROOT} ]; then
+    export PATH="$TFENV_ROOT/bin:$PATH"
+fi
+
 ## rye
 RYE_ROOT="$HOME/.rye/shims"
 if [ -d ${RYE_ROOT} ]; then

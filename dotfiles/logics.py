@@ -353,6 +353,19 @@ class CommandLineHelper(Logic):
         return ExitCode.SUCCESS
 
 
+class Terraform(Logic):
+    @property
+    def name(self) -> str:
+        return "terraform"
+
+    def run(self) -> ExitCode:
+        tfenv = self._options.dest_dir / ".tfenv"
+        if not tfenv.exists():
+            Repo.clone_from("https://github.com/tfutils/tfenv.git", tfenv)
+
+        return ExitCode.SUCCESS
+
+
 class Docker(Logic):
     @property
     def name(self) -> str:
