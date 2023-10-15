@@ -46,9 +46,12 @@
     # switch
     si = ! git branch | peco --prompt 'GIT BRANCH>' | head -n 1 | sed -e "s/^*//g" | xargs git switch || echo "git switch command failed..."
     # pull
-    p = ! git f && git symbolic-ref --short HEAD | xargs -I{} git merge origin {} && git l -n 3 || echo "git pull command failed..."
+    p = ! git f && git symbolic-ref --short HEAD | xargs -I{} git merge origin/{} && git l -n 3 || echo "git pull command failed..."
     # push
     pus = ! git branch | peco --prompt '[GIT PUSH] >' --query $(git symbolic-ref --short HEAD) | head -n 1 | sed -e 's/^*//g' | xargs -I{} git push origin {} && git l -n 3 || echo "git push command failed..."
+    # delete-local-all-branches
+    delete-local-all-branches = "!git branch | grep -v \"$(git symbolic-ref --short HEAD)\" | xargs git branch -D"
+
     # add
     ad= "!if [ \"`git status --porcelain | grep -E '^.[^ ]'`\" != \"\" ]; then git add `git status --porcelain | grep -E '^.[^ ]' | peco | sed -e 's/.* //'`; fi"
     # diff peco files
