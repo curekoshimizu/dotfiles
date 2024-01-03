@@ -46,6 +46,7 @@ linux*)
   alias ll='ls -l --color'
   alias la='ls -la --color'
   alias ltr='ls -ltr --color'
+  alias ipa='ip -br -c a'
 
   # minikubeではなくkindをつかってみることに
   # if command -v minikube >/dev/null 2>&1; then
