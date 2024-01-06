@@ -10,6 +10,8 @@ export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-p:up'
 PATH=/usr/local/bin:$PATH
 PATH=$PATH:/sbin:/usr/bin:/bin:$HOME/bin
 PATH=$PATH:$HOME/.local/bin:$HOME/.poetry/bin
+# CUDA
+PATH=$PATH:/usr/local/cuda/bin
 ## Mac Brew Settings (coreutils)
 #case ${OSTYPE} in
 #    darwin*)
@@ -128,6 +130,8 @@ fi
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64:/usr/local/lib:/usr/lib64:/usr/lib
 ## HOME LIB PATH
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HOME/install/bin
+## CUDA
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/cuda/lib64
 ##=====================================================================
 #
 ## ------------------------------------------------
