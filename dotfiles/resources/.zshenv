@@ -20,23 +20,23 @@ PATH=$PATH:/usr/local/cuda/bin
 #        ;;
 #esac
 
-## Golang
-if [ -d ${HOME}/.golang ]; then
-    export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
-fi
+## Golang -> mise(https://mise.jdx.dev/lang/go.html)
+# if [ -d ${HOME}/.golang ]; then
+#     export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
+# fi
 
 ## RUST
 if [ -f ${HOME}/.cargo/env ];
     then source ${HOME}/.cargo/env;
 fi
 
-# pyenv
-PYENV_ROOT="$HOME/.pyenv"
-if [ -d ${PYENV_ROOT} ]; then
-    export PYENV_ROOT
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    export PATH="$PYENV_ROOT/shims:${PATH}"
-fi
+# pyenv -> mise(https://mise.jdx.dev/lang/python.html)
+# PYENV_ROOT="$HOME/.pyenv"
+# if [ -d ${PYENV_ROOT} ]; then
+#     export PYENV_ROOT
+#     export PATH="$PYENV_ROOT/bin:$PATH"
+#     export PATH="$PYENV_ROOT/shims:${PATH}"
+# fi
 
 # tfenv
 TFENV_ROOT="$HOME/.tfenv"

@@ -246,22 +246,27 @@ if which direnv >/dev/null 2>&1; then
     alias tmux='direnv exec / tmux'
 fi
 
+## mise
+if which mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
+
 # kubectl
 alias k='kubectl'
 if command -v kubectl >/dev/null 2>&1; then
     source <(kubectl completion zsh)
 fi
 
-# lazy load
-function lazy_load_nvm
-{
-    if [ -z ${NVM_LOADED} ]; then
-        # if use npm, nvm or vim, load NVM settings.
-        if [[ $1 = *"sls"* ]] || [[ $1 = *"npm"* ]] || [[ $1 = *"nvm"* ]] || [[ $1 = *"vim"* ]]; then
-            NVM_LOADED=1
-            load_nvm
-        fi
-    fi
-}
-autoload -Uz add-zsh-hook
-add-zsh-hook preexec  lazy_load_nvm
+# # lazy load
+# function lazy_load_nvm
+# {
+#     if [ -z ${NVM_LOADED} ]; then
+#         # if use npm, nvm or vim, load NVM settings.
+#         if [[ $1 = *"sls"* ]] || [[ $1 = *"npm"* ]] || [[ $1 = *"nvm"* ]] || [[ $1 = *"vim"* ]]; then
+#             NVM_LOADED=1
+#             load_nvm
+#         fi
+#     fi
+# }
+# autoload -Uz add-zsh-hook
+# add-zsh-hook preexec  lazy_load_nvm
