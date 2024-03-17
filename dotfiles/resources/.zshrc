@@ -28,6 +28,7 @@ function git-changed-files(){
 alias dc='docker-compose'
 alias gtar='tar'
 alias gmake='make'
+alias ip='ip --color=auto'
 
 case "${OSTYPE}" in
 darwin*)
