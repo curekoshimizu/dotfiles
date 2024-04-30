@@ -13,12 +13,13 @@ PATH=$PATH:$HOME/.local/bin:$HOME/.poetry/bin
 # CUDA
 PATH=$PATH:/usr/local/cuda/bin
 ## Mac Brew Settings (coreutils)
-#case ${OSTYPE} in
-#    darwin*)
-#        PATH=$(brew --prefix coreutils)/libexec/gnubin:$PATH
-#        PATH=/usr/local/texlive/2014/bin/x86_64-darwin:$PATH
-#        ;;
-#esac
+case ${OSTYPE} in
+   darwin*)
+       PATH=/opt/homebrew/bin:$PATH
+       # PATH=$(brew --prefix coreutils)/libexec/gnubin:$PATH
+       # PATH=/usr/local/texlive/2014/bin/x86_64-darwin:$PATH
+       ;;
+esac
 
 ## Golang -> mise(https://mise.jdx.dev/lang/go.html)
 # if [ -d ${HOME}/.golang ]; then
