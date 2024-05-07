@@ -32,12 +32,12 @@ if [ -f ${HOME}/.cargo/env ];
 fi
 
 # pyenv -> mise(https://mise.jdx.dev/lang/python.html)
-# PYENV_ROOT="$HOME/.pyenv"
-# if [ -d ${PYENV_ROOT} ]; then
-#     export PYENV_ROOT
-#     export PATH="$PYENV_ROOT/bin:$PATH"
-#     export PATH="$PYENV_ROOT/shims:${PATH}"
-# fi
+PYENV_ROOT="$HOME/.pyenv"
+if [ -d ${PYENV_ROOT} ]; then
+    export PYENV_ROOT
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    export PATH="$PYENV_ROOT/shims:${PATH}"
+fi
 
 # tfenv
 TFENV_ROOT="$HOME/.tfenv"

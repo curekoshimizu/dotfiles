@@ -1,8 +1,8 @@
 [includeIf "gitdir:~/curekoshimizu_checkoutroot/"]
     path = .gitconfig.curekoshimizu
 
-[includeIf "gitdir:~/wantjp_checkoutroot/"]
-    path = .gitconfig.wantjp
+[includeIf "gitdir:~/recustomer_checkoutroot/"]
+    path = .gitconfig.recustomer
 
 [url "ssh://git@github.com/"]
 	insteadOf = https://github.com/
