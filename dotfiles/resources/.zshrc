@@ -13,6 +13,8 @@ AWS_COMPLETER_PATH=$(which aws_completer)
 # Check if aws_completer exists and is executable
 if [ -n "$AWS_COMPLETER_PATH" ] && [ -x "$AWS_COMPLETER_PATH" ]; then
   autoload bashcompinit && bashcompinit
+  autoload -Uz compinit
+  compinit
   complete -C "$AWS_COMPLETER_PATH" aws
 fi
 
