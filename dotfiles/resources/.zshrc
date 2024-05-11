@@ -137,12 +137,24 @@ setopt share_history
 setopt extended_history
 setopt nohashcmds
 
-# bindkey "^P" history-beginning-search-backward
-# bindkey "^N" history-beginning-search-forward
-bindkey "^P" history-beginning-search-backward
-bindkey "^N" history-beginning-search-forward
-bindkey "^p" history-beginning-search-backward
-bindkey "^n" history-beginning-search-forward
+# refs: ehttps://www.pandanoir.info/entry/2024/04/27/165533
+# コマンドラインをエディタで編集する関数
+edit-command-line() {
+  # 現在のコマンドラインを一時ファイルに書き出す
+  local tmpfile=$(mktemp)
+  print -rl -- $BUFFER > $tmpfile
+
+  $EDITOR $tmpfile < /dev/tty
+
+  # エディタが正常に終了した場合、一時ファイルの内容でコマンドラインを置き換え
+  if [[ $? -eq 0 ]]; then
+    BUFFER=$(<$tmpfile)
+    zle reset-prompt
+  fi
+
+  rm -f $tmpfile
+}
+
 
 # MASK
 umask 022
@@ -273,3 +285,10 @@ fi
 # }
 # autoload -Uz add-zsh-hook
 # add-zsh-hook preexec  lazy_load_nvm
+
+zle -N edit-command-line
+bindkey "^O" edit-command-line
+
+
+bindkey "^P" history-beginning-search-backward
+bindkey "^N" history-beginning-search-forward
