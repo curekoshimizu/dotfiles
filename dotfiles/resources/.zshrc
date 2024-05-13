@@ -266,6 +266,11 @@ if which mise >/dev/null 2>&1; then
     eval "$(mise activate zsh)"
 fi
 
+# gh
+if which gh >/dev/null 2>&1; then
+    eval "$(gh completion -s zsh)"
+fi
+
 # kubectl
 alias k='kubectl'
 if command -v kubectl >/dev/null 2>&1; then
