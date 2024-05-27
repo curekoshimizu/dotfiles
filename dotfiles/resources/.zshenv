@@ -24,6 +24,8 @@ esac
 # Golang
 if [ -d ${HOME}/.golang ]; then
     export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
+elif [ -d /usr/local/go ]; then
+    export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin
 fi
 
 ## RUST
