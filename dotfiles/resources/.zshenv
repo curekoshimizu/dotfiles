@@ -21,10 +21,10 @@ case ${OSTYPE} in
        ;;
 esac
 
-## Golang -> mise(https://mise.jdx.dev/lang/go.html)
-# if [ -d ${HOME}/.golang ]; then
-#     export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
-# fi
+# Golang
+if [ -d ${HOME}/.golang ]; then
+    export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
+fi
 
 ## RUST
 if [ -f ${HOME}/.cargo/env ];
