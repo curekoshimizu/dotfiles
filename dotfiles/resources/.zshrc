@@ -43,6 +43,7 @@ darwin*)
       # How to install GNU sed -- brew install gnu-sed.
       alias sed="gsed"
   fi
+  alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
   ;;
 linux*)
   alias ls='ls --color'
