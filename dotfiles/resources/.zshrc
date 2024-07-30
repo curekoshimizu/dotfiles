@@ -31,6 +31,7 @@ alias dc='docker-compose'
 alias gtar='tar'
 alias gmake='make'
 alias ip='ip --color=auto'
+alias vim-tiny='vim -u NONE -N'
 
 case "${OSTYPE}" in
 darwin*)
