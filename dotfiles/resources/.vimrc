@@ -939,19 +939,23 @@ function! s:vim_format()
 endfunction
 
 function! s:format()
-    if &filetype == "c" || &filetype == "cpp"
-        if executable("clang-format")
-            call s:clang_format()
-            echomsg "clang-format done."
+    if exists(':LspDocumentFormatSync')
+        execute ':LspDocumentFormatSync'
+    else
+        if &filetype == "c" || &filetype == "cpp"
+            if executable("clang-format")
+                call s:clang_format()
+                echomsg "clang-format done."
+            else
+                call s:vim_format()
+                echomsg "Please Install clang-format"
+            endif
+        elseif &filetype == "json"
+            call s:json_format()
+            echomsg "json-format done."
         else
             call s:vim_format()
-            echomsg "Please Install clang-format"
         endif
-    elseif &filetype == "json"
-        call s:json_format()
-        echomsg "json-format done."
-    else
-        call s:vim_format()
     endif
 endfunction
 

@@ -469,3 +469,20 @@ let g:ale_fix_on_save = 1
 let g:goimports_show_loclist = 0
 let g:goimports = 1
 "}}}
+
+
+"{{{ mattn/vim-lsp-settings
+let g:lsp_settings = {
+\   'pylsp-all': {
+\     'workspace_config': {
+\       'pylsp': {
+\         'plugins': {
+\           'pycodestyle': {
+\             'ignore': ["E203","E231","E501","W503", "E122"]
+\           }
+\         }
+\       }
+\     }
+\   },
+\}
+"}}}
