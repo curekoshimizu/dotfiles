@@ -256,6 +256,11 @@ alias cdp='echo "please use ctrl-g."'
 Z_FILE=$(cd $(dirname $0); pwd)/.z/z.sh
 source $Z_FILE
 
+## uv
+if which uv >/dev/null 2>&1; then
+    eval "$(uv generate-shell-completion bash)"
+fi
+
 ## direnv
 export EDITOR=vim
 if which direnv >/dev/null 2>&1; then
