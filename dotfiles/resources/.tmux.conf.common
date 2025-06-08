@@ -90,3 +90,19 @@ set -sg escape-time 1
 
 # history
 set-option -g history-limit 100000
+
+# ========== Active pane highlighting ==========
+# Active pane border color (pink)
+set-option -g pane-active-border-style "fg=colour213,bg=default"
+# Inactive pane border color (dark gray)
+set-option -g pane-border-style "fg=colour238,bg=default"
+
+# Active pane background color (very subtle dark)
+set-window-option -g window-active-style 'bg=colour234'
+# Inactive pane background color (darker)
+set-window-option -g window-style 'bg=colour235'
+
+# Alternative: Active pane with bright border and dim inactive panes
+# set-option -g pane-active-border-style "fg=colour118,bg=default,bold"
+# set-window-option -g window-active-style 'bg=terminal,fg=terminal'
+# set-window-option -g window-style 'bg=colour234,fg=colour247'
