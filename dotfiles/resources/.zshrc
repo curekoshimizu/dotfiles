@@ -304,3 +304,60 @@ bindkey "^O" edit-command-line
 
 bindkey "^P" history-beginning-search-backward
 bindkey "^N" history-beginning-search-forward
+
+
+function git-make-worktree() {
+  local b=$1
+  [[ -z $b ]] && { echo "ブランチ名必須"; return 1; }
+
+  # 既存 worktree かどうか調べる
+  local d
+  d=$(git worktree list --porcelain |
+        awk -v br="$b" '
+          /^worktree / {w=$2}
+          $0=="branch refs/heads/"br {print w; exit}')
+
+  # 無ければ作成
+  if [[ -z $d ]]; then
+    d=../${b//\//__}
+    git worktree add -B "$b" "$d" "origin/$b" 2>/dev/null ||
+    git worktree add -b "$b" "$d"
+  fi
+
+  cd "$d"
+}
+
+# Git Worktree ROOT へ移動
+fucntion git-cd-root() {
+  local root
+  root=$(git worktree list --porcelain | awk '/^worktree /{print $2; exit}')
+  cd "$root" || return
+}
+
+# Git Worktree Delete
+function git-delete-worktree() {
+  # --- 一覧取得（パスだけ） -------------------------------
+  local paths
+  paths=("${(@f)$(git worktree list --porcelain | awk '/^worktree /{print $2}')}")
+
+  # メインワークツリー（先頭）を控えておく
+  local root=${paths[1]}
+
+  # --- fzf で選択 ----------------------------------------
+  local target
+  # メインを除外したリストで fzf（キャンセルで抜ける）
+  target=$(printf '%s\n' "${paths[@]:1}" \
+           | fzf --prompt='delete> ' --reverse) || return
+
+  # --- 確認プロンプト ------------------------------------
+  if ! read -q "yn?Remove ${target}? [y/N] "; then
+    echo      # 改行
+    echo 'Canceled.'
+    return
+  fi
+  echo
+
+  # --- 削除実行 ------------------------------------------
+  git worktree remove --force "$target" || return
+  git worktree prune
+}
