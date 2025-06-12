@@ -361,3 +361,82 @@ function git-delete-worktree() {
   git worktree remove --force "$target" || return
   git worktree prune
 }
+
+gw() {
+  # --- Git リポジトリか判定 -------------------------------------------------
+  git rev-parse --is-inside-work-tree &>/dev/null || {
+    echo "Not inside a Git repo"; return 1; }
+
+  # --- 現在いる worktree（プライマリ）のルート ------------------------------
+  local cur_wt
+  cur_wt=$(git rev-parse --show-toplevel)
+
+  # --- worktree 一覧を生成（現在位置は除外）--------------------------------
+  local list
+  list=$(
+    git worktree list --porcelain |
+      awk -v CUR="$cur_wt" '
+        /^worktree/ { wdir=$2 }
+        /^branch/   { sub("refs/heads/","",$2); wbranch=$2 }
+        /^$/ {
+          if (wdir == CUR) next                          # 現在位置は候補から除外
+          printf("%s\t%s\n", wbranch ? wbranch : "(detached)", wdir)
+        }
+      ' | sort -k1,1 -k2,2
+  )
+
+  # --- fzf 起動 -------------------------------------------------------------
+  local sel key
+  sel=$(
+    printf '%s\n' "$list" |
+      fzf --ansi --height=40% --reverse \
+          --prompt="Worktree> " \
+          --expect=enter,ctrl-w,ctrl-x \
+          --bind="ctrl-n:down,ctrl-p:up,ctrl-w:accept"
+  ) || return
+  key=${sel%%$'\n'*}           # 押下キー
+  sel=${sel#*$'\n'}            # 選択行
+
+  local branch wt_dir
+  IFS=$'\t' read -r branch wt_dir <<< "$sel"
+
+  # --- モード別処理 ---------------------------------------------------------
+  case "$key" in
+    enter|"")  # ---------- 切り替え ----------
+      [ -n "$wt_dir" ] && cd "$wt_dir"
+      ;;
+
+    ctrl-w)    # ---------- 新規作成 (W = worktree) ----------
+      # 1 つだけ聞く → ブランチ名＝作るディレクトリ名（basename）
+      printf 'Worktree name/path [../<name>]: ' ; read -r new_dir || return
+      [ -z "$new_dir" ] && { echo 'Canceled'; return; }
+
+      # 相対名だけ渡されたら ../<name> に置く（ディレクトリを明示したければフルパスで入力）
+      if [[ "$new_dir" != */* ]]; then
+        new_dir="../$new_dir"
+      fi
+      local new_branch
+      new_branch=$(basename "$new_dir")
+
+      if git show-ref --verify --quiet "refs/heads/$new_branch"; then
+        # 既存ブランチ → そのブランチで worktree を追加
+        git worktree add "$new_dir" "$new_branch" || return
+      else
+        # 新規ブランチを切って worktree 追加
+        git worktree add -b "$new_branch" "$new_dir" || return
+      fi
+      cd "$new_dir"
+      ;;
+
+    ctrl-x)    # ---------- 削除 ----------
+      [ -z "$wt_dir" ] && { echo 'Nothing selected'; return 1; }
+      if [ "$wt_dir" = "$cur_wt" ]; then
+        echo 'Cannot remove primary worktree'; return 1
+      fi
+      printf "Remove worktree '%s'? [y/N] " "$wt_dir"
+      read -r yn
+      [[ "$yn" =~ ^[Yy]$ ]] || { echo 'Aborted'; return; }
+      git worktree remove --force "$wt_dir" && git worktree prune
+      ;;
+  esac
+}
