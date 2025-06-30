@@ -440,3 +440,11 @@ gw() {
       ;;
   esac
 }
+\$() {
+    claude "$*"
+}
+
+
+yolo() {
+    npx --yes @anthropic-ai/claude-code@latest "$*" --dangerously-skip-permissions 
+}
