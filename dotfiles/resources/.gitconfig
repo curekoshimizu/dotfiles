@@ -38,6 +38,8 @@
         };f"
 [rebase]
     autostash = true
+[merge]
+    tool = vimdiff
 [alias]
     # TODO: (peco -> fzf) preview が使えるほうが便利そう
     # 加えて branch から action で switch とか
