@@ -680,8 +680,31 @@ function s:copy_filename()
     let @"=expand('%:t')
 endfunction
 
+function s:copy_ai_path()
+    " 現在のファイルの絶対パスを取得
+    let file_path = expand('%:p')
+    " Gitリポジトリのルートを取得
+    let git_root = system('git rev-parse --show-toplevel 2>/dev/null')
+    if v:shell_error == 0
+        " Gitリポジトリ内の場合
+        " 改行を削除
+        let git_root = substitute(git_root, '\n$', '', '')
+        " Gitルートからの相対パスを計算
+        let relative_path = substitute(file_path, '^' . git_root . '/', '', '')
+        " @形式でyankにコピー
+        let formatted_path = '@' . relative_path
+    else
+        " Gitリポジトリ外の場合は絶対パス
+        let formatted_path = file_path
+    endif
+    let @* = formatted_path
+    let @" = formatted_path
+    echo 'Copied: ' . formatted_path
+endfunction
+
 command! -nargs=0 CopyPath     call s:copy_path()
 command! -nargs=0 CopyFileName call s:copy_filename()
+command! -nargs=0 CopyAIPath   call s:copy_ai_path()
 
 command! -nargs=0 CopyBreak call s:set_gdb_break()
 "command! GdbBreak :let @+ = 'b ' . expand('%:p') . ':' . line('.')
