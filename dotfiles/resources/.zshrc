@@ -258,7 +258,7 @@ source $Z_FILE
 
 ## uv
 if which uv >/dev/null 2>&1; then
-    eval "$(uv generate-shell-completion bash)"
+    eval "$(uv generate-shell-completion zsh)"
 fi
 
 ## direnv
