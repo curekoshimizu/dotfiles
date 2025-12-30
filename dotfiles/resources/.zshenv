@@ -21,6 +21,9 @@ case ${OSTYPE} in
        ;;
 esac
 
+# Add .local/bin to PATH for kiro-cli and other tools
+export PATH="$HOME/.local/bin:$PATH"
+
 # Golang
 if [ -d ${HOME}/.golang ]; then
     export PATH=$PATH:$HOME/.golang/bin:$HOME/go/bin
