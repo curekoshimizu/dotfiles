@@ -25,33 +25,12 @@ Plug 'dense-analysis/ale'
 Plug 'hashivim/vim-terraform'
 Plug 'mattn/vim-maketable'
 
-" completion
-if exists('g:use_neovim')
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    " :CocInstall coc-rls を実行する
-
-    Plug 'rust-lang/rust.vim'
-    " NOTE: 
-    "  :RustTest!  : rust test all
-    "
-
-    "NOTE: please run :CocInstall coc-rust-analyzer"
-
-
-    " これは何のためにいれていたか忘れたが、
-    " python で :w するたびに Quickfix がでるようになったので
-    " 消した
-    " Plug 'autozimu/LanguageClient-neovim', {
-    "     \ 'branch': 'next',
-    "     \ 'do': 'bash install.sh',
-    "     \ }
-else
-    Plug 'prabirshrestha/async.vim'
-    Plug 'prabirshrestha/vim-lsp'
-    Plug 'mattn/vim-lsp-settings'
-    Plug 'prabirshrestha/asyncomplete.vim'
-    Plug 'prabirshrestha/asyncomplete-lsp.vim'
-endif
+" completion (Vim用)
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
 
 " Test runner (goなど)
 Plug 'vim-test/vim-test'
@@ -127,15 +106,7 @@ function! s:configure_lsp() abort
  nnoremap <buffer> <F1> :<C-u>LspImplementation<CR>
  nnoremap <buffer> <F2> :<C-u>LspRename<CR>
 endfunction
-if exists('g:use_neovim')
-    nmap <silent> <C-]> <Plug>(coc-definition)
-    nmap <silent> gd <Plug>(coc-definition)
-    nmap <silent> gy <Plug>(coc-type-definition)
-    nmap <silent> gi <Plug>(coc-implementation)
-    nmap <silent> gr <Plug>(coc-references)
-else
-    call s:configure_lsp()
-endif
+call s:configure_lsp()
 
 let g:LanguageClient_serverCommands = {
 \ 'rust': ['rust-analyzer'],
@@ -182,13 +153,6 @@ call s:add_quickhl_manual_color(255, 238,  88, 0)
 " rust-lang
 let g:rustfmt_autosave = 1
 "let g:rustfmt_command = '$HOME/.cargo/bin/rustfmt'
-
-"{{{ coc
-nmap <silent> ,gd <Plug>(coc-definition)
-nmap <silent> ,gy <Plug>(coc-type-definition)
-nmap <silent> ,gi <Plug>(coc-implementation)
-nmap <silent> ,gr <Plug>(coc-references)
-"}}}
 
 "{{{ lightline
 let g:lightline = {

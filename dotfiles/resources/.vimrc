@@ -239,13 +239,6 @@ endfunction
 """======== Windows Kaoriya settings end ==============="
 
 let s:script_path = expand('<sfile>:p:h')
-"======== NeoBundle settings start ==================="
-let s:neobundle_settings_path = s:script_path . '/.vimrc.neobundle'
-let use_neobundle = 0
-if filereadable(s:neobundle_settings_path) && use_neobundle
-    execute 'source ' s:neobundle_settings_path
-endif
-"======== NeoBundle settings end ===================="
 "======== Plug settings start ==================="
 let s:plug_settings_path = s:script_path . '/.vimrc.plug'
 let use_plug = 1
