@@ -241,7 +241,7 @@ endfunction
 let s:script_path = expand('<sfile>:p:h')
 "======== Plug settings start ==================="
 let s:plug_settings_path = s:script_path . '/.vimrc.plug'
-let use_plug = 1
+let use_plug = !exists('g:use_neovim')
 if filereadable(s:plug_settings_path) && use_plug
     execute 'source ' s:plug_settings_path
 endif
