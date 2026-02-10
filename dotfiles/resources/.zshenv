@@ -150,3 +150,8 @@ PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/lib/pkgconfig:/usr/local/lib/pkgconfig
 ##=====================================================================
 #
 export PATH LD_LIBRARY_PATH PKG_CONFIG_PATH
+
+
+# Claude
+export CLAUDE_BASH_MAINTAIN_PROJECT_WORKING_DIR=1
+export ENABLE_TOOL_SEARCH=true

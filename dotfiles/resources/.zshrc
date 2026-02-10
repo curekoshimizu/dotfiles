@@ -14,7 +14,10 @@ AWS_COMPLETER_PATH=$(which aws_completer)
 if [ -n "$AWS_COMPLETER_PATH" ] && [ -x "$AWS_COMPLETER_PATH" ]; then
   autoload bashcompinit && bashcompinit
   autoload -Uz compinit
-  compinit
+  if [[ -z "$_COMPINIT_DONE" ]]; then
+    compinit
+    _COMPINIT_DONE=1
+  fi
   complete -C "$AWS_COMPLETER_PATH" aws
 fi
 
@@ -32,6 +35,14 @@ alias gtar='tar'
 alias gmake='make'
 alias ip='ip --color=auto'
 alias vim-tiny='vim -u NONE -N'
+
+# python/pip エイリアス（既存コマンドがない場合のみ）
+if ! command -v python >/dev/null 2>&1; then
+  alias python=python3
+fi
+if ! command -v pip >/dev/null 2>&1; then
+  alias pip=pip3
+fi
 
 case "${OSTYPE}" in
 darwin*)
@@ -166,8 +177,12 @@ bindkey -e
 
 
 # OPTION
+# compinit（起動ごとに1回だけ実行）
 autoload -U compinit
-compinit -u
+if [[ -z "$_COMPINIT_DONE" ]]; then
+  compinit -u
+  _COMPINIT_DONE=1
+fi
 
 setopt NUMERIC_GLOB_SORT
 setopt NULL_GLOB
@@ -256,15 +271,42 @@ alias cdp='echo "please use ctrl-g."'
 Z_FILE=$(cd $(dirname $0); pwd)/.z/z.sh
 source $Z_FILE
 
-## uv
+## 補完キャッシュ用関数（1日1回再生成）
+_COMP_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh-completions-cache"
+mkdir -p "$_COMP_CACHE_DIR"
+_cached_completion() {
+  local name="$1"
+  local cmd="$2"
+  local cache="$_COMP_CACHE_DIR/$name.zsh"
+  # キャッシュが存在しないか、1日以上古い場合は再生成
+  if [[ ! -f "$cache" ]] || [[ $(find "$cache" -mtime +1 2>/dev/null) ]]; then
+    eval "$cmd" > "$cache" 2>/dev/null
+  fi
+  [[ -f "$cache" ]] && source "$cache"
+}
+
+## uv（遅延ロード）
+_load_uv_completion() {
+  unset -f uv
+  _cached_completion "uv" "uv generate-shell-completion zsh"
+}
 if which uv >/dev/null 2>&1; then
-    eval "$(uv generate-shell-completion zsh)"
+  uv() { _load_uv_completion; command uv "$@"; }
 fi
 
-## direnv
+## direnv（完全遅延ロード - ディレクトリ変更時に初期化）
 export EDITOR=vim
 if which direnv >/dev/null 2>&1; then
-    eval "$(direnv hook zsh)"
+    _load_direnv() {
+      if [[ -z "$_DIRENV_LOADED" ]]; then
+        eval "$(direnv hook zsh)"
+        _DIRENV_LOADED=1
+        # 初期化後に現在のディレクトリで.envrcを読み込む
+        _direnv_hook
+      fi
+    }
+    # ディレクトリ変更時に初期化
+    chpwd_functions+=(_load_direnv)
     alias tmux='direnv exec / tmux'
 fi
 
@@ -275,13 +317,18 @@ fi
 
 # gh
 if which gh >/dev/null 2>&1; then
-    eval "$(gh completion -s zsh)"
+    _cached_completion "gh" "gh completion -s zsh"
 fi
 
-# kubectl
+# kubectl（遅延ロード）
 alias k='kubectl'
+_load_kubectl_completion() {
+  unalias kubectl 2>/dev/null
+  unset -f kubectl
+  _cached_completion "kubectl" "kubectl completion zsh"
+}
 if command -v kubectl >/dev/null 2>&1; then
-    source <(kubectl completion zsh)
+  kubectl() { _load_kubectl_completion; command kubectl "$@"; }
 fi
 
 # # lazy load
@@ -371,7 +418,7 @@ gw() {
   local cur_wt
   cur_wt=$(git rev-parse --show-toplevel)
 
-  # --- worktree 一覧を生成（現在位置は除外）--------------------------------
+  # --- worktree 一覧を生成（現在位置は除外、作成日時順でソート）------------
   local list
   list=$(
     git worktree list --porcelain |
@@ -379,10 +426,18 @@ gw() {
         /^worktree/ { wdir=$2 }
         /^branch/   { sub("refs/heads/","",$2); wbranch=$2 }
         /^$/ {
-          if (wdir == CUR) next                          # 現在位置は候補から除外
-          printf("%s\t%s\n", wbranch ? wbranch : "(detached)", wdir)
+          if (wdir == CUR) next
+          cmd = "stat -f %B \"" wdir "\" 2>/dev/null"
+          if ((cmd | getline ts) > 0 && ts != "") {
+            printf("%s\t%s\t%s\n", ts, wbranch ? wbranch : "(detached)", wdir)
+          }
+          close(cmd)
         }
-      ' | sort -k1,1 -k2,2
+      ' | sort -t$'\t' -k1,1rn |
+      while IFS=$'\t' read -r ts branch dir; do
+        date_str=$(LANG=ja_JP.UTF-8 date -r "$ts" "+%Y-%m-%d (%a) %H:%M" 2>/dev/null) || continue
+        printf "%s\t%s\t%s\n" "$date_str" "$branch" "$dir"
+      done
   )
 
   # --- fzf 起動 -------------------------------------------------------------
@@ -397,8 +452,8 @@ gw() {
   key=${sel%%$'\n'*}           # 押下キー
   sel=${sel#*$'\n'}            # 選択行
 
-  local branch wt_dir
-  IFS=$'\t' read -r branch wt_dir <<< "$sel"
+  local _date branch wt_dir
+  IFS=$'\t' read -r _date branch wt_dir <<< "$sel"
 
   # --- モード別処理 ---------------------------------------------------------
   case "$key" in
