@@ -99,43 +99,82 @@ function fzf-kill(){
 alias kill-peco="fzf-kill"
 
 
-# PROMPT
+# PROMPT — Powerline Ocean style (ホスト名で色パレットを切替)
 autoload -U colors
 colors
 
-case `hostname` in
-    ajimejilo )
-        _prompt_main_color=cyan
-        ;;
-    thinkpad )
-        _prompt_main_color=cyan
-        ;;
-    curekoshimizu )
-        _prompt_main_color=cyan
-        ;;
-    koshimizu )
-        _prompt_main_color=magenta
-        ;;
-    * )
-        _prompt_main_color=yellow
-        ;;
-esac
+# 色パレット: c1(暗)=時刻, c2(中)=host, c3(明)=ディレクトリ
+# user@hostname のハッシュから自動決定。~/.prompt_override で番号指定可
+_prompt_palettes=(
+    "22 34 42"     #  1: Forest
+    "23 30 37"     #  2: Teal
+    "25 61 67"     #  3: Petrol
+    "53 141 183"   #  4: Purple
+    "54 97 140"    #  5: Indigo
+    "58 108 150"   #  6: Slate
+    "88 160 203"   #  7: Crimson
+    "94 132 175"   #  8: Plum
+    "100 136 172"  #  9: Copper
+    "125 168 211"  # 10: Rose
+    "130 208 214"  # 11: Orange
+    "22 71 114"    # 12: Emerald
+    "52 90 133"    # 13: Grape
+    "58 166 209"   # 14: Moss
+    "24 33 39"     # 15: Ocean (blue) ← shugo@shugolaptop
+)
 
-PROMPT="[%{${fg[${_prompt_main_color}]}%}%n@%m%{${fg[default]}%} %.]%{%(?.$fg[green].$fg_bold[red])%} %(?!+!-)%{${fg_no_bold[default]}%} %# "
+# _apply_prompt_palette: パレット番号からPROMPTを即時反映
+_apply_prompt_palette() {
+    _prompt_idx=$1
+    read _pc1 _pc2 _pc3 <<< "${_prompt_palettes[$_prompt_idx]}"
+    local a=$'\ue0b0'
+    PROMPT="%F{15}%K{${_pc1}} %* %F{${_pc1}}%K{${_pc2}}${a}%F{15} %n@%m %F{${_pc2}}%K{${_pc3}}${a}%F{15} %. %k%F{${_pc3}}${a}%f "
+}
+
+# パレット決定: ~/.prompt_override があればその番号、なければ user@host のハッシュ
+if [[ -f ~/.prompt_override ]] && (( $(cat ~/.prompt_override) >= 1 )) && (( $(cat ~/.prompt_override) <= ${#_prompt_palettes[@]} )); then
+    _apply_prompt_palette $(cat ~/.prompt_override)
+else
+    _apply_prompt_palette $(( $(echo "$(whoami)@$(hostname -s)" | cksum | cut -d' ' -f1) % ${#_prompt_palettes[@]} + 1 ))
+fi
+
+# prompt_test: 全パレットをプレビュー表示。prompt_test <番号> で固定＆即時反映
+prompt_test() {
+    local a=$'\ue0b0' i=1
+    if [[ "$1" == "reset" ]]; then
+        rm ~/.prompt_override
+        _apply_prompt_palette $(( $(echo "$(whoami)@$(hostname -s)" | cksum | cut -d' ' -f1) % ${#_prompt_palettes[@]} + 1 ))
+        echo "ハッシュ自動決定に戻しました（#${_prompt_idx}）"
+        return
+    fi
+    if [[ -n "$1" ]] && (( $1 >= 1 )) && (( $1 <= ${#_prompt_palettes[@]} )); then
+        echo "$1" > ~/.prompt_override
+        _apply_prompt_palette "$1"
+        echo "Palette #$1 に固定しました（prompt_test reset で解除）"
+        return
+    fi
+    for p in "${_prompt_palettes[@]}"; do
+        local c1 c2 c3
+        read c1 c2 c3 <<< "$p"
+        printf "%2d: \e[97;48;5;${c1}m %s \e[38;5;${c1};48;5;${c2}m${a}\e[97m %s \e[38;5;${c2};48;5;${c3}m${a}\e[97m %s \e[0;38;5;${c3}m${a}\e[0m" \
+            "$i" "$(date +%T)" "$(whoami)@$(hostname -s)" "$(basename $PWD)"
+        [[ $i -eq $_prompt_idx ]] && printf "  ← current"
+        printf "\n"
+        (( i++ ))
+    done
+}
 
 autoload -Uz vcs_info
 setopt prompt_subst
 zstyle ':vcs_info:git:*' check-for-changes true
-#zstyle ':vcs_info:git:*' stagedstr "%F{yellow}!"
-zstyle ':vcs_info:git:*' stagedstr "%F{yellow}(exist added files)"
-#zstyle ':vcs_info:git:*' unstagedstr "%F{red}+"
-zstyle ':vcs_info:git:*' unstagedstr "%F{red}(not add files)"
-zstyle ':vcs_info:*' formats "%F{green}%c%u[%b]%f"
+zstyle ':vcs_info:git:*' stagedstr '%F{yellow}'
+zstyle ':vcs_info:git:*' unstagedstr '%F{red}'
+zstyle ':vcs_info:*' formats '%c%u[%b]%f'
 zstyle ':vcs_info:*' actionformats '[%b|%a]'
 precmd () { vcs_info }
 RPROMPT='${vcs_info_msg_0_}'
 
-setopt transient_rprompt # only last line will be used for right prompt status because of prevent from copy and paste
+setopt transient_rprompt
 
 # HISTORY
 HISTFILE=~/.zhistory
