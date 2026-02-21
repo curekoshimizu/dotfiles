@@ -1008,12 +1008,13 @@ endfunction
 command! TestClangCompletion call s:testClangCompletion()
 
 
-function! PecoOpen()
-  for filename in split(system("find . -type f | peco"), "\n")
+function! FzfOpen()
+  for filename in split(system("find . -type f | fzf"), "\n")
     execute "e" filename
   endfor
 endfunction
-command! -nargs=0 PecoOpen call PecoOpen()
+command! -nargs=0 FzfOpen call FzfOpen()
+command! -nargs=0 PecoOpen call FzfOpen()
 
 ""augroup format
 ""autocmd!
