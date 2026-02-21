@@ -24,10 +24,10 @@ fi
 
 # git alias
 function git-branch() {
-    git branch | peco --prompt "GIT BRANCH>" | head -n 1  | tr -d " " | tr -d "*"
+    git branch | fzf --prompt "GIT BRANCH> " | head -n 1  | tr -d " " | tr -d "*"
 }
 function git-changed-files(){
-  git status --short | peco | awk '{print $2}'
+  git status --short | fzf | awk '{print $2}'
 }
 
 alias dc='docker-compose'
@@ -89,14 +89,14 @@ alias -g L='| less -r -F'
 # to SJIS
 alias -g S='| iconv -f SJIS'
 
-# peco alias
-alias -g P='| peco '
+# fzf alias
+alias -g P='| fzf '
 
-function peco-kill(){
-    ps aux | peco | awk '{print $2}' | xargs kill -KILL
+function fzf-kill(){
+    ps aux | fzf | awk '{print $2}' | xargs kill -KILL
 }
 
-alias kill-peco="peco-kill"
+alias kill-peco="fzf-kill"
 
 
 # PROMPT
@@ -228,31 +228,43 @@ zz() {
 }
 
 
-# peco Settings
-function peco-select-history() {
-    local tac
-    if which tac > /dev/null; then
-        tac="tac"
-    else
-        tac="tail -r"
+# history search (fzf with timestamp display)
+function select-history() {
+    if command -v fzf > /dev/null; then
+        # extended_history format: ": timestamp:duration;command"
+        local selected
+        selected=$(awk -F';' '/^: [0-9]+/{
+            split($1, a, ":")
+            ts = a[2]; sub(/^ /, "", ts)
+            cmd = substr($0, index($0, ";") + 1)
+            printf "%s\t%s\n", strftime("%Y-%m-%d %H:%M", ts), cmd
+        }' "$HISTFILE" | tac | fzf --no-sort --query "$LBUFFER" \
+            --delimiter='\t' --with-nth=1,2 \
+            --tabstop=20)
+        BUFFER=${selected#*	}
+    elif command -v peco > /dev/null; then
+        local tac
+        if which tac > /dev/null; then
+            tac="tac"
+        else
+            tac="tail -r"
+        fi
+        BUFFER=$(\history -n 1 | eval $tac | peco --query "$LBUFFER")
     fi
-    BUFFER=$(\history -n 1 | \
-        eval $tac | \
-        peco --query "$LBUFFER")
     CURSOR=$#BUFFER
     zle clear-screen
 }
-zle -N peco-select-history
-bindkey '^r' peco-select-history
+zle -N select-history
+bindkey '^r' select-history
 
-function peco-z-search
+function fzf-z-search
 {
-  which peco z > /dev/null
+  which fzf z > /dev/null
   if [ $? -ne 0 ]; then
-    echo "Please install peco and z"
+    echo "Please install fzf and z"
     return 1
   fi
-  local res=$(z | sort -rn | cut -c 12- | peco)
+  local res=$(z | sort -rn | cut -c 12- | fzf)
   if [ -n "$res" ]; then
     BUFFER+="cd $res"
     zle accept-line
@@ -260,11 +272,11 @@ function peco-z-search
     return 1
   fi
 }
-# zle -N peco-z-search
-# bindkey '^g' peco-z-search
+# zle -N fzf-z-search
+# bindkey '^g' fzf-z-search
 zle -N zz
 bindkey '^g' zz
-#alias cdp=peco-z-search
+#alias cdp=fzf-z-search
 alias cdp='echo "please use ctrl-g."'
 
 ## z
@@ -499,10 +511,6 @@ gw() {
     claude "$*"
 }
 
-
-yolo() {
-    claude --dangerously-skip-permissions
-}
 
 # Kiro CLI post block. Keep at the bottom of this file.
 [[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
