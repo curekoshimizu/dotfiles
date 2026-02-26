@@ -128,7 +128,8 @@ _apply_prompt_palette() {
     _prompt_idx=$1
     read _pc1 _pc2 _pc3 <<< "${_prompt_palettes[$_prompt_idx]}"
     local a=$'\ue0b0'
-    PROMPT="%F{15}%K{${_pc1}} %* %F{${_pc1}}%K{${_pc2}}${a}%F{15} %n@%m %F{${_pc2}}%K{${_pc3}}${a}%F{15} %. %k%F{${_pc3}}${a}%f "
+    local e=88  # エラー時の単色（暗赤）
+    PROMPT="%(?.%F{15}%K{${_pc1}} %* %F{${_pc1}}%K{${_pc2}}${a}%F{15} %n@%m %F{${_pc2}}%K{${_pc3}}${a}%F{15} %. %k%F{${_pc3}}${a}.%F{15}%K{${e}} %* %F{${e}}%K{${e}} %F{15}%n@%m %F{${e}}%K{${e}} %F{15}%. %k%F{${e}}${a})%f "
 }
 
 # パレット決定: ~/.prompt_override があればその番号、なければ user@host のハッシュ
@@ -272,12 +273,25 @@ function select-history() {
     if command -v fzf > /dev/null; then
         # extended_history format: ": timestamp:duration;command"
         local selected
-        selected=$(awk -F';' '/^: [0-9]+/{
-            split($1, a, ":")
-            ts = a[2]; sub(/^ /, "", ts)
-            cmd = substr($0, index($0, ";") + 1)
-            printf "%s\t%s\n", strftime("%Y-%m-%d %H:%M", ts), cmd
-        }' "$HISTFILE" | tac | fzf --no-sort --query "$LBUFFER" \
+        local _hist_parse
+        if command -v gawk > /dev/null; then
+            _hist_parse=(gawk -F';' '/^: [0-9]+/{
+                split($1, a, ":")
+                ts = a[2]; sub(/^ /, "", ts)
+                cmd = substr($0, index($0, ";") + 1)
+                printf "%s\t%s\n", strftime("%Y-%m-%d %H:%M", ts), cmd
+            }')
+        else
+            _hist_parse=(python3 -c 'import sys,time,io
+sys.stdin = io.TextIOWrapper(sys.stdin.buffer, errors="replace")
+for line in sys.stdin:
+    if line.startswith(": ") and ";" in line:
+        parts = line.split(";", 1)
+        ts = parts[0].split(":")[1].strip()
+        cmd = parts[1].rstrip("\n")
+        print(time.strftime("%Y-%m-%d %H:%M", time.localtime(int(ts))) + "\t" + cmd)')
+        fi
+        selected=$(tac "$HISTFILE" | "${_hist_parse[@]}" | fzf --no-sort --query "$LBUFFER" \
             --delimiter='\t' --with-nth=1,2 \
             --tabstop=20)
         BUFFER=${selected#*	}
