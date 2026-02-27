@@ -128,8 +128,10 @@ _apply_prompt_palette() {
     _prompt_idx=$1
     read _pc1 _pc2 _pc3 <<< "${_prompt_palettes[$_prompt_idx]}"
     local a=$'\ue0b0'
-    local e=88  # エラー時の単色（暗赤）
-    PROMPT="%(?.%F{15}%K{${_pc1}} %* %F{${_pc1}}%K{${_pc2}}${a}%F{15} %n@%m %F{${_pc2}}%K{${_pc3}}${a}%F{15} %. %k%F{${_pc3}}${a}.%F{15}%K{${e}} %* %F{${e}}%K{${e}} %F{15}%n@%m %F{${e}}%K{${e}} %F{15}%. %k%F{${e}}${a})%f "
+    # Powerline セグメント（常にパレット色を維持）
+    local segments="%F{15}%K{${_pc1}} %* %F{${_pc1}}%K{${_pc2}}${a}%F{15} %n@%m %F{${_pc2}}%K{${_pc3}}${a}%F{15} %. %k%F{${_pc3}}${a}%f"
+    # 成功=緑 ❯, エラー=サーモンレッド λ
+    PROMPT="${segments} %(?.%F{76}❯%f.%F{203}λ%f) "
 }
 
 # パレット決定: ~/.prompt_override があればその番号、なければ user@host のハッシュ
