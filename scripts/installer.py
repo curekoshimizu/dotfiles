@@ -32,8 +32,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-d", dest="dest_dir", type=pathlib.Path, default=pathlib.Path.home(), help="destination directory"
     )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main() -> None:

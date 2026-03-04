@@ -1,66 +1,43 @@
 name: "CI"
 on: [push, workflow_dispatch]
 env:
-  PYTHON_VERSION: "3.10"
-  POETRY_VERSION: "1.6.1"
+  PYTHON_VERSION: "3.13"
 jobs:
-  black:
+  ruff-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - id: cache-deps
-        uses: ./.github/actions/setup-poetry
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: ./.github/actions/setup-uv
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Run tests
+      - name: Run ruff check
         shell: bash
-        run: poetry run black .
-  isort:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - id: cache-deps
-        uses: ./.github/actions/setup-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Run tests
+        run: uv run ruff check .
+      - name: Run ruff format check
         shell: bash
-        run: poetry run isort -y
-  flake8:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - id: cache-deps
-        uses: ./.github/actions/setup-poetry
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Run tests
-        shell: bash
-        run: poetry run flake8 .
+        run: uv run ruff format --check .
   mypy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - id: cache-deps
-        uses: ./.github/actions/setup-poetry
+      - uses: actions/checkout@v4
+      - id: setup
+        uses: ./.github/actions/setup-uv
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Run tests
+      - name: Run mypy
         shell: bash
-        run: poetry run mypy .
-  ci:
+        run: uv run mypy .
+  test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - id: cache-deps
-        uses: ./.github/actions/setup-poetry
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - id: setup
+        uses: ./.github/actions/setup-uv
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Run tests
         shell: bash
-        run: poetry run pytest .
+        run: uv run pytest .

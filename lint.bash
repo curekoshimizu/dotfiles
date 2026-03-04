@@ -1,6 +1,5 @@
 #!/bin/bash
 
-poetry run black .
-poetry run isort -y
-poetry run flake8 .
-poetry run mypy .
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy .

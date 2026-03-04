@@ -9,7 +9,7 @@ export FZF_DEFAULT_OPTS='--bind ctrl-n:down,ctrl-p:up'
 ## Basic PATH
 PATH=/usr/local/bin:$PATH
 PATH=$PATH:/sbin:/usr/bin:/bin:$HOME/bin
-PATH=$PATH:$HOME/.local/bin:$HOME/.poetry/bin
+PATH=$PATH:$HOME/.local/bin
 # CUDA
 PATH=$PATH:/usr/local/cuda/bin
 ## Mac Brew Settings (coreutils)

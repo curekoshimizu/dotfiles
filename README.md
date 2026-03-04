@@ -14,7 +14,7 @@ git clone --recurse git@github.com:curekoshimizu/dotfiles.git ~/curekoshimizu_ch
 Run
 
 ```shell
-poetry run scripts/installer.py
+uv run scripts/installer.py
 ```
 
 or
@@ -24,7 +24,7 @@ or
 ```
 
 installer.py is the body script.
-On the other hand, dot_installer.bash is a wrapper script of installer.py, which will take care of `curl` and `poetry` exist.
+On the other hand, dot_installer.bash is a wrapper script of installer.py, which will take care of `curl` and `uv` exist.
 If these commands are not found, dot_installer.bash will ask you to install them.
 
 ## TODO

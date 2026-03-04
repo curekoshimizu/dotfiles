@@ -7,22 +7,10 @@ if ! type python3 >/dev/null 2>&1; then
     exit 1
 fi
 
-if ! python3 -m distutils.util >/dev/null 2>&1; then
-    echo "distutils module not found."
-    read -p "do you want to install python3-distutils? (y/N):" yn
-    case "$yn" in 
-        [yY])
-            sudo apt-get install python3-distutils
-            ;;
-        *)
-            exit 1;;
-    esac
-fi
-
 if ! type curl >/dev/null 2>&1; then
     echo "curl not found."
     read -p "do you want to install curl? (y/N):" yn
-    case "$yn" in 
+    case "$yn" in
         [yY])
             sudo apt-get install curl
             ;;
@@ -31,20 +19,18 @@ if ! type curl >/dev/null 2>&1; then
     esac
 fi
 
-
-if ! type poetry >/dev/null 2>&1; then
-    echo "poetry not found."
-    read -p "do you want to install poetry? (y/N):" yn
-    case "$yn" in 
+if ! type uv >/dev/null 2>&1; then
+    echo "uv not found."
+    read -p "do you want to install uv? (y/N):" yn
+    case "$yn" in
         [yY])
-            curl -sSL https://install.python-poetry.org | python3 -
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH=$HOME/.local/bin:$PATH
             ;;
         *)
             exit 1;;
     esac
-    export PATH=$HOME/.poetry/bin:$PATH
 fi
 
-
-poetry install
-poetry run scripts/installer.py $@
+uv sync
+uv run scripts/installer.py $@
