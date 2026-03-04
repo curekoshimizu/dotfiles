@@ -1,0 +1,52 @@
+# new window
+bind c new-window -c "#{pane_current_path}"\; command-prompt -p "Name for this new window: " "rename-window '%%'"
+
+# split
+bind s split-window -v -c "#{pane_current_path}"
+bind v split-window -h -c "#{pane_current_path}"
+
+# how to move between the panes
+bind h select-pane -L\; refresh-client -S
+bind j select-pane -D\; refresh-client -S
+bind k select-pane -U\; refresh-client -S
+bind l select-pane -R\; refresh-client -S
+
+# resize the current pane
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+bind -r Left  resize-pane -L 5
+bind -r Down  resize-pane -D 5
+bind -r Up    resize-pane -U 5
+bind -r Right resize-pane -R 5
+
+# resize all of the panes
+bind | select-layout even-horizontal
+bind - select-layout even-vertical
+
+# reload
+bind r source-file ~/.tmux.conf \; display "Reloaded!"
+
+# swap window order
+bind-key -n C-S-Left swap-window -t -1 \; previous-window
+bind-key -n C-S-Right swap-window -t +1 \; next-window
+
+# toggle mouse mode to allow mouse copy/paste
+# set mouse on with prefix m
+bind m \
+    set -g mode-mouse on \;\
+    set -g mouse-resize-pane on \;\
+    set -g mouse-select-pane on \;\
+    set -g mouse-select-window on \;\
+    refresh-client -S \;\
+    display 'Mouse: ON' \
+# set mouse off with prefix M
+bind M \
+    set -g mode-mouse off \;\
+    set -g mouse-resize-pane off \;\
+    set -g mouse-select-pane off \;\
+    set -g mouse-select-window off \;\
+    refresh-client -S \;\
+    display 'Mouse: OFF'

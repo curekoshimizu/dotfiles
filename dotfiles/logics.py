@@ -8,12 +8,14 @@ import sys
 import tarfile
 import tempfile
 from dataclasses import dataclass
-from typing import Optional
 
 import requests
 from git import Repo
 
 RESOURCES_PATH = pathlib.Path(__file__).parent / "resources"
+
+HTTP_OK = 200
+REQUEST_TIMEOUT = 30
 
 
 GIT_CONFIG_TEMPLATE = """
@@ -82,17 +84,15 @@ class Logic(abc.ABC):
 
     @property
     @abc.abstractmethod
-    def name(self) -> str:
-        ...
+    def name(self) -> str: ...
 
     @abc.abstractmethod
-    def run(self) -> ExitCode:
-        ...
+    def run(self) -> ExitCode: ...
 
 
 class SymLink:
     def __init__(
-        self, overwrite: bool, dest_dir: pathlib.Path, filename: str, dest_filename: Optional[str] = None
+        self, *, overwrite: bool, dest_dir: pathlib.Path, filename: str, dest_filename: str | None = None
     ) -> None:
         self._overwrite = overwrite
         self._dest_dir = dest_dir
@@ -106,8 +106,7 @@ class SymLink:
 
         if dst.exists() or dst.is_symlink():
             if self._overwrite:
-                if dst.is_symlink():
-                    dst.unlink()
+                dst.unlink()
             else:
                 return ExitCode.SKIP
 
@@ -115,33 +114,54 @@ class SymLink:
         return ExitCode.SUCCESS
 
 
-class CopyFile:
+MARKER_BEGIN = "=== BEGIN DOTFILES MANAGED BLOCK ==="
+MARKER_END = "=== END DOTFILES MANAGED BLOCK ==="
+
+
+class MarkerNotFoundError(Exception):
+    """Raised when managed block markers are not found in an existing file."""
+
+
+class ManagedBlockWriter:
     def __init__(
         self,
+        *,
         options: Option,
-        src_path: pathlib.Path,
+        content: str,
         dst_path: pathlib.Path,
+        comment_prefix: str = "#",
     ) -> None:
         self._options = options
-        self._src_path = src_path
+        self._content = content
         self._dst_path = dst_path
+        self._comment_prefix = comment_prefix
 
     def run(self) -> ExitCode:
         dst = self._options.dest_dir / self._dst_path
-        assert self._src_path.exists(), f"{self._src_path} not found"
-        if dst.exists():
-            if self._options.overwrite:
-                if dst.is_symlink():
-                    dst.unlink()
-                elif dst.is_file():
-                    pass  # try overwrite
-                else:
-                    return ExitCode.SKIP
-            else:
-                return ExitCode.SKIP
+        begin_marker = f"{self._comment_prefix} {MARKER_BEGIN}"
+        end_marker = f"{self._comment_prefix} {MARKER_END}"
+        managed_block = f"{begin_marker}\n{self._content}\n{end_marker}\n"
 
-        shutil.copy(self._src_path, dst)
-        return ExitCode.SUCCESS
+        if not dst.exists():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_text(managed_block)
+            return ExitCode.SUCCESS
+
+        existing = dst.read_text()
+        if begin_marker in existing and end_marker in existing:
+            begin_idx = existing.index(begin_marker)
+            end_marker_idx = existing.index(end_marker)
+            if begin_idx > end_marker_idx:
+                msg = f"Managed block markers are in wrong order in {dst}. BEGIN must come before END."
+                raise MarkerNotFoundError(msg)
+            end_idx = end_marker_idx + len(end_marker)
+            after = existing[end_idx:]
+            after = after.removeprefix("\n")
+            dst.write_text(existing[:begin_idx] + managed_block + after)
+            return ExitCode.SUCCESS
+
+        msg = f"Managed block markers not found in {dst}. Delete the file and re-run, or add markers manually."
+        raise MarkerNotFoundError(msg)
 
 
 class TMux(Logic):
@@ -153,20 +173,14 @@ class TMux(Logic):
         program_exist(self.name, "tmux")
         program_exist(self.name, "xsel")
 
-        # install .tmux.conf
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            conf_path = RESOURCES_PATH / ".tmux.conf.common"
-            conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.conf.linux")
-            assert conf_path.exists()
-            assert conf2_path.exists()
-            f.write("source-file '{}'\n".format(conf_path))
-            f.write("source-file '{}'\n".format(conf2_path))
-            f.flush()
-            return CopyFile(
-                self._options,
-                src_path=pathlib.Path(f.name),
-                dst_path=self._options.dest_dir / ".tmux.conf",
-            ).run()
+        conf_path = RESOURCES_PATH / ".tmux.conf.common"
+        keybindings_path = RESOURCES_PATH / ".tmux.conf.keybindings"
+        conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.conf.linux")
+        assert conf_path.exists()
+        assert keybindings_path.exists()
+        assert conf2_path.exists()
+        content = f"source-file '{conf_path}'\nsource-file '{keybindings_path}'\nsource-file '{conf2_path}'"
+        return ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(".tmux.conf")).run()
 
 
 class Vimperator(Logic):
@@ -175,7 +189,9 @@ class Vimperator(Logic):
         return "vimperator"
 
     def run(self) -> ExitCode:
-        return SymLink(self._options.overwrite, self._options.dest_dir, ".vimperatorrc").run()
+        return SymLink(
+            overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".vimperatorrc"
+        ).run()
 
 
 class Gdb(Logic):
@@ -185,7 +201,7 @@ class Gdb(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "gdb")
-        return SymLink(self._options.overwrite, self._options.dest_dir, ".gdbinit").run()
+        return SymLink(overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".gdbinit").run()
 
 
 class Fvwm2(Logic):
@@ -195,7 +211,7 @@ class Fvwm2(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "fvwm2")
-        return SymLink(self._options.overwrite, self._options.dest_dir, ".fvwm2rc").run()
+        return SymLink(overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".fvwm2rc").run()
 
 
 class Git(Logic):
@@ -211,22 +227,16 @@ class Git(Logic):
         config_git = self._options.dest_dir / ".config" / "git"
         if not config_git.exists():
             config_git.mkdir(parents=True)
-        ret = SymLink(self._options.overwrite, config_git, "ignore").run()
+        ret = SymLink(overwrite=self._options.overwrite, dest_dir=config_git, filename="ignore").run()
         if ret != ExitCode.SUCCESS:
             return ret
         # .gitconfig
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            target = ".gitconfig"
-            src = RESOURCES_PATH / target
-            assert src.exists()
-            nthreads = multiprocessing.cpu_count()
-            f.write(GIT_CONFIG_TEMPLATE.format(src, nthreads, nthreads, nthreads).lstrip())
-            f.flush()
-            return CopyFile(
-                self._options,
-                src_path=pathlib.Path(f.name),
-                dst_path=self._options.dest_dir / target,
-            ).run()
+        target = ".gitconfig"
+        src = RESOURCES_PATH / target
+        assert src.exists()
+        nthreads = multiprocessing.cpu_count()
+        content = GIT_CONFIG_TEMPLATE.format(src, nthreads, nthreads, nthreads).strip()
+        return ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(target)).run()
 
 
 class Zsh(Logic):
@@ -240,33 +250,19 @@ class Zsh(Logic):
         if not zsh_completions.exists():
             Repo.clone_from("https://github.com/zsh-users/zsh-completions.git", zsh_completions)
 
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            conf_path = RESOURCES_PATH / ".zshrc"
-            assert conf_path.exists()
-            f.write(ZSHRC_TEMPLATE.format(conf_path).lstrip())
-            f.flush()
-            ret = CopyFile(
-                self._options,
-                src_path=pathlib.Path(f.name),
-                dst_path=self._options.dest_dir / ".zshrc",
-            ).run()
-            if ret != ExitCode.SUCCESS:
-                return ret
+        conf_path = RESOURCES_PATH / ".zshrc"
+        assert conf_path.exists()
+        ret = ManagedBlockWriter(
+            options=self._options, content=ZSHRC_TEMPLATE.format(conf_path).strip(), dst_path=pathlib.Path(".zshrc")
+        ).run()
+        if ret != ExitCode.SUCCESS:
+            return ret
 
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            conf_path = RESOURCES_PATH / ".zshenv"
-            assert conf_path.exists()
-            f.write(ZSHENV_TEMPLATE.format(conf_path).lstrip())
-            f.flush()
-            ret = CopyFile(
-                self._options,
-                src_path=pathlib.Path(f.name),
-                dst_path=self._options.dest_dir / ".zshenv",
-            ).run()
-            if ret != ExitCode.SUCCESS:
-                return ret
-
-        return ret
+        conf_path = RESOURCES_PATH / ".zshenv"
+        assert conf_path.exists()
+        return ManagedBlockWriter(
+            options=self._options, content=ZSHENV_TEMPLATE.format(conf_path).strip(), dst_path=pathlib.Path(".zshenv")
+        ).run()
 
 
 class Vim(Logic):
@@ -283,23 +279,22 @@ class Vim(Logic):
         # install plug.vim
         plug_vim = dot_vim / "plug.vim"
         if (not plug_vim.exists()) or self._options.overwrite:
-            response = requests.get("https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
-            assert response.status_code == 200
-            with open(plug_vim, "wb") as f_plug:
+            response = requests.get(
+                "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim", timeout=REQUEST_TIMEOUT
+            )
+            assert response.status_code == HTTP_OK
+            with plug_vim.open("wb") as f_plug:
                 f_plug.write(response.content)
 
         # install .vimrc
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            target = ".vimrc"
-            conf_path = RESOURCES_PATH / target
-            assert conf_path.exists()
-            f.write("execute 'source {}'".format(conf_path))
-            f.flush()
-            return CopyFile(
-                self._options,
-                src_path=pathlib.Path(f.name),
-                dst_path=self._options.dest_dir / target,
-            ).run()
+        conf_path = RESOURCES_PATH / ".vimrc"
+        assert conf_path.exists()
+        return ManagedBlockWriter(
+            options=self._options,
+            content=f"execute 'source {conf_path}'",
+            dst_path=pathlib.Path(".vimrc"),
+            comment_prefix='"',
+        ).run()
 
 
 class NeoVim(Logic):
@@ -320,19 +315,22 @@ class NeoVim(Logic):
 
         plug_vim = plug_dir / "plug.vim"
         if (not plug_vim.exists()) or self._options.overwrite:
-            response = requests.get("https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim")
-            assert response.status_code == 200
-            with open(plug_vim, "wb") as f_plug:
+            response = requests.get(
+                "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim", timeout=REQUEST_TIMEOUT
+            )
+            assert response.status_code == HTTP_OK
+            with plug_vim.open("wb") as f_plug:
                 f_plug.write(response.content)
 
-        # install .vimrc
-        with tempfile.NamedTemporaryFile(mode="w") as f:
-            target = ".vimrc"
-            conf_path = RESOURCES_PATH / target
-            assert conf_path.exists()
-            f.write(NEOVIM_TEMPLATE.format(conf_path).lstrip())
-            f.flush()
-            return CopyFile(self._options, src_path=pathlib.Path(f.name), dst_path=nvim_dir / "init.vim").run()
+        # install init.vim
+        conf_path = RESOURCES_PATH / ".vimrc"
+        assert conf_path.exists()
+        return ManagedBlockWriter(
+            options=self._options,
+            content=NEOVIM_TEMPLATE.format(conf_path).strip(),
+            dst_path=pathlib.Path(".config") / "nvim" / "init.vim",
+            comment_prefix='"',
+        ).run()
 
 
 class CommandLineHelper(Logic):
@@ -377,16 +375,17 @@ class Docker(Logic):
         buildx = buildx_plugin / "docker-buildx"
         if (not buildx.exists()) or self._options.overwrite:
             response = requests.get(
-                "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64"
+                "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64",
+                timeout=REQUEST_TIMEOUT,
             )
-            assert response.status_code == 200
-            with open(buildx, "wb") as f_plug:
+            assert response.status_code == HTTP_OK
+            with buildx.open("wb") as f_plug:
                 f_plug.write(response.content)
             mode = buildx.stat().st_mode
             buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
         # install docker-compose
-        response = requests.get("https://api.github.com/repos/docker/compose/releases/latest")
+        response = requests.get("https://api.github.com/repos/docker/compose/releases/latest", timeout=REQUEST_TIMEOUT)
         content = response.json()
         assert "name" in content
         compose_release_name = content["name"]
@@ -398,10 +397,11 @@ class Docker(Logic):
 
         if (not compose.exists()) or self._options.overwrite:
             response = requests.get(
-                f"https://github.com/docker/compose/releases/download/{compose_release_name}/docker-compose-Linux-x86_64"
+                f"https://github.com/docker/compose/releases/download/{compose_release_name}/docker-compose-Linux-x86_64",
+                timeout=REQUEST_TIMEOUT,
             )
-            assert response.status_code == 200
-            with open(compose, "wb") as f_plug:
+            assert response.status_code == HTTP_OK
+            with compose.open("wb") as f_plug:
                 f_plug.write(response.content)
             mode = compose.stat().st_mode
             compose.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -416,8 +416,8 @@ class Python(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "python3")
-        if program_exist(self.name, "poetry"):
-            print("did you run 'poetry config virtualenvs.in-project true'?'")
+        if not program_exist(self.name, "uv"):
+            print("uv not found. Install it from https://docs.astral.sh/uv/getting-started/installation/")
 
         pyenv = self._options.dest_dir / ".pyenv"
         if not pyenv.exists():
@@ -432,25 +432,21 @@ class PyProjectTemplate(Logic):
         return "py-project-template"
 
     def run(self) -> ExitCode:
-        bin_dir = self._options.dest_dir / "bin"
-        if not bin_dir.exists():
-            bin_dir.mkdir(parents=True)
-
         src = RESOURCES_PATH / "py_project_template" / "bin" / "py_project_template.bash"
-        dst = bin_dir / "py_project_template.bash"
-        if dst.exists():
-            return ExitCode.SKIP
+        dst_path = pathlib.Path("bin") / "py_project_template.bash"
+        content = (
+            "#!/usr/bin/env bash\n"
+            '[ -d "$1" ] || { echo "Error: directory ($1) does not exist."; exit 1; }\n'
+            'FILE_PATH=$(realpath "$1" 2> /dev/null)\n'
+            f"{src.absolute()} " + "${FILE_PATH} ${@:2}"
+        )
+        ret = ManagedBlockWriter(options=self._options, content=content, dst_path=dst_path).run()
 
-        with open(dst, "w") as f:
-            f.write("#!/usr/bin/env bash\n")
-            f.write('[ -d "$1" ] || { echo "Error: directory ($1) does not exist."; exit 1; }\n')
-            f.write('FILE_PATH=$(realpath "$1" 2> /dev/null)\n')
-            f.write(f"{src.absolute()} " + "${FILE_PATH} ${@:2}\n")
-
+        dst = self._options.dest_dir / dst_path
         new_permission = dst.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
         dst.chmod(new_permission)
 
-        return ExitCode.SUCCESS
+        return ret
 
 
 class Node(Logic):
@@ -465,9 +461,8 @@ class Node(Logic):
         nvm = self._options.dest_dir / ".nvm"
         if nvm.exists():
             return ExitCode.SKIP
-        else:
-            Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
-            return ExitCode.SUCCESS
+        Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
+        return ExitCode.SUCCESS
 
 
 class Rust(Logic):
@@ -486,10 +481,11 @@ class Rust(Logic):
 
         if (not rust_analyzer.exists()) or self._options.overwrite:
             response = requests.get(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2021-05-17/rust-analyzer-linux"
+                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2021-05-17/rust-analyzer-linux",
+                timeout=REQUEST_TIMEOUT,
             )
-            assert response.status_code == 200
-            with open(rust_analyzer, "wb") as f_plug:
+            assert response.status_code == HTTP_OK
+            with rust_analyzer.open("wb") as f_plug:
                 f_plug.write(response.content)
             mode = rust_analyzer.stat().st_mode
             rust_analyzer.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
@@ -508,26 +504,25 @@ class Golang(Logic):
         target = self._options.dest_dir / ".golang"
         if target.exists() and (not self._options.overwrite):
             return ExitCode.SKIP
-        else:
-            if target.exists():
-                assert (target / "bin" / "go").exists()
-                shutil.rmtree(target)
+        if target.exists():
+            assert (target / "bin" / "go").exists()
+            shutil.rmtree(target)
 
-            with tempfile.TemporaryDirectory(dir=self._options.dest_dir) as d:
-                temp_dir = pathlib.Path(d)
-                response = requests.get("https://golang.org/VERSION?m=text")
-                assert response.status_code == 200
-                goversion = response.text.split("\n")[0]
-                filename = f"{goversion}.linux-amd64.tar.gz"
-                response = requests.get(f"https://golang.org/dl/{filename}")
+        with tempfile.TemporaryDirectory(dir=self._options.dest_dir) as d:
+            temp_dir = pathlib.Path(d)
+            response = requests.get("https://golang.org/VERSION?m=text", timeout=REQUEST_TIMEOUT)
+            assert response.status_code == HTTP_OK
+            goversion = response.text.split("\n")[0]
+            filename = f"{goversion}.linux-amd64.tar.gz"
+            response = requests.get(f"https://golang.org/dl/{filename}", timeout=REQUEST_TIMEOUT)
 
-                targz = temp_dir / filename
+            targz = temp_dir / filename
 
-                with open(targz, "wb") as f:
-                    f.write(response.content)
+            with targz.open("wb") as f:
+                f.write(response.content)
 
-                with tarfile.open(targz, "r:gz") as t:
-                    t.extractall(path=d)
-                assert (temp_dir / "go").exists()
-                (temp_dir / "go").rename(target)
-            return ExitCode.SUCCESS
+            with tarfile.open(targz, "r:gz") as t:
+                t.extractall(path=d, filter="data")
+            assert (temp_dir / "go").exists()
+            (temp_dir / "go").rename(target)
+        return ExitCode.SUCCESS
