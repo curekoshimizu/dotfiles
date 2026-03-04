@@ -171,7 +171,8 @@ class TMux(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "tmux")
-        program_exist(self.name, "xsel")
+        if sys.platform != "darwin":
+            program_exist(self.name, "xsel")
 
         conf_path = RESOURCES_PATH / ".tmux.conf.common"
         keybindings_path = RESOURCES_PATH / ".tmux.conf.keybindings"
