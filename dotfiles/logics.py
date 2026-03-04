@@ -119,7 +119,7 @@ MARKER_END = "=== END DOTFILES MANAGED BLOCK ==="
 
 
 class MarkerNotFoundError(Exception):
-    """Raised when managed block markers are not found in an existing file."""
+    """既存ファイルにマーカーが見つからない場合のエラー."""
 
 
 class ManagedBlockWriter:
@@ -152,7 +152,7 @@ class ManagedBlockWriter:
             begin_idx = existing.index(begin_marker)
             end_marker_idx = existing.index(end_marker)
             if begin_idx > end_marker_idx:
-                msg = f"Managed block markers are in wrong order in {dst}. BEGIN must come before END."
+                msg = f"{dst} のマーカーが逆順です。BEGINがENDより前にある必要があります。"
                 raise MarkerNotFoundError(msg)
             end_idx = end_marker_idx + len(end_marker)
             after = existing[end_idx:]
@@ -160,7 +160,7 @@ class ManagedBlockWriter:
             dst.write_text(existing[:begin_idx] + managed_block + after)
             return ExitCode.SUCCESS
 
-        msg = f"Managed block markers not found in {dst}. Delete the file and re-run, or add markers manually."
+        msg = f"{dst} にマーカーが見つかりません。ファイルを削除して再実行するか、手動でマーカーを追加してください。"
         raise MarkerNotFoundError(msg)
 
 
