@@ -426,29 +426,6 @@ class Python(Logic):
         return ExitCode.SUCCESS
 
 
-class PyProjectTemplate(Logic):
-    @property
-    def name(self) -> str:
-        return "py-project-template"
-
-    def run(self) -> ExitCode:
-        src = RESOURCES_PATH / "py_project_template" / "bin" / "py_project_template.bash"
-        dst_path = pathlib.Path("bin") / "py_project_template.bash"
-        content = (
-            "#!/usr/bin/env bash\n"
-            '[ -d "$1" ] || { echo "Error: directory ($1) does not exist."; exit 1; }\n'
-            'FILE_PATH=$(realpath "$1" 2> /dev/null)\n'
-            f"{src.absolute()} " + "${FILE_PATH} ${@:2}"
-        )
-        ret = ManagedBlockWriter(options=self._options, content=content, dst_path=dst_path).run()
-
-        dst = self._options.dest_dir / dst_path
-        new_permission = dst.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
-        dst.chmod(new_permission)
-
-        return ret
-
-
 class Node(Logic):
     @property
     def name(self) -> str:

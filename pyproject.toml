@@ -54,7 +54,7 @@ warn_unused_ignores = true
 packages = ["dotfiles"]
 
 [tool.ruff]
-exclude = [".mypy_cache", ".venv", "dotfiles/resources/py_project_template", "dotfiles/resources/.template"]
+exclude = [".mypy_cache", ".venv", "dotfiles/resources/.template"]
 line-length = 120
 
 [tool.ruff.lint]

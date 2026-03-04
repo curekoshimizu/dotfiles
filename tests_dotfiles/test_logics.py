@@ -1,5 +1,4 @@
 import pathlib
-import stat
 import tempfile
 
 import pytest
@@ -18,7 +17,6 @@ from dotfiles.logics import (
     NeoVim,
     Node,
     Option,
-    PyProjectTemplate,
     Python,
     Rust,
     SymLink,
@@ -396,7 +394,6 @@ def test_logic_names() -> None:
         assert Terraform(option).name == "terraform"
         assert Docker(option).name == "docker"
         assert Python(option).name == "python"
-        assert PyProjectTemplate(option).name == "py-project-template"
         assert Node(option).name == "nodejs"
         assert Rust(option).name == "rust"
         assert Golang(option).name == "golang"
@@ -528,22 +525,6 @@ def test_python() -> None:
         r = Python(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".pyenv")
-        assert r.run() == ExitCode.SUCCESS
-
-
-# PyProjectTemplateがマーカー付きスクリプトを作成し、実行権限が付与されること
-def test_py_project_template() -> None:
-    with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
-        r = PyProjectTemplate(option)
-        assert r.run() == ExitCode.SUCCESS
-        dst = pathlib.Path(d) / "bin" / "py_project_template.bash"
-        _check_file_exist(dst)
-        _check_has_markers(dst)
-        # 実行権限が付与されていること
-        mode = dst.stat().st_mode
-        assert mode & stat.S_IXUSR
-        # 再実行でもマーカー範囲更新でSUCCESS
         assert r.run() == ExitCode.SUCCESS
 
 
