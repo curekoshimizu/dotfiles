@@ -102,7 +102,7 @@ case "${UNAME_OUT}" in
 Linux*)
 	NCORES=$(grep ^cpu\\scores /proc/cpuinfo | uniq | awk '{print $4}')
 	NTHREADS=$(grep ^siblings /proc/cpuinfo | uniq | awk '{print $3}')
-	if docker buildx help 2>&1 >/dev/null; then
+	if docker buildx help >/dev/null 2>&1; then
 		export DOCKER_BUILDKIT=1
 	fi
 	machine=Linux;;
