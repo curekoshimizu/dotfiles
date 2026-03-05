@@ -4,16 +4,8 @@ set-window-option -g mode-keys vi
 # add prefix key (ordinary prefix key is Ctrl-b)
 set -g prefix C-q
 
-# toggle mouse mode
-if-shell "if [[ `tmux -V | cut -d' ' -f2` -lt 2.1 ]]; then true; else false; fi" \
-    "setw -g mode-mouse off; set-option -g mouse-resize-pane off; set-option -g mouse-select-pane off; set-option -g mouse-select-window off;"
-
-
 ## ----- outline ------------------------------------------------
 set-option -g status-position top
-# status bar can handle utf-8
-if-shell "if [[ `tmux -V | cut -d' ' -f2` -lt 2.1 ]]; then true; else false; fi" \
-    'set-option -g status-utf8 on'
 
 # origin is 1
 set -g base-index 1

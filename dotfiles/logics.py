@@ -197,12 +197,10 @@ class TMux(Logic):
     def run(self) -> Result:
         warnings: list[str] = []
         program_exist(self.name, "tmux", warnings=warnings)
-        if sys.platform != "darwin":
-            program_exist(self.name, "xsel", warnings=warnings)
 
         conf_path = RESOURCES_PATH / ".tmux.conf.common"
         keybindings_path = RESOURCES_PATH / ".tmux.conf.keybindings"
-        conf2_path = RESOURCES_PATH / (".tmux.conf.mac" if sys.platform == "darwin" else ".tmux.conf.linux")
+        conf2_path = RESOURCES_PATH / ".tmux.conf.platform"
         assert conf_path.exists()
         assert keybindings_path.exists()
         assert conf2_path.exists()
