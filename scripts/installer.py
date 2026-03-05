@@ -27,7 +27,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="install .XXX files", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument("-w", dest="overwrite", action="store_true", help="overwrite option")
+    parser.add_argument("--redownload", action="store_true", help="再ダウンロードオプション")
     parser.add_argument(
         "-d", dest="dest_dir", type=pathlib.Path, default=pathlib.Path.home(), help="destination directory"
     )
@@ -36,7 +36,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     options = parse_args()
-    opt = Option(dest_dir=options.dest_dir, overwrite=options.overwrite)
+    opt = Option(dest_dir=options.dest_dir, redownload=options.redownload)
     r = Runner()
 
     # add logics

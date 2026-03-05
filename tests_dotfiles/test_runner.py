@@ -12,7 +12,7 @@ def _check_file_exist(target: pathlib.Path) -> None:
 
 def test_runner() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
 
         r = Runner()
         r.add_logic(Gdb(option))

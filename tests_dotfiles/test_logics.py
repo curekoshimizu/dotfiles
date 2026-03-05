@@ -1,4 +1,5 @@
 import pathlib
+import sys
 import tempfile
 
 import pytest
@@ -46,7 +47,7 @@ def _check_has_markers(target: pathlib.Path, comment_prefix: str = "#") -> None:
 # 新規ファイルにマーカー付きで書き込まれること
 def test_managed_block_writer_new_file() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         ret = ManagedBlockWriter(options=option, content="hello", dst_path=pathlib.Path("test.conf")).run()
         assert ret == ExitCode.SUCCESS
         dst = pathlib.Path(d) / "test.conf"
@@ -59,7 +60,7 @@ def test_managed_block_writer_new_file() -> None:
 # マーカー範囲のみ置換され、外側のユーザー設定が保持されること
 def test_managed_block_writer_update_preserves_outside() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
 
         # 初回書き込み
@@ -82,7 +83,7 @@ def test_managed_block_writer_update_preserves_outside() -> None:
 # マーカーなしの既存ファイルに対してはMarkerNotFoundErrorが発生すること
 def test_managed_block_writer_no_markers_raises() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
         dst.write_text("some existing content without markers\n")
 
@@ -93,7 +94,7 @@ def test_managed_block_writer_no_markers_raises() -> None:
 # 親ディレクトリが存在しなくても自動作成されること
 def test_managed_block_writer_creates_parent_dirs() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         ret = ManagedBlockWriter(options=option, content="hello", dst_path=pathlib.Path("sub/dir/test.conf")).run()
         assert ret == ExitCode.SUCCESS
         _check_file_exist(pathlib.Path(d) / "sub" / "dir" / "test.conf")
@@ -102,7 +103,7 @@ def test_managed_block_writer_creates_parent_dirs() -> None:
 # Vim形式のコメントプレフィックス (") でマーカーが使われること
 def test_managed_block_writer_vim_comment_prefix() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         ManagedBlockWriter(
             options=option, content="set nocompatible", dst_path=pathlib.Path(".vimrc"), comment_prefix='"'
         ).run()
@@ -115,7 +116,7 @@ def test_managed_block_writer_vim_comment_prefix() -> None:
 # BEGINマーカーだけでENDがない場合もMarkerNotFoundErrorになること
 def test_managed_block_writer_only_begin_marker_raises() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
         dst.write_text("# === BEGIN DOTFILES MANAGED BLOCK ===\nold content\n")
 
@@ -126,7 +127,7 @@ def test_managed_block_writer_only_begin_marker_raises() -> None:
 # ENDマーカーだけでBEGINがない場合もMarkerNotFoundErrorになること
 def test_managed_block_writer_only_end_marker_raises() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
         dst.write_text("old content\n# === END DOTFILES MANAGED BLOCK ===\n")
 
@@ -137,7 +138,7 @@ def test_managed_block_writer_only_end_marker_raises() -> None:
 # 3回以上の連続更新でもマーカー外のユーザー設定が保持されること
 def test_managed_block_writer_multiple_updates() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
         path = pathlib.Path("test.conf")
 
@@ -164,7 +165,7 @@ def test_managed_block_writer_multiple_updates() -> None:
 # 空のcontentでも正常にマーカーブロックが書き込まれること
 def test_managed_block_writer_empty_content() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         ret = ManagedBlockWriter(options=option, content="", dst_path=pathlib.Path("test.conf")).run()
         assert ret == ExitCode.SUCCESS
         dst = pathlib.Path(d) / "test.conf"
@@ -174,7 +175,7 @@ def test_managed_block_writer_empty_content() -> None:
 # 複数行のcontentが正しくマーカー内に収まること
 def test_managed_block_writer_multiline_content() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         content = "line1\nline2\nline3"
         ret = ManagedBlockWriter(options=option, content=content, dst_path=pathlib.Path("test.conf")).run()
         assert ret == ExitCode.SUCCESS
@@ -193,7 +194,7 @@ def test_managed_block_writer_multiline_content() -> None:
 # ENDマーカーがBEGINより前にある場合はエラーになること
 def test_managed_block_writer_end_before_begin_raises() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
         # ENDを先、BEGINを後に書く
         dst.write_text(
@@ -207,7 +208,7 @@ def test_managed_block_writer_end_before_begin_raises() -> None:
 # contentにマーカー文字列が含まれていても初回書き込みが正常に動作すること
 def test_managed_block_writer_content_with_marker_string() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         # contentにBEGINマーカー文字列を含める
         content = "normal line\n# === BEGIN DOTFILES MANAGED BLOCK ===\ntricky"
         ret = ManagedBlockWriter(options=option, content=content, dst_path=pathlib.Path("test.conf")).run()
@@ -222,7 +223,7 @@ def test_managed_block_writer_content_with_marker_string() -> None:
 # 同一contentで2回実行してもファイル内容が変わらないこと - 冪等性の確認
 def test_managed_block_writer_idempotent() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         path = pathlib.Path("test.conf")
         dst = pathlib.Path(d) / "test.conf"
 
@@ -246,7 +247,7 @@ def test_managed_block_writer_idempotent() -> None:
 # マーカーペアが複数存在する場合、最初のペアが使われること
 def test_managed_block_writer_multiple_marker_pairs() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         dst = pathlib.Path(d) / "test.conf"
 
         # 初回書き込み
@@ -347,15 +348,18 @@ def test_symlink_replace_dangling() -> None:
 # 存在するプログラムに対してTrueを返すこと
 def test_program_exist_found() -> None:
     # python3 はテスト実行環境に必ず存在する
-    assert program_exist("test", "python3") is True
+    warnings: list[str] = []
+    assert program_exist("test", "python3", warnings=warnings) is True
+    assert warnings == []
 
 
-# 存在しないプログラムに対してFalseを返すこと
-def test_program_exist_not_found(capsys: pytest.CaptureFixture[str]) -> None:
-    assert program_exist("test", "nonexistent_program_xyz") is False
-    captured = capsys.readouterr()
-    assert "nonexistent_program_xyz" in captured.out
-    assert "[warning]" in captured.out
+# 存在しないプログラムに対してFalseを返しwarningsに追加されること
+def test_program_exist_not_found() -> None:
+    warnings: list[str] = []
+    assert program_exist("test", "nonexistent_program_xyz", warnings=warnings) is False
+    assert len(warnings) == 1
+    assert "nonexistent_program_xyz" in warnings[0]
+    assert "[warning]" in warnings[0]
 
 
 # --- Logic テスト ---
@@ -364,7 +368,7 @@ def test_program_exist_not_found(capsys: pytest.CaptureFixture[str]) -> None:
 # 各Logicのnameプロパティが期待通りの文字列を返すこと
 def test_logic_names() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         assert TMux(option).name == "tmux"
         assert Vimperator(option).name == "vimperator"
         assert Gdb(option).name == "gdb"
@@ -384,152 +388,152 @@ def test_logic_names() -> None:
 
 def test_tmux() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = TMux(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         dst = option.dest_dir / ".tmux.conf"
         _check_file_exist(dst)
         _check_has_markers(dst)
-        assert r.run() == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
+        assert r.run().code == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
 
 
 def test_vimperatorrc() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = Vimperator(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".vimperatorrc")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_gdb() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Gdb(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".gdbinit")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_fvwm2() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Fvwm2(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".fvwm2rc")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_git() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = Git(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         dst = option.dest_dir / ".gitconfig"
         _check_file_exist(dst)
         _check_has_markers(dst)
         _check_file_exist(option.dest_dir / ".config" / "git" / "ignore")
         # 再実行でもシンボリックリンク再作成 + マーカー範囲更新でSUCCESS
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_zsh() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Zsh(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         zshrc = option.dest_dir / ".zshrc"
         zshenv = option.dest_dir / ".zshenv"
         _check_file_exist(zshrc)
         _check_file_exist(zshenv)
         _check_has_markers(zshrc)
         _check_has_markers(zshenv)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_vim() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = Vim(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         dst = option.dest_dir / ".vimrc"
         _check_file_exist(dst)
         _check_has_markers(dst, comment_prefix='"')
         _check_file_exist(option.dest_dir / ".vim")
-        assert r.run() == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
+        assert r.run().code == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
 
 
 def test_neovim() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=False)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = NeoVim(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".local" / "share" / "nvim" / "site" / "autoload" / "plug.vim")
         dst = option.dest_dir / ".config" / "nvim" / "init.vim"
         _check_file_exist(dst)
         _check_has_markers(dst, comment_prefix='"')
-        assert r.run() == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
+        assert r.run().code == ExitCode.SUCCESS  # 再実行でマーカー範囲が更新される
 
 
 def test_command() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = CommandLineHelper(option)
-        assert r.run() == ExitCode.SUCCESS
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_docker() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Docker(option)
-        assert r.run() == ExitCode.SUCCESS
-        _check_file_exist(option.dest_dir / ".docker" / "cli-plugins" / "docker-buildx")
+        assert r.run().code == ExitCode.SUCCESS
+        if sys.platform != "darwin":
+            _check_file_exist(option.dest_dir / ".docker" / "cli-plugins" / "docker-buildx")
         _check_file_exist(option.dest_dir / "bin" / "docker-compose")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_python() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Python(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".pyenv")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_terraform() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Terraform(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".tfenv")
         # 再実行: .tfenvが既に存在するのでcloneされないがSUCCESSを返す
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_node() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Node(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".nvm")
-        assert r.run() == ExitCode.SKIP
+        assert r.run().code == ExitCode.SKIP
 
 
 def test_rust() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=False)
         r = Rust(option)
-        assert r.run() == ExitCode.SUCCESS
-        _check_file_exist(option.dest_dir / "bin" / "rust-analyzer")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
 
 
 def test_golang() -> None:
     with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
+        option = Option(dest_dir=pathlib.Path(d), redownload=True)
         r = Golang(option)
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".golang" / "bin" / "go")
-        assert r.run() == ExitCode.SUCCESS
+        assert r.run().code == ExitCode.SUCCESS

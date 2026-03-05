@@ -2,6 +2,8 @@ import abc
 import enum
 import multiprocessing
 import pathlib
+import platform
+import re
 import shutil
 import stat
 import sys
@@ -55,27 +57,56 @@ execute 'source {}'
 """
 
 
-def _warning_message(base: str, program: str, help_message: str = "") -> None:
-    print(f"[warning] {base} needs {program}. But {program} not found. {help_message}")
+def _warning_message(base: str, program: str, help_message: str = "") -> str:
+    return f"[warning] {base} needs {program}. But {program} not found. {help_message}"
 
 
-def program_exist(base: str, program: str, help_message: str = "") -> bool:
+def program_exist(base: str, program: str, help_message: str = "", *, warnings: list[str] | None = None) -> bool:
     if shutil.which(program) is not None:
         return True
 
-    _warning_message(base, program, help_message)
+    msg = _warning_message(base, program, help_message)
+    if warnings is not None:
+        warnings.append(msg)
     return False
+
+
+def _get_platform_info() -> tuple[str, str]:
+    """OS名とアーキテクチャを返す - linux/amd64, darwin/arm64 など."""
+    os_name = platform.system().lower()
+    machine = platform.machine().lower()
+    arch_map = {"x86_64": "amd64", "aarch64": "arm64"}
+    return os_name, arch_map.get(machine, machine)
+
+
+def _get_github_latest_release_url(repo: str, asset_pattern: str) -> str:
+    """GitHubリポジトリの最新リリースから指定パターンに一致するアセットURLを返す."""
+    response = requests.get(f"https://api.github.com/repos/{repo}/releases/latest", timeout=REQUEST_TIMEOUT)
+    assert response.status_code == HTTP_OK
+    data = response.json()
+    for asset in data["assets"]:
+        if re.search(asset_pattern, asset["name"]):
+            url: str = asset["browser_download_url"]
+            return url
+    msg = f"{repo} の最新リリースにパターン '{asset_pattern}' に一致するアセットが見つかりません。"
+    raise ValueError(msg)
 
 
 @dataclass
 class Option:
     dest_dir: pathlib.Path
-    overwrite: bool
+    redownload: bool
 
 
 class ExitCode(enum.Enum):
     SUCCESS = enum.auto()
     SKIP = enum.auto()
+
+
+@dataclass
+class Result:
+    code: ExitCode
+    warnings: list[str]
 
 
 class Logic(abc.ABC):
@@ -87,7 +118,7 @@ class Logic(abc.ABC):
     def name(self) -> str: ...
 
     @abc.abstractmethod
-    def run(self) -> ExitCode: ...
+    def run(self) -> Result: ...
 
 
 class SymLink:
@@ -163,10 +194,11 @@ class TMux(Logic):
     def name(self) -> str:
         return "tmux"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "tmux")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "tmux", warnings=warnings)
         if sys.platform != "darwin":
-            program_exist(self.name, "xsel")
+            program_exist(self.name, "xsel", warnings=warnings)
 
         conf_path = RESOURCES_PATH / ".tmux.conf.common"
         keybindings_path = RESOURCES_PATH / ".tmux.conf.keybindings"
@@ -175,7 +207,8 @@ class TMux(Logic):
         assert keybindings_path.exists()
         assert conf2_path.exists()
         content = f"source-file '{conf_path}'\nsource-file '{keybindings_path}'\nsource-file '{conf2_path}'"
-        return ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(".tmux.conf")).run()
+        code = ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(".tmux.conf")).run()
+        return Result(code=code, warnings=warnings)
 
 
 class Vimperator(Logic):
@@ -183,8 +216,9 @@ class Vimperator(Logic):
     def name(self) -> str:
         return "vimperator"
 
-    def run(self) -> ExitCode:
-        return SymLink(dest_dir=self._options.dest_dir, filename=".vimperatorrc").run()
+    def run(self) -> Result:
+        code = SymLink(dest_dir=self._options.dest_dir, filename=".vimperatorrc").run()
+        return Result(code=code, warnings=[])
 
 
 class Gdb(Logic):
@@ -192,9 +226,11 @@ class Gdb(Logic):
     def name(self) -> str:
         return "gdb"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "gdb")
-        return SymLink(dest_dir=self._options.dest_dir, filename=".gdbinit").run()
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "gdb", warnings=warnings)
+        code = SymLink(dest_dir=self._options.dest_dir, filename=".gdbinit").run()
+        return Result(code=code, warnings=warnings)
 
 
 class Fvwm2(Logic):
@@ -202,9 +238,11 @@ class Fvwm2(Logic):
     def name(self) -> str:
         return "fvwm2"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "fvwm2")
-        return SymLink(dest_dir=self._options.dest_dir, filename=".fvwm2rc").run()
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "fvwm2", warnings=warnings)
+        code = SymLink(dest_dir=self._options.dest_dir, filename=".fvwm2rc").run()
+        return Result(code=code, warnings=warnings)
 
 
 class Git(Logic):
@@ -213,23 +251,25 @@ class Git(Logic):
         return "git"
 
     # TODO: git-lfs check
-    def run(self) -> ExitCode:
-        program_exist(self.name, "git")
-        program_exist(self.name, "git-lfs")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "git", warnings=warnings)
+        program_exist(self.name, "git-lfs", warnings=warnings)
         # .config/git/ignore
         config_git = self._options.dest_dir / ".config" / "git"
         if not config_git.exists():
             config_git.mkdir(parents=True)
         ret = SymLink(dest_dir=config_git, filename="ignore").run()
         if ret != ExitCode.SUCCESS:
-            return ret
+            return Result(code=ret, warnings=warnings)
         # .gitconfig
         target = ".gitconfig"
         src = RESOURCES_PATH / target
         assert src.exists()
         nthreads = multiprocessing.cpu_count()
         content = GIT_CONFIG_TEMPLATE.format(src, nthreads, nthreads, nthreads).strip()
-        return ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(target)).run()
+        code = ManagedBlockWriter(options=self._options, content=content, dst_path=pathlib.Path(target)).run()
+        return Result(code=code, warnings=warnings)
 
 
 class Zsh(Logic):
@@ -237,8 +277,9 @@ class Zsh(Logic):
     def name(self) -> str:
         return "zsh"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "zsh")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "zsh", warnings=warnings)
         zsh_completions = self._options.dest_dir / ".zsh-completions"
         if not zsh_completions.exists():
             Repo.clone_from("https://github.com/zsh-users/zsh-completions.git", zsh_completions)
@@ -249,13 +290,14 @@ class Zsh(Logic):
             options=self._options, content=ZSHRC_TEMPLATE.format(conf_path).strip(), dst_path=pathlib.Path(".zshrc")
         ).run()
         if ret != ExitCode.SUCCESS:
-            return ret
+            return Result(code=ret, warnings=warnings)
 
         conf_path = RESOURCES_PATH / ".zshenv"
         assert conf_path.exists()
-        return ManagedBlockWriter(
+        code = ManagedBlockWriter(
             options=self._options, content=ZSHENV_TEMPLATE.format(conf_path).strip(), dst_path=pathlib.Path(".zshenv")
         ).run()
+        return Result(code=code, warnings=warnings)
 
 
 class Vim(Logic):
@@ -263,15 +305,16 @@ class Vim(Logic):
     def name(self) -> str:
         return "vim"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "vim")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "vim", warnings=warnings)
         dot_vim = self._options.dest_dir / ".vim" / "autoload"
         if not dot_vim.exists():
             dot_vim.mkdir(parents=True)
 
         # install plug.vim
         plug_vim = dot_vim / "plug.vim"
-        if (not plug_vim.exists()) or self._options.overwrite:
+        if (not plug_vim.exists()) or self._options.redownload:
             response = requests.get(
                 "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim", timeout=REQUEST_TIMEOUT
             )
@@ -282,12 +325,13 @@ class Vim(Logic):
         # install .vimrc
         conf_path = RESOURCES_PATH / ".vimrc"
         assert conf_path.exists()
-        return ManagedBlockWriter(
+        code = ManagedBlockWriter(
             options=self._options,
             content=f"execute 'source {conf_path}'",
             dst_path=pathlib.Path(".vimrc"),
             comment_prefix='"',
         ).run()
+        return Result(code=code, warnings=warnings)
 
 
 class NeoVim(Logic):
@@ -295,8 +339,9 @@ class NeoVim(Logic):
     def name(self) -> str:
         return "nvim"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "nvim")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "nvim", warnings=warnings)
         nvim_dir = self._options.dest_dir / ".config" / "nvim"
         if not nvim_dir.exists():
             nvim_dir.mkdir(parents=True)
@@ -307,7 +352,7 @@ class NeoVim(Logic):
             plug_dir.mkdir(parents=True)
 
         plug_vim = plug_dir / "plug.vim"
-        if (not plug_vim.exists()) or self._options.overwrite:
+        if (not plug_vim.exists()) or self._options.redownload:
             response = requests.get(
                 "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim", timeout=REQUEST_TIMEOUT
             )
@@ -318,12 +363,13 @@ class NeoVim(Logic):
         # install init.vim
         conf_path = RESOURCES_PATH / ".vimrc"
         assert conf_path.exists()
-        return ManagedBlockWriter(
+        code = ManagedBlockWriter(
             options=self._options,
             content=NEOVIM_TEMPLATE.format(conf_path).strip(),
             dst_path=pathlib.Path(".config") / "nvim" / "init.vim",
             comment_prefix='"',
         ).run()
+        return Result(code=code, warnings=warnings)
 
 
 class CommandLineHelper(Logic):
@@ -331,13 +377,14 @@ class CommandLineHelper(Logic):
     def name(self) -> str:
         return "command-line helper"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "peco")
-        program_exist(self.name, "ag")
-        program_exist(self.name, "fzf")
-        program_exist(self.name, "direnv")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "peco", warnings=warnings)
+        program_exist(self.name, "ag", warnings=warnings)
+        program_exist(self.name, "fzf", warnings=warnings)
+        program_exist(self.name, "direnv", warnings=warnings)
 
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=warnings)
 
 
 class Terraform(Logic):
@@ -345,12 +392,12 @@ class Terraform(Logic):
     def name(self) -> str:
         return "terraform"
 
-    def run(self) -> ExitCode:
+    def run(self) -> Result:
         tfenv = self._options.dest_dir / ".tfenv"
         if not tfenv.exists():
             Repo.clone_from("https://github.com/tfutils/tfenv.git", tfenv)
 
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=[])
 
 
 class Docker(Logic):
@@ -358,48 +405,44 @@ class Docker(Logic):
     def name(self) -> str:
         return "docker"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "docker")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "docker", warnings=warnings)
+        os_name, arch = _get_platform_info()
 
-        # install docker buildx
-        buildx_plugin = self._options.dest_dir / ".docker" / "cli-plugins"
-        if not buildx_plugin.exists():
-            buildx_plugin.mkdir(parents=True)
-        buildx = buildx_plugin / "docker-buildx"
-        if (not buildx.exists()) or self._options.overwrite:
-            response = requests.get(
-                "https://github.com/docker/buildx/releases/download/v0.5.1/buildx-v0.5.1.linux-amd64",
-                timeout=REQUEST_TIMEOUT,
-            )
-            assert response.status_code == HTTP_OK
-            with buildx.open("wb") as f_plug:
-                f_plug.write(response.content)
-            mode = buildx.stat().st_mode
-            buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        # install docker buildx (Macでは Docker Desktop に同梱のためスキップ)
+        if os_name != "darwin":
+            buildx_plugin = self._options.dest_dir / ".docker" / "cli-plugins"
+            if not buildx_plugin.exists():
+                buildx_plugin.mkdir(parents=True)
+            buildx = buildx_plugin / "docker-buildx"
+            if (not buildx.exists()) or self._options.redownload:
+                url = _get_github_latest_release_url("docker/buildx", rf"buildx-v[\d.]+\.{os_name}-{arch}$")
+                response = requests.get(url, timeout=REQUEST_TIMEOUT)
+                assert response.status_code == HTTP_OK
+                with buildx.open("wb") as f_plug:
+                    f_plug.write(response.content)
+                mode = buildx.stat().st_mode
+                buildx.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
         # install docker-compose
-        response = requests.get("https://api.github.com/repos/docker/compose/releases/latest", timeout=REQUEST_TIMEOUT)
-        content = response.json()
-        assert "name" in content
-        compose_release_name = content["name"]
-
         bin_dir = self._options.dest_dir / "bin"
         if not bin_dir.exists():
             bin_dir.mkdir(parents=True)
         compose = bin_dir / "docker-compose"
 
-        if (not compose.exists()) or self._options.overwrite:
-            response = requests.get(
-                f"https://github.com/docker/compose/releases/download/{compose_release_name}/docker-compose-Linux-x86_64",
-                timeout=REQUEST_TIMEOUT,
-            )
+        if (not compose.exists()) or self._options.redownload:
+            arch_compose_map = {"amd64": "x86_64", "arm64": "aarch64"}
+            arch_compose = arch_compose_map.get(arch, arch)
+            url = _get_github_latest_release_url("docker/compose", rf"docker-compose-{os_name}-{arch_compose}$")
+            response = requests.get(url, timeout=REQUEST_TIMEOUT)
             assert response.status_code == HTTP_OK
             with compose.open("wb") as f_plug:
                 f_plug.write(response.content)
             mode = compose.stat().st_mode
             compose.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=warnings)
 
 
 class Python(Logic):
@@ -407,16 +450,17 @@ class Python(Logic):
     def name(self) -> str:
         return "python"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "python3")
-        if not program_exist(self.name, "uv"):
-            print("uv not found. Install it from https://docs.astral.sh/uv/getting-started/installation/")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "python3", warnings=warnings)
+        if not program_exist(self.name, "uv", warnings=warnings):
+            warnings.append("uv not found. Install it from https://docs.astral.sh/uv/getting-started/installation/")
 
         pyenv = self._options.dest_dir / ".pyenv"
         if not pyenv.exists():
             Repo.clone_from("https://github.com/pyenv/pyenv.git", pyenv)
 
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=warnings)
 
 
 class Node(Logic):
@@ -424,15 +468,16 @@ class Node(Logic):
     def name(self) -> str:
         return "nodejs"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'.")
-        program_exist(self.name, "node", "try 'nvm install --lts --latest-npm'.")
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(self.name, "npm", "try 'nvm install --lts --latest-npm'.", warnings=warnings)
+        program_exist(self.name, "node", "try 'nvm install --lts --latest-npm'.", warnings=warnings)
 
         nvm = self._options.dest_dir / ".nvm"
         if nvm.exists():
-            return ExitCode.SKIP
+            return Result(code=ExitCode.SKIP, warnings=warnings)
         Repo.clone_from("https://github.com/nvm-sh/nvm.git", nvm)
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=warnings)
 
 
 class Rust(Logic):
@@ -440,27 +485,16 @@ class Rust(Logic):
     def name(self) -> str:
         return "rust"
 
-    def run(self) -> ExitCode:
-        program_exist(self.name, "rustc", "try \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\".")
-
-        # install rust-analyzer
-        bin_dir = self._options.dest_dir / "bin"
-        if not bin_dir.exists():
-            bin_dir.mkdir(parents=True)
-        rust_analyzer = bin_dir / "rust-analyzer"
-
-        if (not rust_analyzer.exists()) or self._options.overwrite:
-            response = requests.get(
-                "https://github.com/rust-analyzer/rust-analyzer/releases/download/2021-05-17/rust-analyzer-linux",
-                timeout=REQUEST_TIMEOUT,
-            )
-            assert response.status_code == HTTP_OK
-            with rust_analyzer.open("wb") as f_plug:
-                f_plug.write(response.content)
-            mode = rust_analyzer.stat().st_mode
-            rust_analyzer.chmod(mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
-
-        return ExitCode.SUCCESS
+    def run(self) -> Result:
+        warnings: list[str] = []
+        program_exist(
+            self.name,
+            "rustc",
+            "try \"curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh\".",
+            warnings=warnings,
+        )
+        program_exist(self.name, "rust-analyzer", "try 'rustup component add rust-analyzer'.", warnings=warnings)
+        return Result(code=ExitCode.SUCCESS, warnings=warnings)
 
 
 class Golang(Logic):
@@ -468,12 +502,12 @@ class Golang(Logic):
     def name(self) -> str:
         return "golang"
 
-    def run(self) -> ExitCode:
+    def run(self) -> Result:
         # install golang
 
         target = self._options.dest_dir / ".golang"
-        if target.exists() and (not self._options.overwrite):
-            return ExitCode.SKIP
+        if target.exists() and (not self._options.redownload):
+            return Result(code=ExitCode.SKIP, warnings=[])
         if target.exists():
             assert (target / "bin" / "go").exists()
             shutil.rmtree(target)
@@ -483,7 +517,8 @@ class Golang(Logic):
             response = requests.get("https://golang.org/VERSION?m=text", timeout=REQUEST_TIMEOUT)
             assert response.status_code == HTTP_OK
             goversion = response.text.split("\n")[0]
-            filename = f"{goversion}.linux-amd64.tar.gz"
+            os_name, arch = _get_platform_info()
+            filename = f"{goversion}.{os_name}-{arch}.tar.gz"
             response = requests.get(f"https://golang.org/dl/{filename}", timeout=REQUEST_TIMEOUT)
 
             targz = temp_dir / filename
@@ -495,4 +530,4 @@ class Golang(Logic):
                 t.extractall(path=d, filter="data")
             assert (temp_dir / "go").exists()
             (temp_dir / "go").rename(target)
-        return ExitCode.SUCCESS
+        return Result(code=ExitCode.SUCCESS, warnings=[])

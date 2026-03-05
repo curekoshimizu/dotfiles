@@ -1,9 +1,11 @@
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 
-import emoji
+from rich.console import Console
 
-from .logics import ExitCode, Logic
+from .logics import ExitCode, Logic, Result
+
+console = Console()
 
 
 class Runner:
@@ -14,16 +16,31 @@ class Runner:
         self._logics.append(logic)
 
     def run(self) -> None:
-        def _logic_run(logic: Logic) -> ExitCode:
+        def _logic_run(logic: Logic) -> Result:
             return logic.run()
 
         with ThreadPoolExecutor() as executor:
-            results: Iterator[ExitCode] = executor.map(_logic_run, self._logics)
+            results: Iterator[Result] = executor.map(_logic_run, self._logics)
 
-        for logic, exit_code in zip(self._logics, results, strict=True):
-            if exit_code == ExitCode.SUCCESS:
-                print(emoji.emojize(f"{logic.name} success:OK_hand:"))
-            elif exit_code == ExitCode.SKIP:
-                print(f"{logic.name} skipped")
+        results_list = list(results)
+        skipped = []
+        for logic, result in zip(self._logics, results_list, strict=True):
+            if result.code == ExitCode.SUCCESS:
+                if result.warnings:
+                    console.print(f"  ⚠️  {logic.name}", style="yellow")
+                    for w in result.warnings:
+                        console.print(f"      {w}", style="dim yellow")
+                else:
+                    console.print(f"  ✅ {logic.name}", style="green")
+            elif result.code == ExitCode.SKIP:
+                console.print(f"  ⏭️  {logic.name}", style="yellow")
+                skipped.append(logic.name)
             else:
-                assert False, f"Unknown exit code = {exit_code}"
+                assert False, f"Unknown exit code = {result.code}"
+
+        if skipped:
+            console.print(
+                "\n💡 スキップされた項目があります。"
+                "再ダウンロードするには --redownload オプションを付けて実行してください。",
+                style="cyan",
+            )
