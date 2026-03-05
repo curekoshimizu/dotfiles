@@ -276,29 +276,19 @@ def test_managed_block_writer_multiple_marker_pairs() -> None:
 # シンボリックリンクが新規作成されること
 def test_symlink_new() -> None:
     with tempfile.TemporaryDirectory() as d:
-        ret = SymLink(overwrite=False, dest_dir=pathlib.Path(d), filename=".gdbinit").run()
+        ret = SymLink(dest_dir=pathlib.Path(d), filename=".gdbinit").run()
         assert ret == ExitCode.SUCCESS
         dst = pathlib.Path(d) / ".gdbinit"
         assert dst.is_symlink()
 
 
-# 既存リンクがある場合、overwrite=FalseならSKIPになること
-def test_symlink_skip_existing() -> None:
+# 再実行しても常にSUCCESSで再作成されること
+def test_symlink_rerun() -> None:
     with tempfile.TemporaryDirectory() as d:
         dest_dir = pathlib.Path(d)
-        SymLink(overwrite=False, dest_dir=dest_dir, filename=".gdbinit").run()
+        SymLink(dest_dir=dest_dir, filename=".gdbinit").run()
 
-        ret = SymLink(overwrite=False, dest_dir=dest_dir, filename=".gdbinit").run()
-        assert ret == ExitCode.SKIP
-
-
-# 既存リンクがある場合、overwrite=Trueなら上書きされること
-def test_symlink_overwrite() -> None:
-    with tempfile.TemporaryDirectory() as d:
-        dest_dir = pathlib.Path(d)
-        SymLink(overwrite=False, dest_dir=dest_dir, filename=".gdbinit").run()
-
-        ret = SymLink(overwrite=True, dest_dir=dest_dir, filename=".gdbinit").run()
+        ret = SymLink(dest_dir=dest_dir, filename=".gdbinit").run()
         assert ret == ExitCode.SUCCESS
         assert (dest_dir / ".gdbinit").is_symlink()
 
@@ -306,7 +296,7 @@ def test_symlink_overwrite() -> None:
 # dest_filenameを指定すると別名でリンクが作られること
 def test_symlink_dest_filename() -> None:
     with tempfile.TemporaryDirectory() as d:
-        ret = SymLink(overwrite=False, dest_dir=pathlib.Path(d), filename=".gdbinit", dest_filename="my_gdbinit").run()
+        ret = SymLink(dest_dir=pathlib.Path(d), filename=".gdbinit", dest_filename="my_gdbinit").run()
         assert ret == ExitCode.SUCCESS
         assert (pathlib.Path(d) / "my_gdbinit").is_symlink()
         assert not (pathlib.Path(d) / ".gdbinit").exists()
@@ -315,44 +305,37 @@ def test_symlink_dest_filename() -> None:
 # リンク先がRESOURCES_PATH内の正しいファイルを指していること
 def test_symlink_points_to_correct_target() -> None:
     with tempfile.TemporaryDirectory() as d:
-        SymLink(overwrite=False, dest_dir=pathlib.Path(d), filename=".gdbinit").run()
+        SymLink(dest_dir=pathlib.Path(d), filename=".gdbinit").run()
         dst = pathlib.Path(d) / ".gdbinit"
         expected_target = RESOURCES_PATH / ".gdbinit"
         actual_target = dst.readlink()
         assert actual_target == expected_target
 
 
-# 通常ファイルが存在しoverwrite=Trueの場合、削除して再作成されること
-def test_symlink_overwrite_regular_file() -> None:
+# 通常ファイルが存在しても削除して再作成されること
+def test_symlink_replace_regular_file() -> None:
     with tempfile.TemporaryDirectory() as d:
         dest_dir = pathlib.Path(d)
         dst = dest_dir / ".gdbinit"
-        # 通常ファイルを先に作成
         dst.write_text("regular file content\n")
         assert dst.exists()
         assert not dst.is_symlink()
 
-        ret = SymLink(overwrite=True, dest_dir=dest_dir, filename=".gdbinit").run()
+        ret = SymLink(dest_dir=dest_dir, filename=".gdbinit").run()
         assert ret == ExitCode.SUCCESS
         assert dst.is_symlink()
 
 
-# dangling symlink (リンク先が存在しない壊れたリンク) に対する挙動
-def test_symlink_dangling_symlink() -> None:
+# dangling symlink も削除して再作成されること
+def test_symlink_replace_dangling() -> None:
     with tempfile.TemporaryDirectory() as d:
         dest_dir = pathlib.Path(d)
         dst = dest_dir / ".gdbinit"
-        # 存在しないパスへのシンボリックリンクを作成
         dst.symlink_to("/nonexistent/path")
         assert dst.is_symlink()
         assert not dst.exists()  # dangling
 
-        # overwrite=False → 既存リンクがあるのでSKIP
-        ret = SymLink(overwrite=False, dest_dir=dest_dir, filename=".gdbinit").run()
-        assert ret == ExitCode.SKIP
-
-        # overwrite=True → 壊れたリンクを削除して再作成
-        ret = SymLink(overwrite=True, dest_dir=dest_dir, filename=".gdbinit").run()
+        ret = SymLink(dest_dir=dest_dir, filename=".gdbinit").run()
         assert ret == ExitCode.SUCCESS
         assert dst.is_symlink()
         assert dst.exists()  # もう壊れていない
@@ -416,7 +399,7 @@ def test_vimperatorrc() -> None:
         r = Vimperator(option)
         assert r.run() == ExitCode.SUCCESS
         _check_file_exist(option.dest_dir / ".vimperatorrc")
-        assert r.run() == ExitCode.SKIP
+        assert r.run() == ExitCode.SUCCESS
 
 
 def test_gdb() -> None:
@@ -446,20 +429,7 @@ def test_git() -> None:
         _check_file_exist(dst)
         _check_has_markers(dst)
         _check_file_exist(option.dest_dir / ".config" / "git" / "ignore")
-        # 再実行: ignoreシンボリックリンクが既存 (overwrite=False) → gitconfigの前にSKIP
-        assert r.run() == ExitCode.SKIP
-
-
-# overwrite=Trueの場合、ignoreリンク上書き後にgitconfigも更新されること
-def test_git_overwrite() -> None:
-    with tempfile.TemporaryDirectory() as d:
-        option = Option(dest_dir=pathlib.Path(d), overwrite=True)
-        r = Git(option)
-        assert r.run() == ExitCode.SUCCESS
-        dst = option.dest_dir / ".gitconfig"
-        _check_file_exist(dst)
-        _check_has_markers(dst)
-        # 再実行でもシンボリックリンク上書き + マーカー範囲更新でSUCCESS
+        # 再実行でもシンボリックリンク再作成 + マーカー範囲更新でSUCCESS
         assert r.run() == ExitCode.SUCCESS
 
 

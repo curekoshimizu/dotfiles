@@ -91,10 +91,7 @@ class Logic(abc.ABC):
 
 
 class SymLink:
-    def __init__(
-        self, *, overwrite: bool, dest_dir: pathlib.Path, filename: str, dest_filename: str | None = None
-    ) -> None:
-        self._overwrite = overwrite
+    def __init__(self, *, dest_dir: pathlib.Path, filename: str, dest_filename: str | None = None) -> None:
         self._dest_dir = dest_dir
         self._filename = filename
         self._dest_filename: str = filename if dest_filename is None else dest_filename
@@ -105,10 +102,7 @@ class SymLink:
         assert src.exists(), f"{src} not found"
 
         if dst.exists() or dst.is_symlink():
-            if self._overwrite:
-                dst.unlink()
-            else:
-                return ExitCode.SKIP
+            dst.unlink()
 
         dst.symlink_to(src)
         return ExitCode.SUCCESS
@@ -190,9 +184,7 @@ class Vimperator(Logic):
         return "vimperator"
 
     def run(self) -> ExitCode:
-        return SymLink(
-            overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".vimperatorrc"
-        ).run()
+        return SymLink(dest_dir=self._options.dest_dir, filename=".vimperatorrc").run()
 
 
 class Gdb(Logic):
@@ -202,7 +194,7 @@ class Gdb(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "gdb")
-        return SymLink(overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".gdbinit").run()
+        return SymLink(dest_dir=self._options.dest_dir, filename=".gdbinit").run()
 
 
 class Fvwm2(Logic):
@@ -212,7 +204,7 @@ class Fvwm2(Logic):
 
     def run(self) -> ExitCode:
         program_exist(self.name, "fvwm2")
-        return SymLink(overwrite=self._options.overwrite, dest_dir=self._options.dest_dir, filename=".fvwm2rc").run()
+        return SymLink(dest_dir=self._options.dest_dir, filename=".fvwm2rc").run()
 
 
 class Git(Logic):
@@ -228,7 +220,7 @@ class Git(Logic):
         config_git = self._options.dest_dir / ".config" / "git"
         if not config_git.exists():
             config_git.mkdir(parents=True)
-        ret = SymLink(overwrite=self._options.overwrite, dest_dir=config_git, filename="ignore").run()
+        ret = SymLink(dest_dir=config_git, filename="ignore").run()
         if ret != ExitCode.SUCCESS:
             return ret
         # .gitconfig
