@@ -491,20 +491,34 @@ gw() {
   local list
   list=$(
     git worktree list --porcelain |
-      awk -v CUR="$cur_wt" '
+      awk -v CUR="$cur_wt" -v OSTYPE="$OSTYPE" '
         /^worktree/ { wdir=$2 }
         /^branch/   { sub("refs/heads/","",$2); wbranch=$2 }
         /^$/ {
           if (wdir == CUR) next
-          cmd = "stat -f %B \"" wdir "\" 2>/dev/null"
-          if ((cmd | getline ts) > 0 && ts != "") {
+          if (OSTYPE ~ /^darwin/) {
+            cmd = "stat -f %B \"" wdir "\" 2>/dev/null"
+          } else {
+            cmd = "stat -c %W \"" wdir "\" 2>/dev/null"
+          }
+          if ((cmd | getline ts) <= 0 || ts == "" || ts+0 <= 0) {
+            close(cmd)
+            if (OSTYPE ~ /^darwin/) { next }
+            cmd = "stat -c %Y \"" wdir "\" 2>/dev/null"
+            if ((cmd | getline ts) <= 0 || ts == "") { close(cmd); next }
+          }
+          if (ts+0 > 0) {
             printf("%s\t%s\t%s\n", ts, wbranch ? wbranch : "(detached)", wdir)
           }
           close(cmd)
         }
       ' | sort -t$'\t' -k1,1rn |
       while IFS=$'\t' read -r ts branch dir; do
-        date_str=$(LANG=ja_JP.UTF-8 date -r "$ts" "+%Y-%m-%d (%a) %H:%M" 2>/dev/null) || continue
+        if [[ "$OSTYPE" == darwin* ]]; then
+          date_str=$(LANG=ja_JP.UTF-8 date -r "$ts" "+%Y-%m-%d (%a) %H:%M" 2>/dev/null) || continue
+        else
+          date_str=$(LANG=ja_JP.UTF-8 date -d "@$ts" "+%Y-%m-%d (%a) %H:%M" 2>/dev/null) || continue
+        fi
         printf "%s\t%s\t%s\n" "$date_str" "$branch" "$dir"
       done
   )
