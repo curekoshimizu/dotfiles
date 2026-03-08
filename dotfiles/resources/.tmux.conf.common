@@ -13,18 +13,20 @@ set -g pane-base-index 1
 set -g renumber-windows on
 
 
-# status bar settings
-set-option -g status-justify "centre"
-set-option -g status-bg "colour238"
-set-option -g status-fg "colour255"
-
+# status bar settings — Cyberpunk
+set-option -g status-justify "left"
+set-option -g status-bg "colour233"
+set-option -g status-fg "colour51"
 
 set-option -g status-left-length 20
-#set-option -g status-left "#[fg=colour255,bg=colour241]Session: #S #[default]"
+set-option -g status-left "#[fg=colour233,bg=colour198,bold] #S #[fg=colour198,bg=colour233]"
 set-option -g status-right-length 60
-set-option -g status-right "#[fg=colour255,bg=colour241] #(tmux show-options -gw mode-mouse) | #h | %m/%d %H:%M#[default]"
-set-window-option -g window-status-format " #I: #W "
-set-window-option -g window-status-current-format "#[fg=colour255,bg=colour27,bold] #I: #W #[default]"
+set-option -g status-right "#[fg=colour141,bg=colour233]#[fg=colour233,bg=colour141] #h #[fg=colour198,bg=colour141]#[fg=colour233,bg=colour198,bold] %m/%d %H:%M "
+set-window-option -g window-status-format "#[fg=colour245,bg=colour233] #I:#W "
+set-window-option -g window-status-current-format "#[fg=colour233,bg=colour51,bold] #I:#W #[fg=colour51,bg=colour233]"
+
+# message style (e.g. "Reloaded!")
+set-option -g message-style "fg=colour233,bg=colour198,bold"
 
 set -sg escape-time 1
 
@@ -49,3 +51,9 @@ set-window-option -g window-style 'bg=colour238'
 
 # focus events (useful for vim/neovim auto-refresh)
 set -g focus-events on
+
+# pane scrollbars (tmux 3.6+)
+set -g pane-scrollbars on
+
+# copy-mode selection style
+set-window-option -g mode-style bg=colour51,fg=black
