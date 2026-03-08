@@ -353,12 +353,14 @@ _cached_completion() {
 }
 
 ## uv（遅延ロード）
-_load_uv_completion() {
-  unset -f uv
-  _cached_completion "uv" "uv generate-shell-completion zsh"
-}
 if which uv >/dev/null 2>&1; then
-  uv() { _load_uv_completion; command uv "$@"; }
+  uv() {
+    unset -f uv
+    if typeset -f _cached_completion > /dev/null 2>&1; then
+      _cached_completion "uv" "uv generate-shell-completion zsh"
+    fi
+    command uv "$@"
+  }
 fi
 
 ## direnv（完全遅延ロード - ディレクトリ変更時に初期化）
