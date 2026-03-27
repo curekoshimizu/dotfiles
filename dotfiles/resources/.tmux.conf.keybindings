@@ -33,3 +33,11 @@ bind r source-file ~/.tmux.conf \; display "Reloaded!"
 bind-key -n C-S-Left swap-window -t -1 \; previous-window
 bind-key -n C-S-Right swap-window -t +1 \; next-window
 
+# session switcher (fzf popup)
+bind g display-popup -E "\
+  tmux list-sessions -F '#{?session_attached,,#{session_name}}' \
+  | sed '/^$/d' \
+  | fzf --reverse --header 'jump-to-session' \
+    --preview 'tmux capture-pane -pt {}' \
+  | xargs tmux switch-client -t"
+
