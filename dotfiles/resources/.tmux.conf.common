@@ -47,6 +47,9 @@ set-window-option -g window-style 'bg=colour238'
 # focus events (useful for vim/neovim auto-refresh)
 set -g focus-events on
 
+# allow passthrough for DEC synchronized output (Claude Code flicker-free in tmux)
+set -g allow-passthrough on
+
 # pane scrollbars (tmux 3.6+)
 set -g pane-scrollbars on
 
